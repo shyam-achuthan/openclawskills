@@ -1,0 +1,11 @@
+{
+  "owner": "rhesketh",
+  "slug": "monzo",
+  "displayName": "Monzo",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1769708512408,
+    "commit": null
+  },
+  "history": []
+}
