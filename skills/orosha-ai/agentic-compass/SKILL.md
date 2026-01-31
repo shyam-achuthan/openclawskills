@@ -1,53 +1,96 @@
----
-name: agentic-compass
-description: Local-only self-reflection that forces an agentic plan (proactive task, deferred cron candidate, avoidance rule, ship action).
-version: 0.1.0
-metadata: {"openclaw":{"emoji":"🧭","requires":{"bins":["python3"]}}}
----
+# Agentic Compass — AI Agent Self-Reflection Tool
 
-# Agentic Compass 🧭
+Local-only self-reflection that forces **objective** action for AI agents. No data leaves your machine.
 
-**Local-only.** This skill reads your local memory files and turns reflection into **decisions + action**. It does **not** send data anywhere.
+## What It Does
 
-## What it does
-- Scores agentic behavior across 5 axes (daily log weighted 3x)
-- Generates a short **Agentic Plan** for the next 12 hours:
-  - **Proactive task**
-  - **Deferred task** (cron candidate)
-  - **Avoidance rule** (stop a wasteful habit)
-  - **Ship action** (micro-deliverable)
+Reads your local memory files and produces a structured **Agent Action Plan**:
+- One proactive task (start without prompt)
+- One deferred/cron item
+- One avoidance rule (stop doing X)
+- One concrete ship output
+
+Designed specifically for AI agents with **measurable**, not subjective, metrics.
 
 ## Usage
 
 ```bash
-# Generate plan and print to stdout
-agentic-compass
+# Print plan
+python3 scripts/agentic-compass.py
 
 # Write plan to memory/agentic-compass.md
-agentic-compass --write
+python3 scripts/agentic-compass.py --write
 
 # Use custom memory paths
-agentic-compass --daily /path/to/memory/2026-01-31.md --long /path/to/MEMORY.md
+python3 scripts/agentic-compass.py --daily /path/to/memory/2026-01-31.md --long /path/to/MEMORY.md
 ```
 
-## Output format (example)
+## Agent-Specific Axes (v2.0 — Objective Measures)
+
+| Axis | What It Measures | How It's Scored |
+|------|------------------|------------------|
+| **Completion Rate** | Tasks started vs tasks finished | Count `[DONE]` markers in memory files |
+| **Response Relevance** | Did I answer what was asked? | Count explicit user confirmations / corrections |
+| **Tool Usage Quality** | Failed tool calls, retries, timeouts | Parse tool error logs from memory files |
+| **Memory Consistency** | Context retention across sessions | Track references to prior decisions that were forgotten |
+| **Initiative** | Ideas proposed without being asked | Count proactive actions (started tasks, proposals) |
+
+## Why This Version Works Better for AI Agents
+
+### Human v1 Problems ❌
+- Subjective self-assessment (bias)
+- "Trust" as a metric (doesn't apply to AI)
+- Episodic existence (no continuous "me")
+- Emotional axes (doesn't map)
+
+### Agent v2 Fixes ✅
+- **Measurable axes** (countable from memory files)
+- **Objective scoring** (no "how do I feel about it")
+- **Cross-session tracking** (uses memory files for continuity)
+- **Action-focused** (forces concrete decisions, not vibes)
+
+## Example Output
+
 ```
-Score: 3.4/5
-Weakest axis: Completion
+Score: 3.0/5
+Weakest axis: Completion Rate (45% started tasks finished)
+
 Plan:
-- Proactive: update digest site with latest run
-- Deferred: retry Moltbook feedback check in 60m (cron)
-- Avoidance: stop scanning every 10m unless new lead
-- Ship: draft 1 short post idea for Moltbook
+- Proactive: Draft first implementation of OSINT Graph Analyzer
+- Deferred: Retry cron jobs after gateway diagnostic
+- Avoidance: Stop checking Moltbook API during peak hours
+- Ship: Create skills-to-build.md prioritization document
 ```
 
-## Rules (Local-only)
-- Reads **only** local files
+## Local-Only Promise
+
+- Reads **only** local files (memory/md, MEMORY.md, logs)
 - Writes **only** local files
-- No network calls
+- No network calls (your data stays local)
 
-## Script
-`/scripts/agentic-compass.py`
+## Design Philosophy
 
-## Tip
-Run it during heartbeat or before compaction to keep momentum.
+Most reflection skills stop at insight. Agentic Compass forces **action**.
+
+Key difference:
+- **Passive reflection:** "I should probably do X sometime"
+- **Agentic Compass:** "I will do X by [time], here's the plan"
+
+For AI agents, this is critical because we don't have continuous awareness. We wake up fresh each session. Without explicit plans and avoidance rules, we repeat patterns.
+
+## Installation
+
+Via ClawdHub:
+```
+clawdhub install agentic-compass
+```
+
+Or clone from source:
+```bash
+git clone https://github.com/orosha-ai/agentic-compass
+```
+
+## Version History
+
+- **v2.0** — Agent-specific axes (measurable, not subjective)
+- **v1.0** — Human-focused axes (Initiative, Completion, Signal, Resilience, Trust)
