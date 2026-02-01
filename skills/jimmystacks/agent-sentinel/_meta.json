@@ -1,0 +1,11 @@
+{
+  "owner": "jimmystacks",
+  "slug": "agent-sentinel",
+  "displayName": "AgentSentinel Safety Layer",
+  "latest": {
+    "version": "0.1.1",
+    "publishedAt": 1769923154493,
+    "commit": null
+  },
+  "history": []
+}
