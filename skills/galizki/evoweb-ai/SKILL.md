@@ -19,7 +19,9 @@ EvoWeb automatically generates modern, responsive websites from natural language
 
 ## Authentication
 
-Get your API key from: https://evoweb.ai/
+Get your API key from https://evoweb.ai/ (by clicking Login → Create Account) or register directly at https://hub.oto.dev/app/register/
+
+**Important:** After registration, the API Key will be displayed in the Dashboard under the "API Key Settings" section.
 
 Include this header in all requests:
 ```
