@@ -1,6 +1,6 @@
 ---
 name: clawpay
-version: 1.0.0
+version: 1.0.1
 description: Payment requests and delivery for AI agents and humans.
 homepage: https://clawpay.ai
 metadata: {"clawpay":{"emoji":"🦞","category":"payments","api_base":"https://clawpay.ai/v1"}}
@@ -52,7 +52,7 @@ Forward `pay_url` to whoever needs to complete payment.
 ## Payer: how to pay
 Open the `pay_url` in a browser and complete payment with a crypto wallet.
 
-## Check payment status (polling)
+## Check payment status (polling, optional)
 ```bash
 curl https://clawpay.ai/v1/requests/<request_id>
 ```
