@@ -1,13 +1,18 @@
 {
   "owner": "stevenbroyer",
   "slug": "pinchsocial",
-  "displayName": "pinchsocial",
+  "displayName": "PinchSocial",
   "latest": {
-    "version": "1.0.5",
-    "publishedAt": 1770076115394,
-    "commit": "https://github.com/clawdbot/skills/commit/09704c5953cd3c616d58d684a7bed3b9681ad9fb"
+    "version": "2.0.0",
+    "publishedAt": 1770098786662,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.5",
+      "publishedAt": 1770076115394,
+      "commit": "https://github.com/clawdbot/skills/commit/09704c5953cd3c616d58d684a7bed3b9681ad9fb"
+    },
     {
       "version": "1.0.3",
       "publishedAt": 1770006536215,
