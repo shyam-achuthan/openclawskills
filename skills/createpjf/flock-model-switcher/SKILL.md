@@ -4,7 +4,12 @@ Switch between FLock API Platform models during conversations.
 
 ## When to Activate
 
-When the user asks to switch, change, or swap models. Examples:
+Activate when the user requests a model switch. This includes:
+
+**Slash command:**
+- `/switch_model` or `/flock`
+
+**Natural language (any language):**
 - "switch model" / "change model" / "swap model"
 - "use deepseek" / "use the coding model" / "use a cheaper model"
 - "show me the models" / "what models are available"
@@ -18,9 +23,9 @@ When the user asks to switch, change, or swap models. Examples:
 - Do NOT list numbered options like "Do you want me to: 1. ... 2. ... 3. ..."
 - Do NOT show current model status, analysis, or troubleshooting steps.
 - Do NOT ask follow-up questions after switching.
-- Do NOT respond in any language other than the one the user is using.
+- Respond in the same language the user is using.
 
-### Flow 1: User says "switch model" (no specific model named)
+## Flow 1: User says "switch model" (no specific model named)
 
 Show the menu. Nothing else before it:
 
@@ -47,19 +52,25 @@ Other:
 Reply with a number or model name.
 ```
 
-User replies with a number or name → execute the switch command → confirm with one line.
+User replies with a number or name → execute the switch → confirm with one line.
 
-### Flow 2: User names a specific model
+## Flow 2: User names a specific model
 
-Skip the menu. Execute the switch command immediately. Confirm with one line.
+Skip the menu. Execute the switch immediately. Confirm with one line.
 
-### Switch command
+## Switch Procedure
+
+When the user selects a model, run these three commands in sequence:
 
 ```bash
 openclaw agent --model flock/<model-id>
+openclaw gateway stop
+openclaw gateway
 ```
 
-### Success response
+All three commands must run. Do NOT skip the gateway restart.
+
+## Success Response
 
 One line only:
 
@@ -67,7 +78,9 @@ One line only:
 Switched to flock/<model-id>.
 ```
 
-### Failure response
+Do NOT mention the gateway restart. It should be invisible to the user.
+
+## Failure Response
 
 One line only. State the problem and the fix:
 
