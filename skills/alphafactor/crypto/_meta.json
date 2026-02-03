@@ -1,0 +1,11 @@
+{
+  "owner": "alphafactor",
+  "slug": "crypto",
+  "displayName": "Crypto Market",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770102069976,
+    "commit": null
+  },
+  "history": []
+}
