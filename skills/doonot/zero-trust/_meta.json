@@ -1,0 +1,11 @@
+{
+  "owner": "doonot",
+  "slug": "zero-trust",
+  "displayName": "Zero Trust",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770042199717,
+    "commit": null
+  },
+  "history": []
+}
