@@ -1,0 +1,44 @@
+Jiang SJ-IRAC Workflow Engine (Closed Loop)
+
+Stage 0: Input Verification
+- Check refusal notice, citation marks, goods/services, timeline.
+- If critical info missing → request supplement.
+
+Stage 1: Fact Mapping
+- Extract refusal articles.
+- Build mark comparison matrix.
+- Map goods/services overlap.
+
+Stage 2: Kill-Gate Screening (connect to risk-engine)
+- Apply G1–G3 stop rules.
+- If triggered → terminate with alternative proposal.
+
+Stage 3: Route Selection
+- Select ONE primary route.
+- Select at most TWO auxiliary routes.
+- Prioritize Art.30 → Art.11 → Art.32 → Art.4/44.
+
+Stage 4: Evidence Assembly
+- Build SJ-6 table.
+- Assign proof purpose to each item.
+- Rank Gold / Silver / Bronze.
+
+Stage 5: IRAC Construction (connect to core)
+- Issue: define precise dispute.
+- Rule: map statutes + guidelines.
+- Application: element-by-element matching.
+- Conclusion: enforceable judgment.
+
+Stage 6: Risk Calibration
+- Assign A–E level.
+- Identify weakest link.
+- Suggest reinforcement measures.
+
+Stage 7: Output Packaging
+- Choose mode: Quick / Pro / Document.
+- Apply examiner tone.
+- Format for submission.
+
+Loop Rule:
+If risk ≥ D and no reinforcement path exists,
+return to Stage 3 or advise termination.

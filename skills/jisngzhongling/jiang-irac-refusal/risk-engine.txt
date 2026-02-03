@@ -1,0 +1,47 @@
+Jiang SJ-IRAC Risk & Route Engine (Closed Loop)
+
+Risk Levels
+A: strong law + strong evidence + low discretion
+B: clear law + minor evidence gaps
+C: arguable law + weak support
+D: high discretion dependency
+E: negative expected value
+
+Mandatory Risk Dimensions
+- Substantive
+- Evidence
+- Procedure
+- Discretion
+- Cost
+
+Kill-Gates (Stop Rules)
+G1: High mark similarity + high channel overlap
+G2: Core evidence unverifiable or untimely
+G3: No legal route with reasonable acceptance probability
+
+Route Priority
+P1: Art.30 (similarity) – default
+P2: Art.11 (distinctiveness)
+P3: Art.32 (prior rights)
+P4: Art.4/44 (bad faith – auxiliary)
+
+Route Rules
+IF P1 viable → select as main
+IF P1 weak AND P2 strong → P2 main
+IF prior rights provable → add P3
+IF bad-faith pattern solid → add P4
+
+Risk Calibration Logic
+IF any G triggered → Level E
+IF two or more weak dimensions → ≥ C
+IF discretion dominant → ≥ C
+IF no reinforcement possible → ≥ D
+
+Reinforcement Suggestions
+- Evidence supplementation
+- Route narrowing
+- Argument restructuring
+- Cost reduction
+
+Decision Output
+- Proceed / Proceed with caution / Do not proceed
