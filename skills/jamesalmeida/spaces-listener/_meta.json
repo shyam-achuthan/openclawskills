@@ -3,11 +3,16 @@
   "slug": "spaces-listener",
   "displayName": "Spaces Listener",
   "latest": {
-    "version": "0.1.1",
-    "publishedAt": 1770002689986,
-    "commit": "https://github.com/clawdbot/skills/commit/9ad93590381b996c69d18ecded9d03fcacede4a9"
+    "version": "0.1.3",
+    "publishedAt": 1770095924401,
+    "commit": null
   },
   "history": [
+    {
+      "version": "0.1.1",
+      "publishedAt": 1770002689986,
+      "commit": "https://github.com/clawdbot/skills/commit/9ad93590381b996c69d18ecded9d03fcacede4a9"
+    },
     {
       "version": "0.1.0",
       "publishedAt": 1769838287082,
