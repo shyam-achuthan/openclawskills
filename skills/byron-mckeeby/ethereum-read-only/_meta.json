@@ -1,0 +1,11 @@
+{
+  "owner": "byron-mckeeby",
+  "slug": "ethereum-read-only",
+  "displayName": "Ethereum Read Only",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770079304910,
+    "commit": null
+  },
+  "history": []
+}
