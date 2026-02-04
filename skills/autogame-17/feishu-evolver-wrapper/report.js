@@ -5,6 +5,7 @@ const os = require('os');
 const { program } = require('commander');
 const { execSync } = require('child_process');
 const { sendCard } = require('../feishu-card/send.js');
+const { fetchWithAuth } = require('../common/feishu-client.js');
 
 program
   .option('-s, --status <text>', 'Status text/markdown content')
@@ -73,6 +74,37 @@ function getCycleInfo() {
     return { id: nextId, duration: 'First Run' };
 }
 
+async function findEvolutionGroup() {
+    try {
+        let pageToken = '';
+        // console.log('[Wrapper] Searching for Evolution Group (🧬)...');
+        do {
+            const url = `https://open.feishu.cn/open-apis/im/v1/chats?page_size=100${pageToken ? `&page_token=${pageToken}` : ''}`;
+            const res = await fetchWithAuth(url, { method: 'GET' });
+            const data = await res.json();
+            
+            if (data.code !== 0) {
+                console.warn(`[Wrapper] List Chats failed: ${data.msg}`);
+                return null;
+            }
+
+            if (data.data && data.data.items) {
+                // Find group with '🧬' in name
+                const group = data.data.items.find(c => c.name && c.name.includes('🧬'));
+                if (group) {
+                    console.log(`[Wrapper] Found Evolution Group: ${group.name} (${group.chat_id})`);
+                    return group.chat_id;
+                }
+            }
+            
+            pageToken = data.data.page_token;
+        } while (pageToken);
+    } catch (e) {
+        console.warn(`[Wrapper] Group lookup error: ${e.message}`);
+    }
+    return null;
+}
+
 // Resolve content
 let content = options.status || '';
 if (options.file) {
@@ -96,10 +128,21 @@ const title = options.title || `🧬 Evolution #${cycleId} Log`;
 
 // Resolve Target
 const MASTER_ID = process.env.OPENCLAW_MASTER_ID || 'ou_cdc63fe05e88c580aedead04d851fc04'; // Fallback to Master ID from USER.md
-const target = options.target || MASTER_ID;
 
 // Execute direct integration
 (async () => {
+    let target = options.target;
+
+    // Priority: CLI Target > Evolution Group (🧬) > Master ID
+    if (!target) {
+        target = await findEvolutionGroup();
+    }
+    
+    if (!target) {
+        console.log('[Wrapper] No Evolution Group (🧬) found. Falling back to Master ID.');
+        target = MASTER_ID;
+    }
+
     if (!target) {
         console.error('[Wrapper] Error: No target ID found (Env OPENCLAW_MASTER_ID missing and no --target).');
         process.exit(1);
