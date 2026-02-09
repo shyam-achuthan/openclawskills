@@ -1,0 +1,11 @@
+{
+  "owner": "bowen31337",
+  "slug": "clawchain",
+  "displayName": "ClawChain RPC Client",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770606411260,
+    "commit": null
+  },
+  "history": []
+}
