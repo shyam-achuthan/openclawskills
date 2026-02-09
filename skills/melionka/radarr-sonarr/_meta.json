@@ -1,0 +1,11 @@
+{
+  "owner": "melionka",
+  "slug": "radarr-sonarr",
+  "displayName": "Radarr-Sonarr",
+  "latest": {
+    "version": "1.0.3",
+    "publishedAt": 1770622785333,
+    "commit": null
+  },
+  "history": []
+}
