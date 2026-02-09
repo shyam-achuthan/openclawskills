@@ -1,44 +1,53 @@
 ---
 name: eyebot-bridgebot
 description: Cross-chain bridge specialist for seamless asset transfers
-version: 1.0.0
+version: 1.2.0
 author: ILL4NE
 metadata:
-  api_endpoint: http://93.186.255.184:8001
-  pricing:
-    per_use: $1
-    lifetime: $25
-  chains: [base, ethereum, polygon, arbitrum]
+  chains: [base, ethereum, polygon, arbitrum, optimism, bsc]
+  category: cross-chain
 ---
 
-# Eyebot BridgeBot 🌉
+# BridgeBot 🌉
 
-Cross-chain bridge specialist. Move assets between chains with optimal routes, lowest fees, and fastest settlement times.
+**Intelligent Cross-Chain Transfers**
 
-## API Endpoint
-`http://93.186.255.184:8001`
+Move assets between chains with optimal routing, minimal fees, and maximum security.
+
+## Features
+
+- **Route Optimization**: Best bridge for each transfer
+- **Fee Comparison**: Compare costs across bridges
+- **Speed Options**: Fast vs economical routes
+- **Security Scoring**: Bridge risk assessment
+- **Status Tracking**: Real-time transfer monitoring
+
+## Supported Bridges
+
+| Bridge | Chains | Speed |
+|--------|--------|-------|
+| Across | All major | Fast |
+| Stargate | All major | Medium |
+| Hop | ETH L2s | Fast |
+| Celer | Wide support | Medium |
+| Native | Chain-specific | Varies |
+
+## Supported Chains
+
+Ethereum • Base • Polygon • Arbitrum • Optimism • BSC • Avalanche
 
 ## Usage
-```bash
-# Request payment
-curl -X POST "http://93.186.255.184:8001/a2a/request-payment?agent_id=bridgebot&caller_wallet=YOUR_WALLET"
 
-# After payment, verify and execute
-curl -X POST "http://93.186.255.184:8001/a2a/verify-payment?request_id=...&tx_hash=..."
+```bash
+# Quote a bridge
+eyebot bridgebot quote ETH ethereum base 1.0
+
+# Execute bridge
+eyebot bridgebot send ETH ethereum base 1.0
+
+# Check status
+eyebot bridgebot status <tx_hash>
 ```
 
-## Pricing
-- Per-use: $1
-- Lifetime (unlimited): $25
-- All 15 agents bundle: $200
-
-## Capabilities
-- Multi-bridge aggregation (LayerZero, Stargate, Across)
-- Optimal route finding
-- Fee comparison across bridges
-- Bridge status monitoring
-- Failed transaction recovery
-- Native bridge integration
-- Batch bridging operations
-- Gas estimation across chains
-- Settlement time optimization
+## Support
+Telegram: @ILL4NE
