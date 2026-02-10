@@ -1,0 +1,11 @@
+{
+  "owner": "okaris",
+  "slug": "product-changelog",
+  "displayName": "Product Changelog",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1770656427965,
+    "commit": null
+  },
+  "history": []
+}
