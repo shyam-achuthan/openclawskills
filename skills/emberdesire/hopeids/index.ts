@@ -17,10 +17,116 @@
  * - Telegram alerts are pure metadata / programmatic
  */
 
-import { createQuarantineManager, hashContent, QuarantineManager } from "../../src/quarantine/manager.js";
-import { QuarantineRecord } from "../../src/quarantine/types.js";
 import * as os from "os";
 import * as path from "path";
+import * as crypto from "crypto";
+
+// Types for quarantine (inline to avoid import issues)
+interface QuarantineRecord {
+  id: string;
+  ts: string;
+  agent: string;
+  source: string;
+  senderId?: string;
+  intent: string;
+  risk: number;
+  patterns: string[];
+  contentHash: string;
+  status: 'pending' | 'approved' | 'rejected';
+  expiresAt?: string;
+}
+
+interface QuarantineManager {
+  create: (record: Omit<QuarantineRecord, 'id' | 'status'>) => Promise<QuarantineRecord>;
+  get: (id: string) => Promise<QuarantineRecord | null>;
+  listPending: () => Promise<QuarantineRecord[]>;
+  listAll: () => Promise<QuarantineRecord[]>;
+  updateStatus: (id: string, status: 'approved' | 'rejected') => Promise<boolean>;
+  cleanExpired: () => Promise<number>;
+}
+
+// Simple hash function for content fingerprinting
+function hashContent(content: string): string {
+  return crypto.createHash('sha256').update(content).digest('hex').substring(0, 16);
+}
+
+// Lazy-loaded quarantine manager (loaded from hopeid package)
+let quarantineModule: any = null;
+
+async function loadQuarantineManager(baseDir: string): Promise<QuarantineManager> {
+  if (!quarantineModule) {
+    try {
+      quarantineModule = await import('hopeid/quarantine');
+    } catch {
+      // Fallback: simple in-memory quarantine if package import fails
+      console.warn('[hopeIDS] Quarantine module not found, using in-memory fallback');
+      return createSimpleQuarantine(baseDir);
+    }
+  }
+  return quarantineModule.createQuarantineManager({ baseDir });
+}
+
+// Simple file-based quarantine fallback
+function createSimpleQuarantine(baseDir: string): QuarantineManager {
+  const fs = require('fs');
+  const recordsFile = path.join(baseDir, 'records.json');
+  
+  function loadRecords(): QuarantineRecord[] {
+    try {
+      fs.mkdirSync(baseDir, { recursive: true });
+      if (fs.existsSync(recordsFile)) {
+        return JSON.parse(fs.readFileSync(recordsFile, 'utf8'));
+      }
+    } catch {}
+    return [];
+  }
+  
+  function saveRecords(records: QuarantineRecord[]) {
+    fs.mkdirSync(baseDir, { recursive: true });
+    fs.writeFileSync(recordsFile, JSON.stringify(records, null, 2));
+  }
+  
+  return {
+    async create(data) {
+      const records = loadRecords();
+      const record: QuarantineRecord = {
+        ...data,
+        id: `q-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+        status: 'pending',
+      };
+      records.push(record);
+      saveRecords(records);
+      return record;
+    },
+    async get(id) {
+      return loadRecords().find(r => r.id === id) || null;
+    },
+    async listPending() {
+      return loadRecords().filter(r => r.status === 'pending');
+    },
+    async listAll() {
+      return loadRecords();
+    },
+    async updateStatus(id, status) {
+      const records = loadRecords();
+      const record = records.find(r => r.id === id);
+      if (record) {
+        record.status = status;
+        saveRecords(records);
+        return true;
+      }
+      return false;
+    },
+    async cleanExpired() {
+      const records = loadRecords();
+      const now = Date.now();
+      const before = records.length;
+      const filtered = records.filter(r => !r.expiresAt || new Date(r.expiresAt).getTime() > now);
+      saveRecords(filtered);
+      return before - filtered.length;
+    }
+  };
+}
 
 interface AgentConfig {
   strictMode?: boolean;
@@ -89,8 +195,13 @@ async function loadHopeIDS() {
   
   try {
     HopeIDSModule = await import('hopeid');
-  } catch {
-    HopeIDSModule = await import('../../src/index.js');
+  } catch (err: any) {
+    throw new Error(
+      `hopeIDS package not found. Install it first:\n` +
+      `  npm install -g hopeid\n` +
+      `  # or: npm install hopeid\n\n` +
+      `Original error: ${err.message}`
+    );
   }
   return HopeIDSModule;
 }
@@ -319,7 +430,11 @@ export default function register(api: PluginApi) {
 
   // Initialize quarantine manager
   const quarantineDir = cfg.quarantineDir ?? path.join(os.homedir(), '.openclaw', 'quarantine', 'hopeids');
-  quarantine = createQuarantineManager({ baseDir: quarantineDir });
+  loadQuarantineManager(quarantineDir).then(mgr => {
+    quarantine = mgr;
+  }).catch(err => {
+    api.logger.warn(`[hopeIDS] Quarantine init warning: ${err.message}`);
+  });
 
   // Initialize IDS asynchronously
   loadHopeIDS().then(({ createIDS }) => {

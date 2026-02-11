@@ -30,11 +30,11 @@
       "telegramAlerts": {
         "type": "boolean",
         "default": true,
-        "description": "Send Telegram alerts for blocked messages"
+        "description": "Send Telegram alerts for blocked messages. Requires Telegram channel configured in OpenClaw (channels.telegram.botToken)"
       },
       "telegramChatId": {
         "type": "string",
-        "description": "Telegram chat ID for alerts (defaults to first owner)"
+        "description": "Telegram chat ID for alerts. Defaults to ownerNumbers[0]. Only used if channels.telegram is configured."
       },
       "quarantineDir": {
         "type": "string",
