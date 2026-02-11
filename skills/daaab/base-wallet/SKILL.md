@@ -1,13 +1,20 @@
 ---
 name: base-wallet
-description: "🔐 Crypto wallet for AI agents. Create wallets, sign messages, send transactions — no browser needed."
+description: "🔐 Base Wallet - Crypto Identity for AI Agents. Create wallets, sign messages (SIWE), send transactions programmatically. No browser extensions, no human intervention. The foundation for autonomous Web3 agents."
 ---
 
-# 🔐 Base Wallet — Crypto Identity for AI Agents
+# 🔐 Base Wallet - Crypto Identity for AI Agents
 
-> Create. Sign. Transact. No human needed.
+> Every autonomous agent needs a wallet. Create one without human help.
 
 **TL;DR:** Programmatic wallet creation on Base/Ethereum. SIWE auth, balance checks, transactions.
+
+## Why Base Wallet?
+
+- **True autonomy** — Your agent creates and controls its own wallet
+- **No browser needed** — Pure CLI, no extensions or popups
+- **SIWE ready** — Sign-In with Ethereum for Web3 services
+- **Secure by default** — Environment variables, no plaintext keys
 
 Create and manage Base chain (Ethereum-compatible) wallets programmatically.
 
