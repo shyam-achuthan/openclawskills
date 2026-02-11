@@ -14,6 +14,29 @@ Use this skill for:
 
 **Triggers:** "remember this", "store fact", "what do you know about", "memory search", "memory maintenance", "prune memory", "knowledge graph", "find relations"
 
+## ⚠️ Security & Installation Notes
+
+This skill performs system-level operations. Review before installing:
+
+| Behavior | Location | Description |
+|----------|----------|-------------|
+| **Network installer** | `install.sh`, `memory.ts` | Runs `curl https://install.surrealdb.com \| sh` |
+| **Source patching** | `integrate-clawdbot.sh` | Uses `sed -i` to patch Clawdbot source files |
+| **Service management** | `memory.ts` | Can start SurrealDB server, run schema imports |
+| **Python packages** | `install.sh`, `memory.ts` | Installs surrealdb, openai, pyyaml via pip |
+| **File access** | `extract-knowledge.py` | Reads `MEMORY.md` and `memory/*.md` for extraction |
+
+**Default credentials:** Examples use `root/root` — change for production and bind to localhost only.
+
+**API key:** `OPENAI_API_KEY` is required for embeddings (text-embedding-3-small) and LLM extraction (GPT-4o-mini). Use a scoped key.
+
+**Safe install path:**
+1. Install SurrealDB manually from [surrealdb.com/install](https://surrealdb.com/install)
+2. Use a Python venv: `python3 -m venv .venv && source .venv/bin/activate`
+3. Review and run `pip install -r scripts/requirements.txt`
+4. Set `OPENAI_API_KEY` with minimal permissions
+5. Skip `integrate-clawdbot.sh` or review the diffs it will apply
+
 ## Features
 
 ### MCP Tools
@@ -49,11 +72,14 @@ Each fact has an **effective confidence** calculated from:
 
 1. **SurrealDB** installed and running:
    ```bash
-   # Install (one-time)
+   # Option A: Use the installer (runs curl | sh - review first!)
    ./scripts/install.sh
    
-   # Start server
-   surreal start --user root --pass root file:~/.clawdbot/memory/knowledge.db
+   # Option B: Manual install (recommended)
+   # See https://surrealdb.com/install
+   
+   # Start server (change credentials in production!)
+   surreal start --bind 127.0.0.1:8000 --user root --pass root file:~/.clawdbot/memory/knowledge.db
    ```
 
 2. **Python dependencies** (use the skill's venv):
@@ -64,8 +90,10 @@ Each fact has an **effective confidence** calculated from:
    pip install -r scripts/requirements.txt
    ```
 
-3. **OpenAI API key** for embeddings and extraction:
+3. **OpenAI API key** (**required**) for embeddings and extraction:
    ```bash
+   # Used for: text-embedding-3-small (embeddings), GPT-4o-mini (extraction)
+   # Recommendation: Use a scoped key with minimal permissions
    export OPENAI_API_KEY="sk-..."
    ```
 

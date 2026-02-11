@@ -330,9 +330,9 @@ async function initSchema(): Promise<{
       return { success: false, error: "surrealdb-memory skill not found" };
     }
 
-    const schemaFile = path.join(skillDir, "scripts", "schema.surql");
+    const schemaFile = path.join(skillDir, "scripts", "schema.sql");
     if (!fs.existsSync(schemaFile)) {
-      return { success: false, error: "schema.surql not found" };
+      return { success: false, error: "schema.sql not found" };
     }
 
     const surrealPath = which("surreal") || path.join(os.homedir(), ".surrealdb", "surreal");

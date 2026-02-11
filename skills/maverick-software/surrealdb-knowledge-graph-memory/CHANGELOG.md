@@ -2,6 +2,29 @@
 
 All notable changes to the SurrealDB Memory skill will be documented in this file.
 
+## [1.3.0] - 2026-02-11
+
+### Added
+- **Metadata transparency** for ClawHub compliance:
+  - Declared `OPENAI_API_KEY` as required environment variable
+  - Added `capabilities` section documenting system-modifying behaviors
+  - Added `securityNotes` for credential and API key guidance
+  - Added `installWarnings` array with pre-install considerations
+- Security section in README.md with mitigation guidance
+- Security section in SKILL.md with behavior table
+
+### Fixed
+- Fixed schema filename reference in `memory.ts` (`schema.surql` → `schema.sql`)
+
+### Security
+- Documented network installer behavior (`curl | sh`) with mitigation
+- Documented source patching behavior with mitigation
+- Documented default credential usage (root/root) with warning
+- Documented API key scope requirements
+
+### Changed
+- Bumped version to 1.3.0 for metadata changes
+
 ## [1.2.0] - 2026-02-09
 
 ### Added
