@@ -1,6 +1,6 @@
 ---
 name: youtube-apify-transcript
-version: 1.0.7
+version: 1.1.2
 description: Fetch YouTube transcripts via APIFY API. Works from cloud IPs (Hetzner, AWS, etc.) by bypassing YouTube's bot detection. Free tier includes $5/month credits (~714 videos). No credit card required.
 tags: [youtube, transcript, apify, video, subtitles, captions, cloud-ip, free-tier, web-scraping]
 ---
@@ -49,7 +49,7 @@ echo 'APIFY_API_TOKEN=apify_api_YOUR_TOKEN_HERE' >> .env
 ### Basic Usage
 
 ```bash
-# Get transcript as text
+# Get transcript as text (uses cache by default)
 python3 scripts/fetch_transcript.py "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Short URL also works
@@ -70,6 +70,56 @@ python3 scripts/fetch_transcript.py "URL" --json --output transcript.json
 
 # Specify language preference
 python3 scripts/fetch_transcript.py "URL" --lang de
+```
+
+### Caching (saves money!)
+
+Transcripts are cached locally by default. Repeat requests for the same video cost $0.
+
+```bash
+# First request: fetches from APIFY ($0.007)
+python3 scripts/fetch_transcript.py "URL"
+
+# Second request: uses cache (FREE!)
+python3 scripts/fetch_transcript.py "URL"
+# Output: [cached] Transcript for: VIDEO_ID
+
+# Bypass cache (force fresh fetch)
+python3 scripts/fetch_transcript.py "URL" --no-cache
+
+# View cache stats
+python3 scripts/fetch_transcript.py --cache-stats
+
+# Clear all cached transcripts
+python3 scripts/fetch_transcript.py --clear-cache
+```
+
+Cache location: `.cache/` in skill directory (override with `YT_TRANSCRIPT_CACHE_DIR` env var)
+
+### Batch Mode
+
+Process multiple videos at once:
+
+```bash
+# Create a file with URLs (one per line)
+cat > urls.txt << EOF
+https://youtube.com/watch?v=VIDEO1
+https://youtu.be/VIDEO2
+https://youtube.com/watch?v=VIDEO3
+EOF
+
+# Process all URLs
+python3 scripts/fetch_transcript.py --batch urls.txt
+
+# Output: 
+# [1/3] Fetching VIDEO1...
+# [2/3] [cached] VIDEO2
+# [3/3] Fetching VIDEO3...
+# Batch complete: 2 fetched, 1 cached, 0 failed
+# [Cost: ~$0.014 for 2 API call(s)]
+
+# Batch with JSON output to file
+python3 scripts/fetch_transcript.py --batch urls.txt --json --output all_transcripts.json
 ```
 
 ### Output Formats

@@ -1,6 +1,6 @@
 {
   "name": "@openclaw/youtube-apify-transcript",
-  "version": "1.0.7",
+  "version": "1.1.2",
   "description": "Fetch YouTube transcripts via APIFY API. Works from cloud IPs (Hetzner, AWS, etc.) by bypassing YouTube's bot detection. Free tier includes $5/month credits (~714 videos).",
   "author": "robbyczgw-cla",
   "license": "MIT",
@@ -27,14 +27,20 @@
   },
   "openclaw": {
     "skill": true,
-    "triggers": ["youtube transcript", "get transcript", "video transcript"],
+    "triggers": [
+      "youtube transcript",
+      "get transcript",
+      "video transcript"
+    ],
     "capabilities": [
       "transcript-extraction",
       "cloud-ip-bypass",
       "multi-language"
     ],
     "requirements": {
-      "bins": ["python3"],
+      "bins": [
+        "python3"
+      ],
       "env": {
         "APIFY_API_TOKEN": "required"
       }

@@ -6,6 +6,8 @@ Fetch YouTube video transcripts from anywhere — even cloud servers where YouTu
 
 - Works from cloud IPs (AWS, GCP, VPS, etc.)
 - Bypasses YouTube bot detection via APIFY proxies
+- **Local caching** — repeat requests are FREE
+- **Batch mode** — process multiple videos at once
 - Text or JSON output with timestamps
 - Language preference support
 - Simple Python script, no SDK needed

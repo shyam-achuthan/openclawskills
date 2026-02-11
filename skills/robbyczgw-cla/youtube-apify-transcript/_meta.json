@@ -1,13 +1,18 @@
 {
   "owner": "robbyczgw-cla",
   "slug": "youtube-apify-transcript",
-  "displayName": "Youtube Apify Transcript",
+  "displayName": "YouTube Apify Transcript",
   "latest": {
-    "version": "1.0.7",
-    "publishedAt": 1770246260193,
-    "commit": "https://github.com/clawdbot/skills/commit/b8aca80b1d644ed86e1fc4d9383ad22756edca22"
+    "version": "1.1.2",
+    "publishedAt": 1770800423308,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.7",
+      "publishedAt": 1770246260193,
+      "commit": "https://github.com/clawdbot/skills/commit/b8aca80b1d644ed86e1fc4d9383ad22756edca22"
+    },
     {
       "version": "1.0.6",
       "publishedAt": 1770139108536,
