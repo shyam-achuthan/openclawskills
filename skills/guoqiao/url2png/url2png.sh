@@ -11,5 +11,5 @@ uvx shot-scraper shot "${url}" \
     --browser chromium \
     --width 390 \
     --retina \
-    --wait 2000 \
-    --timeout 20000
+    --wait 10000 \
+    --timeout 30000

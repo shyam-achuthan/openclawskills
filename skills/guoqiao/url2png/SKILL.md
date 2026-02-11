@@ -39,5 +39,8 @@ bash url2png.sh <url>
 bash url2png.sh <url> path/to/png
 ```
 
-Tips:
-- the screenshot is made for mobile/iPhone by default.
+## Agent Instructions
+
+1. Execute the `url2png.sh` script.
+2. Locate the generated PNG file (default in `~/Pictures` if not specified).
+3. Send the file to the user. **Crucial:** To avoid compression or dimension limits (especially on Telegram), send the image as a **document/file** (or ZIP it), do not send as a photo.

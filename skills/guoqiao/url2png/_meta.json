@@ -3,9 +3,15 @@
   "slug": "url2png",
   "displayName": "URL to PNG",
   "latest": {
-    "version": "0.0.1",
-    "publishedAt": 1770773988865,
-    "commit": "https://github.com/openclaw/skills/commit/5e347ab029b6557c6db8d62db388447191678f36"
+    "version": "0.0.2",
+    "publishedAt": 1770776797814,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.0.1",
+      "publishedAt": 1770773988865,
+      "commit": "https://github.com/openclaw/skills/commit/5e347ab029b6557c6db8d62db388447191678f36"
+    }
+  ]
 }
