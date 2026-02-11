@@ -1,13 +1,18 @@
 {
   "owner": "chrisagiddings",
   "slug": "gandi-skill",
-  "displayName": "Gandi Domain Registrar",
+  "displayName": "Gandi - Registrar & DNS",
   "latest": {
-    "version": "0.2.3",
-    "publishedAt": 1770774699104,
-    "commit": "https://github.com/openclaw/skills/commit/40ada3aeae73cfc9720fc6e1e3c01556ac72d1d3"
+    "version": "0.2.5",
+    "publishedAt": 1770785344517,
+    "commit": null
   },
   "history": [
+    {
+      "version": "0.2.3",
+      "publishedAt": 1770774699104,
+      "commit": "https://github.com/openclaw/skills/commit/40ada3aeae73cfc9720fc6e1e3c01556ac72d1d3"
+    },
     {
       "version": "0.3.0",
       "publishedAt": 1770585363195,
