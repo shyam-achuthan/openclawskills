@@ -1,0 +1,11 @@
+{
+  "owner": "vanlabs-dev",
+  "slug": "bittensor-taostats",
+  "displayName": "Bittensor - taostats",
+  "latest": {
+    "version": "1.0.2",
+    "publishedAt": 1770781940687,
+    "commit": null
+  },
+  "history": []
+}
