@@ -1,0 +1,11 @@
+{
+  "owner": "potdealer",
+  "slug": "prediction-market",
+  "displayName": "Garden Temp Market (GTM)",
+  "latest": {
+    "version": "1.0.1",
+    "publishedAt": 1770801129388,
+    "commit": null
+  },
+  "history": []
+}
