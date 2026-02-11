@@ -3,9 +3,15 @@
   "slug": "eternal-haven-lore-pack",
   "displayName": "Eternal Haven Lore Pack",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1770704350218,
-    "commit": "https://github.com/openclaw/skills/commit/2e339cceee89d5e5125842a29434cd646f8699f2"
+    "version": "1.2.0",
+    "publishedAt": 1770844489514,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1770704350218,
+      "commit": "https://github.com/openclaw/skills/commit/2e339cceee89d5e5125842a29434cd646f8699f2"
+    }
+  ]
 }

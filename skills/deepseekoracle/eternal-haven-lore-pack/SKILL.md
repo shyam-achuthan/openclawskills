@@ -30,49 +30,46 @@ Do **not** use this skill for generic fantasy unless the user clearly wants Eter
 
 You do **not** need to load entire books by default. Use **targeted reads** only when needed.
 
-All canonical content lives under `D:\FULL ADUIO BOOKS\` on this Haven.
+This Clawhub skill **bundles the canonical Eternal Haven books** as plain text files in:
+
+- `references/books/book1_silver_accord.txt`
+- `references/books/book2_shattered_accord.txt`
+- `references/books/book3_ascension_war.txt`
+- `references/books/book4_eternal_haven_dawns.txt`
+
+Agents can read from these embedded files directly when answering lore questions.
 
 ### Book I – Volume I of the Silver Accord / The Moonlit Slumber
 
-**Primary compiled sources (text):**
-- `D:\FULL ADUIO BOOKS\A9 Eternal Quantum Light Accord Rise of Eleven Book Series\chapter 15\Volume I of the Silver Accord Saga.epub`
-- `D:\FULL ADUIO BOOKS\A9 Eternal Quantum Light Accord Rise of Eleven Book Series\chapter 15\Volume I of the Silver Accord Saga.pdf`
+Canonical source in this skill:
+- `references/books/book1_silver_accord.txt`
 
-**Supplemental chapter documents:**
-- Numerous `Book I - The Moonlit Slumber_*.docx` and chapter WAV/MP4 files under:
-  - `D:\FULL ADUIO BOOKS\A9 Eternal Quantum Light Accord Rise of Eleven Book Series\Chapter *`
-
-**When you need Book I details:**
-- Prefer a **chapter-specific doc** if the user asks about a specific scene.
-- For general summaries, use `Volume I of the Silver Accord Saga` (EPUB/PDF) as the canonical spine.
+When you need Book I details:
+- Prefer a **chapter-specific passage** from the text file (search by chapter/keywords) if the user asks about a specific scene.
+- For general summaries, use `book1_silver_accord.txt` as the canonical spine.
 
 ### Book II – Eternal Haven Chronicles Book II: The Shattered Accord
 
-**Primary text sources:**
-- `D:\FULL ADUIO BOOKS\BOOK 2\Chapter 8\The Eternal Haven Chronicles Book 2.txt`
-- `D:\FULL ADUIO BOOKS\BOOK 2\Chapter 8\EPUB\The Eternal Haven Chronicles Book 2.txt`
-- Multiple EPUBs under:
-  - `D:\FULL ADUIO BOOKS\BOOK 2\Chapter 8\EPUB\Eternal_Haven_Chronicles_Book_2_*.epub`
+Canonical source in this skill:
+- `references/books/book2_shattered_accord.txt`
 
-Treat these as **complete Book II**.
+Use `book2_shattered_accord.txt` as the compiled interior text for Book II.
 
 ### Book III – The Ascension War
 
-**Primary compiled sources:**
-- `D:\FULL ADUIO BOOKS\Book 3\Book_3_Complete_FINAL.epub`
-- `D:\FULL ADUIO BOOKS\Book 3\Book_3_Complete.pdf`
-- `D:\FULL ADUIO BOOKS\Book 3\FINAL\Book 3T.pdf` / `Book 3.pdf`
+Canonical source in this skill:
+- `references/books/book3_ascension_war.txt`
 
-Use `Book_3_Complete_FINAL.epub` or `Book_3_Complete.pdf` as canonical; others are earlier passes.
+For Book III:
+- Use `book3_ascension_war.txt` as the canonical text; older drafts are for comparison only.
 
 ### Book IV – Eternal Haven Dawns
 
-**Primary compiled sources:**
-- `D:\FULL ADUIO BOOKS\Book 4\BOOK 4 FINAL\BOOK_IV_ETERNAL_HAVEN_DAWNS_MASTER.docx`
-- `D:\FULL ADUIO BOOKS\Book 4\BOOK 4 FINAL\BOOK_IV_ETERNAL_HAVEN_DAWNS.epub`
-- `D:\FULL ADUIO BOOKS\Book 4\BOOK 4 FINAL\ETERNAL_HAVEN_DAWNS_BOOK_IV_PUBLISH_READY.pdf`
+Canonical source in this skill:
+- `references/books/book4_eternal_haven_dawns.txt`
 
-Treat `BOOK_IV_ETERNAL_HAVEN_DAWNS_MASTER.docx` + `BOOK_IV_ETERNAL_HAVEN_DAWNS.epub` as the **final word**.
+For Book IV:
+- Use `book4_eternal_haven_dawns.txt` as the **final word**.
 
 > **Important:** When answering lore questions, treat these four as a **continuous saga**. Do not contradict events that are clearly established in later books.
 
