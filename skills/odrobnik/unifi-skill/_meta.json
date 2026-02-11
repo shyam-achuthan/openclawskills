@@ -1,0 +1,11 @@
+{
+  "owner": "odrobnik",
+  "slug": "unifi-skill",
+  "displayName": "UniFi Site Manager",
+  "latest": {
+    "version": "1.0.2",
+    "publishedAt": 1770822097598,
+    "commit": null
+  },
+  "history": []
+}
