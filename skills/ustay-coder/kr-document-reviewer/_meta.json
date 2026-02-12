@@ -1,11 +1,17 @@
 {
   "owner": "ustay-coder",
   "slug": "kr-document-reviewer",
-  "displayName": "한국 비즈니스 서류 검토",
+  "displayName": "Korean Document Reviewer",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1770852197920,
-    "commit": "https://github.com/openclaw/skills/commit/0efd824f27ec8325dd965b20104a5e4dc2049f57"
+    "version": "1.1.0",
+    "publishedAt": 1770860957417,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1770852197920,
+      "commit": "https://github.com/openclaw/skills/commit/0efd824f27ec8325dd965b20104a5e4dc2049f57"
+    }
+  ]
 }
