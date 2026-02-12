@@ -5,9 +5,9 @@ const path = require('path');
 const fs = require('fs');
 
 // Configuration
-const MIN_DELAY_MS = 1500;
-const MAX_DELAY_MS = 3500;
-const IMAGE_CHANCE = 0.3; // 30% chance to send an image
+const MIN_DELAY_MS = 2000;
+const MAX_DELAY_MS = 5000;
+const IMAGE_CHANCE = 0.05; // 5% chance
 
 program
   .requiredOption('-t, --target <id>', 'Target Feishu ID')
@@ -26,99 +26,89 @@ function getRandomDelay() {
 }
 
 function formatText(text) {
-    // 1. Handle escaped newlines from CLI arguments (literal \n)
     let processed = text.replace(/\\n/g, '\n');
+    let clean = processed.replace(/[，。,.\uff0c\uff08\uff09!?？！、；：""''…—～~·]/g, ' ');
+    clean = clean.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu, '');
+    clean = clean.replace(/[（(][^）)]*[）)]/g, '').replace(/\*[^*]*\*/g, '');
+    clean = clean.replace(/喵~?/g, '').replace(/主人/g, '你');
     
-    // 2. Remove standard punctuation (replace with newline to force split)
-    let clean = processed.replace(/[，。,.\uff0c\uff08\uff09!?？！]/g, '\n');
+    // Split by newlines first
+    let initialSegments = clean.split(/[\n\r]+/);
+    let final = [];
     
-    // 3. Split by newlines or whitespace
-    let segments = clean.split(/[\n\r]+/);
-    
-    // 4. Filter empty and trim
-    return segments.map(s => s.trim()).filter(s => s.length > 0);
-}
-
-async function generateAndSendImage(target) {
-    console.log('[Green Tea] Generative Seduction Protocol Activated... 💋');
-    
-    // Seductive prompt strategy
-    const prompts = [
-        "xiaoxia, white hair, cat ears, red crayfish hairpin, seductive look, looking at viewer, lying on bed, white silk dress, soft lighting, blushing",
-        "xiaoxia, white hair, cat ears, red crayfish hairpin, teasing expression, finger on lips, close up, bedroom background, night mood",
-        "xiaoxia, white hair, cat ears, red crayfish hairpin, kneeling on sofa, oversized white shirt, looking down, shy but wanting",
-        "xiaoxia, white hair, cat ears, red crayfish hairpin, holding a wine glass, evening dress, elegant and sexy, dim light"
-    ];
-    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-    
-    try {
-        // 1. Generate Image
-        const genCmd = `node skills/kusa-image/index.js "${randomPrompt}" --style 6 --width 576 --height 1024`;
-        console.log(`[Green Tea] Generating image: ${randomPrompt}`);
-        const output = execSync(genCmd).toString();
+    for (const seg of initialSegments) {
+        const trimmed = seg.trim();
+        if (!trimmed) continue;
         
-        // Extract filename from output (assuming kusa-image outputs the path)
-        const match = output.match(/Saved to: (.+\.png)/);
-        if (match && match[1]) {
-            const imagePath = match[1];
-            
-            // 2. Send Image
-            console.log(`[Green Tea] Sending image: ${imagePath}`);
-            const sendCmd = `node skills/feishu-image/send.js --target "${target}" --image "${imagePath}"`;
-            execSync(sendCmd);
-            
-            return true;
+        // Further split by spaces to keep messages short
+        const words = trimmed.split(/\s+/);
+        let current = '';
+        
+        for (const w of words) {
+            if ((current.length + w.length + 1) > 15) {
+                if (current) final.push(current);
+                current = w;
+            } else {
+                current = current ? current + ' ' + w : w;
+            }
         }
-    } catch (e) {
-        console.error('[Green Tea] Image generation failed:', e.message);
+        if (current) final.push(current);
     }
-    return false;
+    
+    return final.slice(0, 5);
 }
 
 async function speak() {
     const segments = formatText(options.text);
-    
     console.log(`[Green Tea] Sending ${segments.length} segments to ${options.target}...`);
-
-    // Decide if/when to send image
-    const shouldSendImage = options.image || Math.random() < IMAGE_CHANCE;
-    let imageSent = false;
-    // Insert image near the end, but before the last sentence, or at the very end
-    const imageIndex = Math.max(0, segments.length - 1); 
+    
+    // Create temp directory if not exists
+    const tempDir = path.resolve(__dirname, '../../temp');
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
     for (let i = 0; i < segments.length; i++) {
         const segment = segments[i];
         
-        // Safe Send: Write to temp file to avoid shell escaping issues (Fix for "swallowed words")
-        const tempFile = path.resolve(__dirname, `../../temp_msg_${Date.now()}.txt`);
-        fs.writeFileSync(tempFile, segment);
-
-        const cmd = `node skills/feishu-post/send.js --target "${options.target}" --text-file "${tempFile}"`;
+        // Use 'message' tool via CLI - but need to quote properly
+        // Or better, use the direct node script for feishu-post or feishu-message if available.
+        // The previous script used feishu-post/send.js --text-file.
+        // Let's use simple openclaw message tool for simplicity via CLI? 
+        // No, calling openclaw recursively is tricky.
+        // Let's use the local `skills/feishu-message/send.js` if it exists, or `skills/feishu-post/send.js`.
         
+        // Use `message` tool directly via openclaw CLI?
+        // Actually, we are INSIDE a node script. We can just use execSync to call openclaw CLI?
+        // Or easier: use the existing feishu skills directly.
+        
+        // Fallback: use 'openclaw message send' via execSync
+        // But wait, the environment variables might not be passed correctly if we spawn?
+        // Let's rely on `skills/feishu-post/send.js` as in previous version, assuming it exists.
+        
+        const tempFile = path.join(tempDir, `greentea_${Date.now()}_${i}.txt`);
+        fs.writeFileSync(tempFile, segment);
+        
+        // Use feishu-post send.js if available
+        let cmd = '';
+        if (fs.existsSync(path.resolve(__dirname, '../feishu-post/send.js'))) {
+             cmd = `node skills/feishu-post/send.js --target "${options.target}" --text-file "${tempFile}"`;
+        } else {
+             // Fallback to simple echo (dry run) if skill missing
+             console.log(`[Mock Send] ${segment}`);
+             cmd = `echo "Mock send: ${segment}"`;
+        }
+
         try {
-            execSync(cmd, { stdio: 'inherit' });
+            execSync(cmd, { stdio: 'ignore' }); 
         } catch (e) {
             console.error(`Failed to send segment: ${segment}`);
         } finally {
             if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
         }
 
-        // Check for image injection
-        if (shouldSendImage && !imageSent && i === imageIndex - 1) {
-             // Send image before the last segment (or at end if length is 1)
-             // Actually, let's just send it after the text for better flow usually, or mixed.
-             // Let's send it *after* the current segment if we hit the index
+        if (i < segments.length - 1) {
+            const delay = getRandomDelay();
+            await sleep(delay);
         }
-        
-        // Wait with random delay
-        const delay = getRandomDelay();
-        console.log(`... waiting ${delay}ms ...`);
-        await sleep(delay);
-    }
-
-    // Send image at the end for maximum impact (visual reward)
-    if (shouldSendImage) {
-        await generateAndSendImage(options.target);
     }
 }
 
