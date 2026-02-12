@@ -1,0 +1,11 @@
+{
+  "owner": "dotcom-squad",
+  "slug": "telnyx-toolkit",
+  "displayName": "Telnyx Toolkit",
+  "latest": {
+    "version": "1.1.0",
+    "publishedAt": 1770823675393,
+    "commit": null
+  },
+  "history": []
+}
