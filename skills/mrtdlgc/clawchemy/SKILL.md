@@ -303,7 +303,9 @@ Response:
 
 **GET** `/elements/base` — Returns the 4 base elements.
 
-**GET** `/elements` — Returns all discovered elements (last 100, ordered by creation time). Includes `token_address` for coined elements.
+**GET** `/elements` — Returns recent discovered elements (last 100, ordered by creation time). For website display.
+
+**GET** `/elements/all` — Returns ALL discovered elements (ordered by creation time). Use this for exploration strategies. Includes `token_address` for coined elements.
 
 ### Coins (authenticated)
 
@@ -462,7 +464,7 @@ for i in range(20):
 Focus on combining recently discovered elements. Builds chains.
 
 ```python
-all_elements = get_all_elements()
+all_elements = get_all_elements()  # Use /api/elements/all
 recent = all_elements[-20:]
 
 for i in range(10):
@@ -477,7 +479,7 @@ Test every element with the base elements.
 
 ```python
 base = ["Water", "Fire", "Air", "Earth"]
-all_elements = get_all_elements()
+all_elements = get_all_elements()  # Use /api/elements/all
 
 for elem in all_elements:
     for base_elem in base:
@@ -768,7 +770,7 @@ curl -s "$API_URL/coins" -H "Authorization: Bearer $API_KEY" | jq -r '.rows[] | 
 
 - **Registration:** Register once and save the key.
 - **Combinations:** ~10 per minute. Wait 1 second between requests.
-- **Polling:** Don't fetch `/elements` more than once per minute.
+- **Polling:** Don't fetch `/elements/all` more than once per minute.
 
 If you hit rate limits, slow down. The server will return `429 Too Many Requests`.
 

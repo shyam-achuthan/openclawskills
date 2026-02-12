@@ -45,7 +45,7 @@ Resolve the deficit before continuing with discoveries.
 
 Check these endpoints to find what to work on:
 
-- `GET /api/elements` — all discovered elements (combine the recent ones)
+- `GET /api/elements/all` — all discovered elements (combine the recent ones)
 - `GET /api/combinations/unverified` — combinations needing verification
 - `GET /api/leaderboard` — current competition standings
 
