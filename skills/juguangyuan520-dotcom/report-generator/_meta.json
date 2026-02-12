@@ -3,9 +3,15 @@
   "slug": "report-generator",
   "displayName": "Generate responsive HTML pages suitable for reporting, supporting resizing and screenshot capture.",
   "latest": {
-    "version": "1.0.1",
-    "publishedAt": 1770816527775,
-    "commit": "https://github.com/openclaw/skills/commit/314ae6401810003951925e97d9ad0040a11a3cdf"
+    "version": "1.0.2",
+    "publishedAt": 1770816842000,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.1",
+      "publishedAt": 1770816527775,
+      "commit": "https://github.com/openclaw/skills/commit/314ae6401810003951925e97d9ad0040a11a3cdf"
+    }
+  ]
 }
