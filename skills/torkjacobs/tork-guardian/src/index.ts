@@ -1,7 +1,14 @@
+/**
+ * Tork Guardian — AI Governance SDK for OpenClaw Skills
+ *
+ * Provides PII redaction, tool call governance, network access control,
+ * compliance receipts, and skill security scanning.
+ */
+
 import { TorkClient } from './client';
-import { TorkConfig, TorkConfigSchema, GovernOptions, GovernResponse, ToolCallDecision } from './config';
-import { governLLMRequest, GovernedLLMRequest, LLMRequest, GovernanceDeniedError } from './interceptors/llm';
-import { governToolCall as _governToolCall, ToolCall } from './interceptors/tool';
+import { TorkConfig, TorkConfigSchema, GovernResponse, ToolCallDecision } from './config';
+import { governLLMRequest, GovernedLLMRequest, LLMRequest } from './interceptors/llm';
+import { governToolCall, ToolCall } from './interceptors/tool';
 import { NetworkAccessHandler } from './handlers/network-access';
 
 export class TorkGuardian {
@@ -20,7 +27,7 @@ export class TorkGuardian {
   }
 
   governTool(tool: ToolCall): ToolCallDecision {
-    return _governToolCall(tool, this.config);
+    return governToolCall(tool, this.config);
   }
 
   async redactPII(content: string): Promise<GovernResponse> {
@@ -51,11 +58,11 @@ export async function generateReceipt(apiKey: string, content: string): Promise<
   return client.govern(content);
 }
 
+// Re-exports
 export { governLLMRequest } from './interceptors/llm';
 export { governToolCall } from './interceptors/tool';
 export { NetworkAccessHandler, validatePortBind, validateEgress, validateDNS } from './handlers/network-access';
 
-// Re-export types
 export type {
   TorkConfig,
   GovernOptions,
@@ -67,12 +74,15 @@ export type {
 } from './config';
 export type { LLMRequest, GovernedLLMRequest } from './interceptors/llm';
 export type { ToolCall } from './interceptors/tool';
+
 export { GovernanceDeniedError } from './interceptors/llm';
 export { TorkClient } from './client';
 export { DEFAULT_NETWORK_POLICY } from './policies/network-default';
 export { STRICT_NETWORK_POLICY } from './policies/network-strict';
 export { NetworkMonitor } from './utils/network-monitor';
 export { MINIMAL_CONFIG, DEVELOPMENT_CONFIG, PRODUCTION_CONFIG, ENTERPRISE_CONFIG } from './examples';
+
+// Scanner re-exports (source in dist/scanner/)
 export { SkillScanner } from './scanner';
 export { SCAN_RULES } from './scanner/rules';
 export type { ScanFinding, ScanReport, ScanRule, Severity, Verdict } from './scanner/types';

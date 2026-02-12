@@ -1,3 +1,8 @@
+/**
+ * LLM Request Interceptor — Governs LLM API calls by scanning
+ * message content for PII and enforcing redaction/denial policy.
+ */
+
 import { TorkClient } from '../client';
 import { GovernResponse, TorkConfig } from '../config';
 
@@ -17,7 +22,7 @@ export interface GovernedLLMRequest {
 export async function governLLMRequest(
   client: TorkClient,
   request: LLMRequest,
-  config: TorkConfig
+  config: TorkConfig,
 ): Promise<GovernedLLMRequest> {
   if (!config.redactPII) {
     return { request, governed: false, receipts: [], pii_found: false };
@@ -32,7 +37,7 @@ export async function governLLMRequest(
     if (!msg.content || typeof msg.content !== 'string') continue;
 
     const mode = config.policy === 'strict' ? 'deny' : 'redact';
-    const result: GovernResponse = await client.govern(msg.content, { mode });
+    const result = await client.govern(msg.content, { mode });
 
     if (result.receipt?.receipt_id) {
       receipts.push(result.receipt.receipt_id);
@@ -45,7 +50,7 @@ export async function governLLMRequest(
     if (result.action === 'deny') {
       throw new GovernanceDeniedError(
         `PII detected in message ${i} (${msg.role}). Policy '${config.policy}' denies this request.`,
-        result
+        result,
       );
     }
 
@@ -63,7 +68,7 @@ export async function governLLMRequest(
 }
 
 export class GovernanceDeniedError extends Error {
-  public readonly governResponse: GovernResponse;
+  readonly governResponse: GovernResponse;
 
   constructor(message: string, response: GovernResponse) {
     super(message);

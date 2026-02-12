@@ -1,8 +1,15 @@
+/**
+ * Tork Guardian — Configuration schema and shared types.
+ *
+ * Uses Zod for runtime validation of user-supplied config.
+ * All governance modules import their types from here.
+ */
+
 import { z } from 'zod';
 
 export const TorkConfigSchema = z.object({
   apiKey: z.string().min(1),
-  baseUrl: z.string().url().default('https://www.tork.network'),
+  baseUrl: z.string().url().default('https://tork.network'),
   policy: z.enum(['strict', 'standard', 'minimal']).default('standard'),
   redactPII: z.boolean().default(true),
   blockShellCommands: z.array(z.string()).default([

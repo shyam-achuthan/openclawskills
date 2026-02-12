@@ -1,62 +1,94 @@
+/**
+ * Tork Guardian — Scanner API helpers.
+ *
+ * Provides scanFromURL (fetches via HTTPS — no git/shell), scanFromSource
+ * (writes temp files), and formatReportForAPI (strips local paths).
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { execSync } from 'child_process';
+import axios from 'axios';
 import { SkillScanner } from './index';
-import { ScanReport, ScanFinding } from './types';
 
 const scanner = new SkillScanner();
 
-export interface APIFinding {
-  ruleId: string;
-  ruleName: string;
-  severity: string;
-  line: number;
-  column: number;
-  snippet: string;
-  description: string;
-  remediation: string;
-}
+// File extensions worth scanning
+const SCAN_EXTENSIONS = new Set([
+  '.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs',
+  '.json', '.yaml', '.yml', '.toml',
+]);
 
-export interface APIReport {
-  skillName: string;
-  scannedAt: string;
-  filesScanned: number;
-  totalFindings: number;
-  findings: APIFinding[];
-  riskScore: number;
-  verdict: string;
-  scanDurationMs: number;
-}
+// Max files to download per repo (rate-limit guard)
+const MAX_FILES = 200;
+// Max individual file size in bytes
+const MAX_FILE_SIZE = 500_000;
 
 /**
- * Clone a git repo to a temp directory, scan it, and clean up.
+ * Fetch a public GitHub repository over HTTPS and scan it.
+ *
+ * Uses the GitHub REST API (trees + raw contents) — no git clone,
+ * no child_process, no shell commands.
  */
-export async function scanFromURL(url: string): Promise<ScanReport> {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tork-scan-url-'));
-
-  try {
-    execSync(`git clone --depth 1 ${url} ${tmpDir}`, {
-      stdio: 'ignore',
-      timeout: 30_000,
-    });
-
-    return await scanner.scanSkill(tmpDir);
-  } finally {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
+export async function scanFromURL(url: string) {
+  // Strict validation: only GitHub HTTPS URLs
+  const match = url.match(
+    /^https?:\/\/github\.com\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+?)(?:\.git)?$/,
+  );
+  if (!match) {
+    throw new Error(
+      'Only GitHub HTTPS URLs are supported (e.g. https://github.com/owner/repo)',
+    );
   }
+  const [, owner, repo] = match;
+
+  // 1. Fetch the default-branch tree recursively
+  const { data: tree } = await axios.get(
+    `https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`,
+    { headers: { Accept: 'application/vnd.github.v3+json' }, timeout: 30_000 },
+  );
+
+  // 2. Filter to scannable source files
+  const blobs = (tree.tree as Array<{ path: string; type: string; size: number }>)
+    .filter(
+      (entry) =>
+        entry.type === 'blob' &&
+        entry.size < MAX_FILE_SIZE &&
+        SCAN_EXTENSIONS.has(path.extname(entry.path)),
+    )
+    .slice(0, MAX_FILES);
+
+  // 3. Download each file via the raw-content endpoint
+  const files: Record<string, string> = {};
+  for (const blob of blobs) {
+    try {
+      const contentUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${blob.path
+        .split('/')
+        .map(encodeURIComponent)
+        .join('/')}`;
+      const { data } = await axios.get(contentUrl, {
+        headers: { Accept: 'application/vnd.github.v3.raw' },
+        timeout: 10_000,
+        responseType: 'text',
+      });
+      files[blob.path] = typeof data === 'string' ? data : String(data);
+    } catch {
+      // Skip files that can't be fetched (binary, permissions, etc.)
+    }
+  }
+
+  return scanFromSource(files, repo);
 }
 
 /**
- * Scan source code provided as a map of filename → content strings.
+ * Scan source code provided as a map of filename -> content strings.
  * Writes files to a temp directory, scans, and cleans up.
  */
 export async function scanFromSource(
   files: Record<string, string>,
   skillName?: string,
-): Promise<ScanReport> {
+) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tork-scan-src-'));
-
   try {
     for (const [filename, content] of Object.entries(files)) {
       const filePath = path.join(tmpDir, filename);
@@ -64,13 +96,10 @@ export async function scanFromSource(
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(filePath, content);
     }
-
     const report = await scanner.scanSkill(tmpDir);
-
     if (skillName) {
       report.skillName = skillName;
     }
-
     return report;
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -80,20 +109,20 @@ export async function scanFromSource(
 /**
  * Strip absolute file paths from findings for public API responses.
  */
-export function formatReportForAPI(report: ScanReport): APIReport {
+export function formatReportForAPI(report: ReturnType<typeof Object>) {
   return {
-    skillName: report.skillName,
-    scannedAt: report.scannedAt,
-    filesScanned: report.filesScanned,
-    totalFindings: report.totalFindings,
-    findings: report.findings.map(stripFilePath),
-    riskScore: report.riskScore,
-    verdict: report.verdict,
-    scanDurationMs: report.scanDurationMs,
+    skillName: (report as any).skillName,
+    scannedAt: (report as any).scannedAt,
+    filesScanned: (report as any).filesScanned,
+    totalFindings: (report as any).totalFindings,
+    findings: ((report as any).findings || []).map(stripFilePath),
+    riskScore: (report as any).riskScore,
+    verdict: (report as any).verdict,
+    scanDurationMs: (report as any).scanDurationMs,
   };
 }
 
-function stripFilePath(finding: ScanFinding): APIFinding {
+function stripFilePath(finding: Record<string, unknown>) {
   return {
     ruleId: finding.ruleId,
     ruleName: finding.ruleName,

@@ -1,38 +1,37 @@
+/**
+ * Strict Network Policy — Enterprise lockdown for high-security environments.
+ *
+ * Minimal inbound ports (3000-3010), TLS-only outbound (443),
+ * explicit domain allowlist, and tight rate limiting.
+ */
+
 import { NetworkPolicyConfig } from '../config';
 
-/**
- * Strict network policy — enterprise lockdown.
- *
- * Inbound:  only 3000-3010 (single dev-server range)
- * Outbound: 443 only (TLS required)
- * Domains:  explicit allowlist — nothing else gets through
- */
-export const STRICT_NETWORK_POLICY: Required<NetworkPolicyConfig> = {
+// Generate port ranges
+function range(start: number, end: number): number[] {
+  const ports: number[] = [];
+  for (let i = start; i <= end; i++) {
+    ports.push(i);
+  }
+  return ports;
+}
+
+export const STRICT_NETWORK_POLICY: NetworkPolicyConfig = {
   networkPolicy: 'strict',
-
-  // Inbound: narrow dev-server range only
-  allowedInboundPorts: [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010],
-
-  // Outbound: TLS only
-  allowedOutboundPorts: [443],
-
-  // Explicit domain allowlist
+  allowedInboundPorts: range(3000, 3010),
+  allowedOutboundPorts: [443],          // TLS only
   allowedDomains: [
     'api.openai.com',
     'api.anthropic.com',
     'tork.network',
-    'www.tork.network',
+    'tork.network',
     'api.tork.network',
     'registry.npmjs.org',
     'github.com',
     'api.github.com',
   ],
   blockedDomains: [],
-
-  // Tight rate limiting
-  maxConnectionsPerMinute: 20,
-
-  // All detection enabled
+  maxConnectionsPerMinute: 20,          // Tight limit
   detectPortHijacking: true,
   detectReverseShells: true,
   blockPrivilegedPorts: true,

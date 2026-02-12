@@ -1,3 +1,11 @@
+/**
+ * Tool Call Interceptor — Governs tool invocations by OpenClaw skills.
+ *
+ * Checks shell commands against blocklists, validates file paths
+ * against allowed/blocked lists, and restricts network requests
+ * under strict policy.
+ */
+
 import { TorkConfig, ToolCallDecision } from '../config';
 
 export interface ToolCall {
@@ -16,10 +24,7 @@ const DANGEROUS_TOOLS = new Set([
   'http_request',
 ]);
 
-export function governToolCall(
-  tool: ToolCall,
-  config: TorkConfig
-): ToolCallDecision {
+export function governToolCall(tool: ToolCall, config: TorkConfig): ToolCallDecision {
   // Minimal policy: allow everything
   if (config.policy === 'minimal') {
     return { allowed: true };

@@ -1,11 +1,9 @@
-import { TorkConfig } from '../config';
-
 /** Production config — standard policies, blocked domains, all detection on. */
-export const PRODUCTION_CONFIG: Partial<TorkConfig> & { apiKey: string } = {
+export const PRODUCTION_CONFIG = {
   apiKey: process.env.TORK_API_KEY || 'REPLACE_ME',
-  policy: 'standard',
+  policy: 'standard' as const,
   redactPII: true,
-  networkPolicy: 'default',
+  networkPolicy: 'default' as const,
   blockedDomains: [
     'pastebin.com',
     'requestbin.com',

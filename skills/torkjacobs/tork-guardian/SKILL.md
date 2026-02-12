@@ -1,117 +1,257 @@
----
-name: tork-guardian
-version: 1.0.1
-description: AI governance and safety layer for OpenClaw agents. Protects against unsafe actions, redacts sensitive data, and generates compliance audit trails.
-author: Tork Network
-homepage: https://tork.network/openclaw
-repository: https://github.com/torknetwork/tork-guardian
-license: MIT
-tags:
-  - security
-  - governance
-  - compliance
-  - safety
-  - audit
-  - privacy
-  - policy-enforcement
-platforms:
-  - darwin
-  - linux
-  - win32
----
+# Tork Guardian for OpenClaw
 
-# Tork Guardian
+> OpenClaw is powerful. Tork makes it safe.
 
-**A safety layer for OpenClaw agents — by [Tork Network](https://tork.network).**
+Enterprise-grade security and governance layer for OpenClaw agents. Detect PII, enforce policies, generate compliance receipts, control tool access, and scan skills for vulnerabilities before installation.
 
-Tork Guardian adds governance controls to your OpenClaw agent, helping you enforce safety policies, protect sensitive data, and maintain audit trails for every interaction.
+## Installation
 
-## What It Does
-
-- **PII Redaction** — Automatically detects and redacts emails, SSNs, phone numbers, and credit card numbers before they reach LLMs
-- **Compliance Receipts** — Cryptographic audit trail for every governed interaction
-- **Policy Enforcement** — Configurable strict/standard/minimal policies for agent behavior
-- **Safe Command Execution** — Prevents dangerous shell patterns and restricts file access to approved paths
-- **Network Safety** — Validates outbound connections, restricts port usage, and enforces domain allowlists
-- **Security Scanner** — 14 built-in detection rules with risk scoring and safety verdicts
-
-## Getting Started
-
-1. Install the skill:
-```
-   clawhub install tork-guardian
+```bash
+npm install @torknetwork/guardian
 ```
 
-2. Sign up for a free API key at [tork.network/signup](https://tork.network/signup?ref=openclaw) (5,000 calls/month free)
+## Quick Start
 
-3. Add your key to the environment:
+```typescript
+import { TorkGuardian } from '@torknetwork/guardian';
+
+const guardian = new TorkGuardian({
+  apiKey: process.env.TORK_API_KEY!,
+});
+
+// Govern an LLM request before sending
+const result = await guardian.governLLM({
+  messages: [
+    { role: 'user', content: 'Email john@example.com about the project' },
+  ],
+});
+// PII is redacted: "Email [EMAIL_REDACTED] about the project"
+
+// Check if a tool call is allowed
+const decision = guardian.governTool({
+  name: 'shell_execute',
+  args: { command: 'rm -rf /' },
+});
+// { allowed: false, reason: 'Blocked shell command pattern: "rm -rf"' }
 ```
-   export TORK_API_KEY="tork_your_key_here"
-```
 
-4. Restart your OpenClaw session. Tork Guardian will automatically govern all agent interactions.
+## Network Security
 
-**Note:** Tork Guardian works in fail-open mode — if the API is unreachable or no key is set, your agent continues to function normally. The key enables cloud-based governance features like compliance receipts and PII detection.
+Tork Guardian governs all network activity — port binds, outbound connections, and DNS lookups — with SSRF prevention, reverse shell detection, and per-skill rate limiting.
 
-## Policy Tiers
+### Using the network handler
 
-| Feature | Standard | Strict | Minimal |
-|---------|----------|--------|---------|
-| PII redaction | Yes | Yes | No |
-| Dangerous command blocking | Patterns only | All blocked | No |
-| File access control | Sensitive paths | Sensitive paths | No |
-| Network validation | Allowed | Restricted | No |
-| Compliance receipts | Yes | Yes | No |
-
-## Configuration
 ```typescript
 const guardian = new TorkGuardian({
+  apiKey: process.env.TORK_API_KEY!,
+  networkPolicy: 'default',
+});
+
+const network = guardian.getNetworkHandler();
+
+// Validate a port bind
+const bind = network.validatePortBind('my-skill', 3000, 'tcp');
+// { allowed: true, reason: 'Port 3000/tcp bound' }
+
+// Validate an outbound connection
+const egress = network.validateEgress('my-skill', 'api.openai.com', 443);
+// { allowed: true, reason: 'Egress to api.openai.com:443 allowed' }
+
+// Validate a DNS lookup (flags raw IPs)
+const dns = network.validateDNS('my-skill', 'api.openai.com');
+// { allowed: true, reason: 'DNS lookup for api.openai.com allowed' }
+
+// Get the full activity log for compliance
+const log = network.getActivityLog();
+
+// Get a network report with anomaly detection
+const report = network.getMonitor().getNetworkReport();
+```
+
+### Standalone functions
+
+```typescript
+import { validatePortBind, validateEgress, validateDNS } from '@torknetwork/guardian';
+
+const config = { apiKey: 'tork_...', networkPolicy: 'strict' as const };
+
+validatePortBind(config, 'my-skill', 3000, 'tcp');
+validateEgress(config, 'my-skill', 'api.openai.com', 443);
+validateDNS(config, 'my-skill', 'api.openai.com');
+```
+
+### Switching policies
+
+```typescript
+// Default — balanced for dev & production
+const guardian = new TorkGuardian({
   apiKey: 'tork_...',
-  policy: 'standard',       // 'strict' | 'standard' | 'minimal'
-  redactPII: true,
-  blockedPaths: ['.env', '.ssh', 'credentials.json'],
-  networkPolicy: 'default', // 'default' | 'strict' | 'custom'
-  allowedOutboundPorts: [443],
-  allowedDomains: ['api.openai.com'],
+  networkPolicy: 'default',
+});
+
+// Strict — enterprise lockdown (443 only, explicit domain allowlist)
+const guardian = new TorkGuardian({
+  apiKey: 'tork_...',
+  networkPolicy: 'strict',
+});
+
+// Custom — override any setting
+const guardian = new TorkGuardian({
+  apiKey: 'tork_...',
+  networkPolicy: 'custom',
+  allowedOutboundPorts: [443, 8443],
+  allowedDomains: ['api.myservice.com'],
   maxConnectionsPerMinute: 30,
 });
 ```
 
-## Supported Tool Governance
+See [docs/NETWORK-SECURITY.md](docs/NETWORK-SECURITY.md) for full details on threat coverage, policy comparison, and compliance receipts.
 
-| Tool | Standard Policy | Strict Policy |
-|------|----------------|---------------|
-| shell_execute | Blocks dangerous patterns | Blocks all |
-| file_write | Blocks sensitive paths | Blocks sensitive paths |
-| file_delete | Blocks sensitive paths | Blocks sensitive paths |
-| network_request | Allowed | Restricted |
+## Example Configs
 
-## Network Safety
+Pre-built configurations for common environments:
 
-| Check | Default Policy | Strict Policy |
-|-------|---------------|---------------|
-| Inbound ports | 3000-3999, 8000-8999 | 3000-3010 only |
-| Outbound ports | 80, 443, 8080 | 443 only |
-| Domain filtering | None (all allowed) | Explicit allowlist only |
-| Privileged ports (< 1024) | Blocked | Blocked |
-| Private networks (SSRF) | Blocked | Blocked |
-| Rate limit | 60 conn/min | 20 conn/min |
+```typescript
+import {
+  MINIMAL_CONFIG,
+  DEVELOPMENT_CONFIG,
+  PRODUCTION_CONFIG,
+  ENTERPRISE_CONFIG,
+} from '@torknetwork/guardian';
+```
 
-## How It Works
+| Config | Policy | Network | Description |
+|--------|--------|---------|-------------|
+| `MINIMAL_CONFIG` | standard | default | Just an API key, all defaults |
+| `DEVELOPMENT_CONFIG` | minimal | default | Permissive policies, full logging |
+| `PRODUCTION_CONFIG` | standard | default | Blocked exfil domains (pastebin, ngrok, burp) |
+| `ENTERPRISE_CONFIG` | strict | strict | Explicit domain allowlist, 20 conn/min, TLS only |
 
-Tork Guardian operates as a governance middleware that intercepts agent actions before execution:
+```typescript
+import { TorkGuardian, PRODUCTION_CONFIG } from '@torknetwork/guardian';
 
-1. **Intercept** — Agent requests (LLM calls, tool executions, file operations) pass through Guardian
-2. **Evaluate** — Each request is checked against your configured policy tier
-3. **Protect** — Unsafe actions are blocked, sensitive data is redacted, and all actions are logged
-4. **Receipt** — A cryptographic compliance receipt is generated for audit purposes
+const guardian = new TorkGuardian({
+  ...PRODUCTION_CONFIG,
+  apiKey: process.env.TORK_API_KEY!,
+});
+```
 
-All governance happens locally first (policy checks, pattern matching), with optional cloud enrichment via the Tork API for enhanced PII detection and compliance logging.
+## Configuration
 
-## About Tork Network
+```typescript
+const guardian = new TorkGuardian({
+  // Required
+  apiKey: 'tork_...',
 
-Tork is an AI governance platform used by developers and enterprises to enforce safety policies across AI agents. MIT licensed. Learn more at [tork.network](https://tork.network).
+  // Optional
+  baseUrl: 'https://www.tork.network',   // API endpoint
+  policy: 'standard',                     // 'strict' | 'standard' | 'minimal'
+  redactPII: true,                        // Enable PII redaction
 
-- Documentation: [tork.network/docs](https://tork.network/docs)
-- Support: support@tork.network
-- npm: [@torknetwork/guardian](https://www.npmjs.com/package/@torknetwork/guardian)
+  // Shell command governance
+  blockShellCommands: [
+    'rm -rf', 'mkfs', 'dd if=', 'chmod 777',
+    'shutdown', 'reboot',
+  ],
+
+  // File access control
+  allowedPaths: [],                        // Empty = allow all (except blocked)
+  blockedPaths: [
+    '.env', '.env.local', '~/.ssh',
+    '~/.aws', 'credentials.json',
+  ],
+
+  // Network governance
+  networkPolicy: 'default',               // 'default' | 'strict' | 'custom'
+  allowedInboundPorts: [3000, 8080],       // Ports skills may bind to
+  allowedOutboundPorts: [443],             // Ports for outbound connections
+  allowedDomains: ['api.openai.com'],      // If non-empty, only these domains are allowed
+  blockedDomains: ['evil.com'],            // Domains always blocked
+  maxConnectionsPerMinute: 60,             // Per-skill egress rate limit
+});
+```
+
+## Policies
+
+| Policy | PII | Shell | Files | Network |
+|--------|-----|-------|-------|---------|
+| **strict** | Deny on detection | Block all | Whitelist only | Block all |
+| **standard** | Redact | Block dangerous | Block sensitive | Allow |
+| **minimal** | Redact | Allow all | Allow all | Allow all |
+
+## Standalone Functions
+
+```typescript
+import { redactPII, generateReceipt, governToolCall } from '@torknetwork/guardian';
+
+// Redact PII from text
+const result = await redactPII('tork_...', 'Call 555-123-4567');
+
+// Generate a compliance receipt
+const receipt = await generateReceipt('tork_...', 'Processed user data');
+
+// Check a tool call against policy
+const decision = governToolCall(
+  { name: 'file_write', args: { path: '.env' } },
+  { policy: 'standard', blockedPaths: ['.env'] }
+);
+```
+
+## Security Scanner
+
+Scan any OpenClaw skill for vulnerabilities **before** installing it. The scanner checks for 14 security patterns across code and network categories.
+
+### CLI
+
+```bash
+# Scan a skill directory
+npx tork-scan ./my-skill
+
+# Full details for every finding
+npx tork-scan ./my-skill --verbose
+
+# JSON output for CI/CD
+npx tork-scan ./my-skill --json
+
+# Fail on any high or critical finding
+npx tork-scan ./my-skill --strict
+```
+
+### Programmatic
+
+```typescript
+import { SkillScanner, generateBadge } from '@torknetwork/guardian';
+
+const scanner = new SkillScanner();
+const report = await scanner.scanSkill('./my-skill');
+
+console.log(`Risk: ${report.riskScore}/100`);
+console.log(`Verdict: ${report.verdict}`); // 'verified' | 'reviewed' | 'flagged'
+```
+
+See [docs/SCANNER.md](docs/SCANNER.md) for the full rule reference, severity weights, and example output.
+
+## Tork Verified Badges
+
+Skills that pass the security scanner receive a Tork Verified badge:
+
+| Badge | Score | Meaning |
+|-------|-------|---------|
+| **Tork Verified** (green) | 0 - 29 | Safe to install |
+| **Tork Reviewed** (yellow) | 30 - 49 | Manual review recommended |
+| **Tork Flagged** (red) | 50 - 100 | Security risks detected |
+
+```typescript
+import { SkillScanner, generateBadge, generateBadgeMarkdown } from '@torknetwork/guardian';
+
+const scanner = new SkillScanner();
+const report = await scanner.scanSkill('./my-skill');
+const badge = generateBadge(report);
+
+// Add to your README
+console.log(generateBadgeMarkdown(badge));
+```
+
+## Get Your API Key
+
+Sign up at [tork.network](https://tork.network) to get your API key.

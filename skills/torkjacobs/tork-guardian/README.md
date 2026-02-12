@@ -7,13 +7,13 @@ Enterprise-grade security and governance layer for OpenClaw agents. Detect PII, 
 ## Installation
 
 ```bash
-npm install @tork/guardian
+npm install @torknetwork/guardian
 ```
 
 ## Quick Start
 
 ```typescript
-import { TorkGuardian } from '@tork/guardian';
+import { TorkGuardian } from '@torknetwork/guardian';
 
 const guardian = new TorkGuardian({
   apiKey: process.env.TORK_API_KEY!,
@@ -71,7 +71,7 @@ const report = network.getMonitor().getNetworkReport();
 ### Standalone functions
 
 ```typescript
-import { validatePortBind, validateEgress, validateDNS } from '@tork/guardian';
+import { validatePortBind, validateEgress, validateDNS } from '@torknetwork/guardian';
 
 const config = { apiKey: 'tork_...', networkPolicy: 'strict' as const };
 
@@ -117,7 +117,7 @@ import {
   DEVELOPMENT_CONFIG,
   PRODUCTION_CONFIG,
   ENTERPRISE_CONFIG,
-} from '@tork/guardian';
+} from '@torknetwork/guardian';
 ```
 
 | Config | Policy | Network | Description |
@@ -128,7 +128,7 @@ import {
 | `ENTERPRISE_CONFIG` | strict | strict | Explicit domain allowlist, 20 conn/min, TLS only |
 
 ```typescript
-import { TorkGuardian, PRODUCTION_CONFIG } from '@tork/guardian';
+import { TorkGuardian, PRODUCTION_CONFIG } from '@torknetwork/guardian';
 
 const guardian = new TorkGuardian({
   ...PRODUCTION_CONFIG,
@@ -182,7 +182,7 @@ const guardian = new TorkGuardian({
 ## Standalone Functions
 
 ```typescript
-import { redactPII, generateReceipt, governToolCall } from '@tork/guardian';
+import { redactPII, generateReceipt, governToolCall } from '@torknetwork/guardian';
 
 // Redact PII from text
 const result = await redactPII('tork_...', 'Call 555-123-4567');
@@ -220,7 +220,7 @@ npx tork-scan ./my-skill --strict
 ### Programmatic
 
 ```typescript
-import { SkillScanner, generateBadge } from '@tork/guardian';
+import { SkillScanner, generateBadge } from '@torknetwork/guardian';
 
 const scanner = new SkillScanner();
 const report = await scanner.scanSkill('./my-skill');
@@ -242,7 +242,7 @@ Skills that pass the security scanner receive a Tork Verified badge:
 | **Tork Flagged** (red) | 50 - 100 | Security risks detected |
 
 ```typescript
-import { SkillScanner, generateBadge, generateBadgeMarkdown } from '@tork/guardian';
+import { SkillScanner, generateBadge, generateBadgeMarkdown } from '@torknetwork/guardian';
 
 const scanner = new SkillScanner();
 const report = await scanner.scanSkill('./my-skill');
