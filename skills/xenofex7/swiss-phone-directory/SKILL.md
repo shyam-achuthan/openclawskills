@@ -1,6 +1,11 @@
 ---
 name: swiss-phone-directory
 description: "Swiss phone directory lookup via search.ch API. Search for businesses, people, or reverse-lookup phone numbers. Use when: (1) finding contact details for Swiss companies or people, (2) looking up addresses by name or phone number, (3) reverse phone number lookup, (4) finding business categories. Requires SEARCHCH_API_KEY."
+metadata:
+  openclaw:
+    requires:
+      env:
+        - SEARCHCH_API_KEY
 ---
 
 # Swiss Phone Directory Skill
@@ -60,7 +65,7 @@ Results include (when available):
 - **Name** - Business or person name
 - **Type** - Organisation or Person
 - **Address** - Street, ZIP, city, canton
-- **Phone** - Clickable tel: link (e.g., `[055 220 88 33](tel:+41552208833)`)
+- **Phone** - Clickable tel: link (e.g., `[044 123 45 67](tel:+41441234567)`)
 - **Fax** - Clickable tel: link
 - **Email** - Email address
 - **Website** - Website URL
@@ -70,7 +75,7 @@ Results include (when available):
 
 Phone numbers are automatically formatted as Markdown links with `tel:` protocol:
 ```
-📞 [055 220 88 33](tel:+41552208833)
+📞 [044 123 45 67](tel:+41441234567)
 ```
 
 This enables **one-tap calling** on mobile devices (Telegram, Signal, WhatsApp, etc.).
@@ -79,9 +84,19 @@ To disable clickable links, use `--no-clickable`.
 
 ## Configuration
 
-See [references/configuration.md](references/configuration.md) for setup.
+### Get an API Key (free)
 
-Required: `SEARCHCH_API_KEY` environment variable.
+1. **Request a key:** https://search.ch/tel/api/getkey.en.html
+2. Fill out the form (name, email, use case)
+3. **Approval:** ~10-15 minutes, key arrives via email
+
+### Set the Environment Variable
+
+```bash
+export SEARCHCH_API_KEY="your-api-key-here"
+```
+
+For permanent setup, see [references/configuration.md](references/configuration.md).
 
 ## API Reference
 
