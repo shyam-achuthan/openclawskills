@@ -1,0 +1,11 @@
+{
+  "owner": "adorostkar",
+  "slug": "calendar-reminders",
+  "displayName": "Calendar Reminders (gcalcli + CalDAV)",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1770850670519,
+    "commit": null
+  },
+  "history": []
+}
