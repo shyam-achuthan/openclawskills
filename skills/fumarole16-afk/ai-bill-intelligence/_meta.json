@@ -3,11 +3,16 @@
   "slug": "ai-bill-intelligence",
   "displayName": "Ai Bill Clawhub",
   "latest": {
-    "version": "2.1.2",
-    "publishedAt": 1770944414312,
-    "commit": "https://github.com/openclaw/skills/commit/3cb715ce4cdc5bfb5618cea51fae985dadb4f507"
+    "version": "2.1.7",
+    "publishedAt": 1770985859465,
+    "commit": null
   },
   "history": [
+    {
+      "version": "2.1.2",
+      "publishedAt": 1770944414312,
+      "commit": "https://github.com/openclaw/skills/commit/3cb715ce4cdc5bfb5618cea51fae985dadb4f507"
+    },
     {
       "version": "2.1.1",
       "publishedAt": 1770900088252,
