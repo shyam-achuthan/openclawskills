@@ -3,11 +3,16 @@
   "slug": "grok-imagine-video",
   "displayName": "Grok Imagine Video Generation",
   "latest": {
-    "version": "1.0.3",
-    "publishedAt": 1770854352880,
-    "commit": "https://github.com/openclaw/skills/commit/b8a9b4fe19bb17e1c07725aa6efbcd2ea6b6ad99"
+    "version": "1.0.4",
+    "publishedAt": 1770911599741,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.3",
+      "publishedAt": 1770854352880,
+      "commit": "https://github.com/openclaw/skills/commit/b8a9b4fe19bb17e1c07725aa6efbcd2ea6b6ad99"
+    },
     {
       "version": "1.0.2",
       "publishedAt": 1770852721926,

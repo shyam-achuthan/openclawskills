@@ -1,6 +1,8 @@
-# xAI Grok Imagine Video API Reference
+# xAI Grok Imagine API Reference
 
-Based on: https://docs.x.ai/developers/model-capabilities/video/generation
+Based on:
+- https://docs.x.ai/developers/model-capabilities/images/generation
+- https://docs.x.ai/developers/model-capabilities/video/generation
 
 ## Base URL
 ```
@@ -17,6 +19,78 @@ Get your API key from: https://console.x.ai/
 
 ## Endpoints
 
+---
+
+## Image Generation
+
+### Generate Images
+
+**POST** `/images/generations`
+
+Generate one or more images from a text prompt.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `model` | string | Yes | Must be `"grok-imagine-image"` |
+| `prompt` | string | Yes | Text description of desired image |
+| `n` | integer | No | Number of variations (1-10). Default: 1 |
+| `aspect_ratio` | string | No | `"1:1"`, `"16:9"`, `"9:16"`, `"4:3"`, `"3:4"`, `"3:2"`, `"2:3"`, `"2:1"`, `"1:2"`, `"19.5:9"`, `"9:19.5"`, `"20:9"`, `"9:20"`, or `"auto"`. Default: `"1:1"` |
+| `response_format` | string | No | `"url"` for temporary URL or `"b64_json"` for base64 data. Default: `"url"` |
+
+**Example:**
+```json
+{
+  "model": "grok-imagine-image",
+  "prompt": "A collage of London landmarks in a stenciled street-art style",
+  "n": 1,
+  "aspect_ratio": "16:9"
+}
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "url": "https://...",
+      "respect_moderation": true
+    }
+  ],
+  "model": "grok-imagine-image"
+}
+```
+
+### Edit Images
+
+**POST** `/images/edits`
+
+Edit an existing image via natural language instruction.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `model` | string | Yes | Must be `"grok-imagine-image"` |
+| `prompt` | string | Yes | Natural language edit instruction |
+| `image` | object | Yes | `{"url": "...", "type": "image_url"}` with a public URL or base64 data URI |
+| `n` | integer | No | Number of variations (1-10). Default: 1 |
+| `response_format` | string | No | `"url"` or `"b64_json"`. Default: `"url"` |
+
+**Example:**
+```json
+{
+  "model": "grok-imagine-image",
+  "prompt": "Change the landmarks to be New York City landmarks",
+  "image": {"url": "https://example.com/london.jpg", "type": "image_url"}
+}
+```
+
+---
+
+## Video Generation
+
 ### Start Video Generation
 
 **POST** `/videos/generations`
@@ -32,12 +106,12 @@ Single endpoint for all video generation modes: text-to-video, image-to-video, a
 | `duration` | integer | No | Duration in seconds (1-15). Default: 10. Ignored for video editing. |
 | `aspect_ratio` | string | No | `"16:9"`, `"9:16"`, `"1:1"`, `"4:3"`, `"3:4"`, `"3:2"`, `"2:3"`. Default: `"16:9"` for text-to-video; editing uses source dimensions. |
 | `resolution` | string | No | `"480p"` or `"720p"`. Default: `"480p"`. Editing capped at 720p. |
-| `image_url` | string | No | For image-to-video: public URL or base64 data URI (`data:image/jpeg;base64,...`) |
+| `image` | object | No | For image-to-video: `{"url": "..."}` with a public URL or base64 data URI |
 | `video_url` | string | No | For video editing: URL of the source video |
 
 **Mode selection:**
-- Text-to-video: provide `prompt` only (no `image_url` or `video_url`)
-- Image-to-video: provide `prompt` + `image_url`
+- Text-to-video: provide `prompt` only (no `image` or `video_url`)
+- Image-to-video: provide `prompt` + `image`
 - Video editing: provide `prompt` + `video_url`
 
 **Example — Text-to-video:**
@@ -56,7 +130,7 @@ Single endpoint for all video generation modes: text-to-video, image-to-video, a
 {
   "model": "grok-imagine-video",
   "prompt": "Make the clouds move gently",
-  "image_url": "https://example.com/image.jpg",
+  "image": {"url": "https://example.com/image.jpg"},
   "duration": 10
 }
 ```
@@ -137,6 +211,13 @@ Poll this endpoint to check if your video is ready.
 
 ## Key Constraints
 
+### Images
+- Maximum 10 images per request
+- Image URLs are temporary — download promptly after generation
+- Image editing charges for both input and output images
+- All images subject to content moderation
+
+### Videos
 - Text/image-to-video duration: 1-15 seconds
 - Video editing: max 8.7 seconds input video
 - Video editing output matches source aspect ratio and resolution (capped at 720p)
@@ -151,6 +232,22 @@ The API rejects prompts containing:
 - Violence or gore
 - Illegal activities
 - Copyrighted material
+
+## Image Specifications
+
+### Supported Aspect Ratios
+- 1:1: Square (default)
+- 16:9, 9:16: Landscape/Portrait
+- 4:3, 3:4, 3:2, 2:3: Standard ratios
+- 2:1, 1:2: Wide/Tall
+- 19.5:9, 9:19.5, 20:9, 9:20: Ultra-wide/tall
+- auto: Automatic selection
+
+### Output Formats
+- URL: Temporary download link (default)
+- b64_json: Base64-encoded image data
+
+---
 
 ## Video Specifications
 
