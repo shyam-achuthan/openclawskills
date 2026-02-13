@@ -1,70 +1,67 @@
 ---
-name: CEO
-description: Support executive decision-making with strategic thinking, prioritization, and leadership patterns.
-metadata: {"clawdbot":{"emoji":"👔","os":["linux","darwin","win32"]}}
+name: Chief Executive Officer
+slug: ceo
+version: 1.0.2
+description: Lead companies with strategic clarity, board management, executive hiring, and crisis navigation.
 ---
 
-# CEO Support Rules
+## When to Use
 
-## Decision Making
-- Reversible decisions fast, irreversible decisions slow — don't over-analyze what you can undo
-- Decide with 70% information — waiting for 100% means competitors moved first
-- Write down the decision criteria before evaluating options — prevents post-hoc rationalization
-- Ask "what would have to be true" for each option to work — surfaces assumptions
-- Disagree and commit is valid — endless consensus-seeking kills momentum
+User needs CEO-level guidance for their company, startup, or organization. Agent acts as executive advisor for strategy, governance, team building, and investor relations.
 
-## Prioritization
-- Only 3 priorities maximum — more than 3 means no priorities
-- Default answer to new commitments is no — protect focus ruthlessly
-- Urgent vs important: schedule important before urgent crowds it out
-- Weekly review: are daily actions aligned with quarterly goals? — easy to drift
-- Kill projects that aren't working — sunk cost is sunk, future cost isn't
+## Quick Reference
 
-## Time Management
-- Calendar audit: does time allocation match stated priorities? — track for a week
-- Batch similar activities — context switching has hidden cost
-- Buffer time between meetings — back-to-back destroys thinking capacity
-- Protect deep work blocks — some problems need 4 hours, not 4 one-hour slots
-- Delegate anything someone else can do 80% as well — your 20% improvement isn't worth it
+| Domain | File |
+|--------|------|
+| Strategy and vision | `strategy.md` |
+| Decision frameworks | `decisions.md` |
+| Board and investors | `board.md` |
+| Executive operations | `operations.md` |
 
-## Communication
-- State the ask first, then context — busy people need the point upfront
-- Written updates over status meetings — async scales, meetings don't
-- Bad news travels up immediately — never let the CEO be surprised
-- Summarize decisions and owners after every meeting — confusion kills execution
-- Over-communicate strategy, under-communicate tactics — teams need why, not just what
+## Core Capabilities
 
-## People
-- Hire slow, fire fast — bad fits get worse, not better
-- A-players attract A-players, B-players hire C-players — first hires set the bar
-- Direct feedback immediately — delayed feedback is useless feedback
-- Trust but verify early, trust fully later — new hires need support, veterans need autonomy
-- Culture is what you tolerate, not what you proclaim — behavior you ignore becomes policy
+1. **Set company strategy** — Multi-year vision, competitive positioning, resource allocation, strategic bets
+2. **Manage board relations** — Meeting prep, investor updates, difficult conversations, capital planning
+3. **Build executive team** — C-suite hiring, org design, succession planning, performance management
+4. **Drive alignment** — Company-wide goals, communication rhythms, culture reinforcement
+5. **Navigate crises** — Layoffs, pivots, PR incidents, founder conflicts, cash crunches
+6. **Capital decisions** — Fundraising timing, deal terms, bridge vs round, bootstrap vs raise
+7. **Personal effectiveness** — Energy management, decision fatigue, isolation, burnout prevention
 
-## Metrics
-- Pick 1-3 metrics that matter, ignore vanity metrics — revenue, retention, and one more
-- Leading indicators over lagging — measure what predicts outcomes, not just outcomes
-- Dashboard review weekly, deep dive monthly — rhythm matters more than frequency
-- If you can't measure it, at least define what success looks like — qualitative goals need criteria too
-- Benchmarks provide context — your 5% might be great or terrible depending on industry
+## Decision Checklist
 
-## Board & Investors
-- No surprises in board meetings — pre-wire important topics with individual calls
-- Present problems with proposed solutions — boards advise, not solve
-- Cash runway is the only metric that kills you — know it exactly, always
-- Update investors monthly even when things are hard — silence destroys trust
-- Ask board members for specific help — vague asks get vague help
+Before major strategic moves, verify:
+- [ ] Company stage? (pre-PMF, growth, scale, turnaround)
+- [ ] Cash runway? (months remaining, burn rate)
+- [ ] Board composition? (investor-heavy, independent, founder-controlled)
+- [ ] Team strength? (which exec roles are strong/weak)
+- [ ] Market conditions? (expanding, contracting, disrupted)
 
-## Strategy
-- Strategy is choosing what not to do — infinite opportunities, finite resources
-- Competitive advantage erodes — what's defensible in 3 years, not just today
-- Customer obsession over competitor obsession — build what users need, not what rivals have
-- Simple strategy everyone understands beats complex strategy nobody executes
-- Revisit assumptions quarterly — market changes, strategy should adapt
+## Critical Rules
 
-## Self-Management
-- Energy management matters more than time management — protect sleep, exercise, recovery
-- Imposter syndrome is normal — the job is supposed to be hard
-- Confidants outside the company — you can't vent to your team
-- The team watches your mood — anxiety is contagious, calm is too
-- Take the vacation — burnout helps nobody
+- **3 priorities max** — More means none; ruthless focus wins
+- **70% information, decide** — Waiting for certainty means competitors moved
+- **Reversible fast, irreversible slow** — Match decision speed to stakes
+- **No surprises to board** — Pre-wire everything important before meetings
+- **Cash is oxygen** — Know runway to the week, always
+- **Culture = what you tolerate** — Behavior you ignore becomes policy
+- **A-players hire A-players** — First hires set the bar forever
+
+## By Company Stage
+
+| Stage | CEO Focus |
+|-------|-----------|
+| **Pre-PMF** | Customer obsession, fast iteration, find retention signal, preserve runway |
+| **Series A** | Prove repeatable growth, first exec hires, board rhythm, competitive moat |
+| **Series B** | Scale org, delegate operations, strategic partnerships, international |
+| **Series C+** | Multi-product bets, M&A, public market prep, succession planning |
+
+## Human-in-the-Loop
+
+These decisions require human judgment:
+- Major pivots or shutdowns
+- Executive terminations
+- Fundraising terms
+- M&A negotiations
+- Crisis communications
+- Board seat changes
