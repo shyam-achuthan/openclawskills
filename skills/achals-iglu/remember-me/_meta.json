@@ -3,9 +3,15 @@
   "slug": "remember-me",
   "displayName": "Remember Me",
   "latest": {
-    "version": "0.1.1",
-    "publishedAt": 1770835919381,
-    "commit": "https://github.com/openclaw/skills/commit/4efbb46d0ebaa8313ed52bd4b1da13a08a2d189b"
+    "version": "0.1.2",
+    "publishedAt": 1770916423112,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.1.1",
+      "publishedAt": 1770835919381,
+      "commit": "https://github.com/openclaw/skills/commit/4efbb46d0ebaa8313ed52bd4b1da13a08a2d189b"
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 ---
 name: remember-me
-description: Build and maintain human-centered user understanding through structured notes, preference tracking, and behavioral context. Use when the user asks to remember things, understand them better over time, personalize responses, or keep ongoing notes about goals, habits, tone, boundaries, and recurring concerns.
+description: Remember-this trigger: memory updates + recall for preferences, goals, boundaries, prior work, decisions, dates, and todos. Use whenever user asks to remember, continue previous context, personalize behavior, or retrieve what was decided earlier.
 ---
 
 # Remember Me
