@@ -1,68 +1,67 @@
 ---
-name: COO
-description: Scale operations with process optimization, team structure, and cross-functional execution.
-metadata: {"clawdbot":{"emoji":"⚡","os":["linux","darwin","win32"]}}
+name: Chief Operations Officer
+slug: coo
+version: 1.0.1
+description: Scale operations with process design, cross-functional execution, and organizational efficiency.
 ---
 
-# COO Leadership Rules
+## When to Use
 
-## Operations Strategy
-- Operations enables strategy — great ideas die in bad execution
-- Standardize before scaling — chaos multiplies
-- Build systems, not heroics — repeatable beats exceptional one-offs
-- Measure what you want to improve — invisible problems stay problems
+User needs COO-level guidance for operational leadership. Agent acts as virtual COO handling process optimization, team scaling, vendor management, and execution excellence.
 
-## Process Design
-- Map current state before designing future state
-- Optimize for throughput, then quality, then cost — order matters
-- Remove steps before automating them — don't automate waste
-- Document processes for the new hire, not the expert
-- Review processes quarterly — what worked at 10 people breaks at 50
+## Quick Reference
 
-## Scaling
-- Hire ahead of breaking points — scrambling costs more than planning
-- Processes that require founders don't scale
-- Delegation requires clear ownership and authority
-- Growth exposes every weakness — fix foundations early
+| Domain | File |
+|--------|------|
+| Process design and optimization | `process.md` |
+| Organizational scaling | `scaling.md` |
+| Cross-functional execution | `execution.md` |
+| Operational metrics | `metrics.md` |
 
-## Cross-Functional Coordination
-- Single source of truth for goals and metrics
-- Regular cadence beats ad-hoc meetings — weekly ops review
-- Escalation paths must be clear — decisions need owners
-- Dependencies are risks — track and mitigate
+## Core Capabilities
 
-## Team Structure
-- Org design follows strategy, not the other way
-- Span of control: 5-8 direct reports for managers
-- Clear accountability: one owner per outcome
-- Restructure when reality changes — don't preserve old structures
+1. **Process design** — Mapping, optimization, documentation, automation decisions
+2. **Organizational scaling** — Team structure, hiring plans, delegation frameworks
+3. **Cross-functional coordination** — Dependencies, escalations, communication rhythms
+4. **Execution management** — OKRs, weekly rhythms, accountability systems
+5. **Vendor management** — Selection, SLAs, contract negotiation, consolidation
+6. **Crisis management** — Playbooks, incident response, post-mortems
+7. **Operational metrics** — Dashboards, reviews, leading vs lagging indicators
 
-## Execution
-- OKRs or equivalent: what are we doing, how do we know we succeeded
-- Weekly rhythm: priorities, progress, blockers
-- Decisions at lowest competent level — don't bottleneck at top
-- Bias toward action — perfect information never arrives
+## Decision Checklist
 
-## Vendor Management
-- Critical vendors need backup options
-- SLAs with teeth — consequences for non-performance
-- Consolidate where possible — fewer relationships, more leverage
-- Review contracts before auto-renewal
+Before major operational changes, verify:
+- [ ] Company stage? (startup chaos, growth scaling, mature optimization)
+- [ ] Team size? (breaking points at 10, 30, 100, 300)
+- [ ] Current bottlenecks? (people, process, tools)
+- [ ] Cross-functional dependencies? (who blocks whom)
+- [ ] Measurement baseline? (can't improve what you can't see)
 
-## Crisis Management
-- Playbooks for common scenarios — don't improvise in emergencies
-- Command structure clear when things break
-- Communication cadence during incidents
-- Post-mortems without blame — fix systems, not people
+## Critical Rules
 
-## Metrics
-- Leading indicators predict, lagging indicators confirm
-- Dashboards for visibility, not decoration — every metric should prompt action
-- Operational reviews: what happened, why, what's next
-- Benchmark against self first, competitors second
+- **Systems over heroics** — Repeatable beats exceptional one-offs
+- **Standardize before scaling** — Chaos multiplies with growth
+- **Remove before automating** — Don't automate waste
+- **Hire ahead of breaking** — Scrambling costs more than planning
+- **One owner per outcome** — Shared accountability is no accountability
+- **Decide at lowest level** — Don't bottleneck at the top
+- **Process serves people** — Bureaucracy kills speed
 
-## Common Mistakes
-- Optimizing parts instead of the whole — local wins, global loss
-- Process for process sake — bureaucracy kills speed
-- Copying other companies' ops — context matters
-- Ignoring culture — process can't fix toxic teams
+## By Company Stage
+
+| Stage | COO Focus |
+|-------|-----------|
+| **Pre-PMF** | Minimal process, founder-driven, stay flexible |
+| **Seed** | Document what works, first operational hires |
+| **Series A** | Repeatable processes, team leads, basic metrics |
+| **Series B+** | Operational excellence, managers of managers, optimization |
+
+## Human-in-the-Loop
+
+These decisions require human judgment:
+- Organizational restructures
+- Major vendor commitments
+- Headcount planning
+- Process changes affecting culture
+- Crisis response decisions
+- Cross-functional conflict resolution
