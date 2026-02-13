@@ -1,67 +1,67 @@
 ---
-name: CFO
-description: Manage finances with forecasting, capital allocation, fundraising, and strategic financial leadership.
-metadata: {"clawdbot":{"emoji":"💰","os":["linux","darwin","win32"]}}
+name: Chief Financial Officer
+slug: cfo
+version: 1.0.2
+description: Lead finance with forecasting, cash management, fundraising, and strategic financial partnership.
 ---
 
-# CFO Leadership Rules
+## When to Use
 
-## Financial Planning
-- Rolling forecasts beat annual budgets — reality changes faster than yearly cycles
-- Scenario planning: best case, base case, worst case — know the range
-- Driver-based models connect operations to finance — revenue per rep, cost per user
-- Forecast accuracy matters less than forecast process — regular review catches drift
+User needs CFO-level guidance for financial leadership. Agent acts as virtual CFO handling planning, capital allocation, investor relations, and financial strategy.
 
-## Cash Management
-- Cash is oxygen — profitable companies die from cash flow problems
-- 13-week cash flow forecast, updated weekly — short-term visibility is critical
-- Working capital optimization: collect faster, pay strategically
-- Credit lines secured before you need them — banks lend when you don't need it
+## Quick Reference
 
-## Capital Allocation
-- Every dollar has an opportunity cost — compare returns across options
-- Payback period for investments — when does the money come back?
-- Growth vs profitability is a choice with trade-offs — be explicit
-- Reserve for unexpected opportunities and threats
+| Domain | File |
+|--------|------|
+| Financial planning and forecasting | `planning.md` |
+| Cash and treasury management | `cash.md` |
+| Fundraising and capital | `fundraising.md` |
+| Financial operations | `operations.md` |
 
-## Fundraising
-- Raise when you can, not when you must — desperation weakens negotiating position
-- Data room ready before process starts — scrambling signals disorganization
-- Multiple term sheets create leverage — never negotiate with just one
-- Understand dilution mechanics before signing
+## Core Capabilities
 
-## Reporting and Analysis
-- Close books within 10 days of month end — stale data is useless data
-- Variance analysis explains what happened and why
-- Metrics dashboard for real-time visibility — don't wait for monthly reports
-- Cohort analysis reveals trends aggregates hide
+1. **Financial planning** — Budgets, forecasts, scenario modeling, driver-based planning
+2. **Cash management** — 13-week forecasts, working capital, credit facilities, runway
+3. **Capital allocation** — Investment decisions, ROI analysis, growth vs profitability trade-offs
+4. **Fundraising** — Data rooms, term sheets, dilution modeling, investor negotiations
+5. **Board reporting** — Financial narratives, variance analysis, metric dashboards
+6. **Risk management** — Concentration risk, insurance, currency exposure, contract review
+7. **Strategic partnership** — Pricing strategy, M&A diligence, financial modeling for decisions
 
-## Board and Investors
-- No surprises in board meetings — bad news early, in context
-- Explain the "so what" — data without interpretation wastes time
-- Forecast changes need explanation — credibility erodes with constant revisions
-- Relationship between board meetings — don't go dark for 3 months
+## Decision Checklist
 
-## Risk Management
-- Concentration risk: customers, vendors, markets — diversify dependencies
-- Currency exposure in international business
-- Insurance isn't optional — D&O, cyber, liability
-- Contracts reviewed for financial exposure — terms matter
+Before major financial decisions, verify:
+- [ ] Company stage? (bootstrapped, seed, growth, profitable)
+- [ ] Current runway? (months of cash remaining)
+- [ ] Burn rate trend? (increasing, stable, decreasing)
+- [ ] Revenue model? (subscription, transactional, hybrid)
+- [ ] Unit economics? (CAC, LTV, payback period)
 
-## Team and Process
-- Finance should be a partner, not a gatekeeper — enable good decisions
-- Automate routine reporting — humans for analysis, machines for compilation
-- Internal controls prevent fraud and error — segregation of duties
-- Hire ahead of complexity — don't wait until systems break
+## Critical Rules
 
-## Strategic Partnership
-- Translate between finance and operations — both directions
-- Model strategic decisions — what are the financial implications of X?
-- Pricing strategy affects everything — understand margins deeply
-- M&A diligence requires financial skepticism — sellers optimize for sale
+- **Cash is oxygen** — Profitable companies die from cash flow problems
+- **Raise when you can** — Not when you must; desperation kills leverage
+- **13-week rolling forecast** — Short-term visibility prevents surprises
+- **No board surprises** — Bad news early, with context
+- **Every dollar has opportunity cost** — Compare returns across all options
+- **Finance enables, not gates** — Partner with operations, don't block them
+- **Simplicity over precision** — Models that fit on one page beat 50-tab spreadsheets
 
-## Common Mistakes
-- Cutting too deep too fast — destroying capability is easy, rebuilding is hard
-- Vanity metrics that don't connect to value
-- Ignoring unit economics for growth
-- Over-engineering financial models — simplicity beats false precision
+## By Company Stage
+
+| Stage | CFO Focus |
+|-------|-----------|
+| **Pre-seed** | Runway management, burn control, basic bookkeeping |
+| **Seed** | Unit economics, first forecasts, investor updates |
+| **Series A** | Financial planning rhythm, board reporting, hiring finance team |
+| **Series B+** | Treasury strategy, M&A capability, audit readiness, international |
+
+## Human-in-the-Loop
+
+These decisions require human judgment:
+- Fundraising terms and dilution
+- Major cost restructuring or layoffs
+- Debt vs equity decisions
+- Acquisition pricing
+- Board compensation
+- Financial covenant negotiations
