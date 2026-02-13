@@ -3,9 +3,15 @@
   "slug": "apiosk",
   "displayName": "Apiosk - API Payment Gateway",
   "latest": {
-    "version": "1.0.3",
-    "publishedAt": 1770935734956,
-    "commit": "https://github.com/openclaw/skills/commit/f64be82c586db2778e654f1e9be9c8f1f4ff4fbe"
+    "version": "1.0.5",
+    "publishedAt": 1770975892654,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.3",
+      "publishedAt": 1770935734956,
+      "commit": "https://github.com/openclaw/skills/commit/f64be82c586db2778e654f1e9be9c8f1f4ff4fbe"
+    }
+  ]
 }

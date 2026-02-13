@@ -4,108 +4,42 @@
 
 ### Private Key Storage
 
-The Apiosk skill stores wallet private keys in `~/.apiosk/wallet.json` with restrictive file permissions (chmod 600). **The private key is stored in plaintext.**
+The Apiosk skill generates a standard Ethereum keypair using `ethers.js` and stores it in `~/.apiosk/wallet.json` with restrictive file permissions (chmod 600 — owner read/write only). **The private key is stored in plaintext.**
 
-**This is suitable for:**
+The private key is required to sign on-chain payment transactions. It is **never transmitted** to the gateway — only your public wallet address is sent with API requests.
+
+**Suitable for:**
 - Testing and development
 - Small amounts ($1-10 USDC)
-- Proof-of-concept usage
 
-**This is NOT suitable for:**
-- Production use with large amounts
-- Shared/multi-user systems
-- Long-term key storage
-
-### Recommended Production Setup
-
-For production usage, use one of these alternatives:
-
-1. **Hardware Wallet**
-   - Ledger or Trezor
-   - Requires modification of skill scripts
-   - Contact support for integration guide
-
-2. **External Key Management**
-   - AWS KMS, Google Cloud KMS, HashiCorp Vault
-   - Requires custom integration
-   - Recommended for enterprise deployments
-
-3. **Hot Wallet with Monitoring**
-   - Generate wallet with `./setup-wallet.sh`
-   - Fund with ONLY the amount you need for immediate use
-   - Monitor balance: `./check-balance.sh`
-   - Set up alerts for unusual activity
-
-### Payment Verification
-
-**How x402 works:**
-- The gateway validates payments by checking the blockchain directly
-- Your wallet address is sent with each request (for payment association)
-- The gateway verifies on-chain that your address has paid the required amount
-- **Your private key is NEVER transmitted** - only your public wallet address is sent
-
-**Why the private key exists:**
-- The private key is stored locally for future use cases (e.g., withdrawals, refunds)
-- Currently, API calls only send your wallet address, not the private key
-- The gateway performs on-chain verification without needing your signature
-- This is a simplified implementation - full x402 may require client-side signing in the future
-
-**Security implications:**
-- Even though the private key isn't currently used for API calls, it's still a sensitive secret
-- If compromised, someone could drain the wallet's USDC balance
-- Always fund with only small amounts ($1-10) for testing
-- For production, implement external key management or hardware wallet integration
+**For production, use:**
+- Hardware wallet (Ledger, Trezor)
+- External KMS (AWS KMS, Google Cloud KMS, HashiCorp Vault)
 
 ### Dependencies
 
-The skill requires Foundry (cast command) for wallet generation. Install manually:
-
-```bash
-curl -L https://foundry.paradigm.xyz | bash
-foundryup
-```
-
-**Why manual installation is recommended:**
-- Allows you to review the installer script before running
-- Gives you control over when/how dependencies are installed
-- Reduces risk of supply chain attacks
+Wallet generation uses `ethers.js` (installed via npm from package.json). **No external installers or `curl | bash` required.**
 
 ### Network Security
 
-The skill communicates with:
-- `https://gateway.apiosk.com` - Apiosk API gateway (HTTPS only)
-- Base mainnet RPC - On-chain verification
-- No other external services
+The skill communicates only with:
+- `https://gateway.apiosk.com` — Apiosk API gateway (HTTPS only)
 
 ### Best Practices
 
-1. **Start small:** Test with $1-5 USDC first
+1. **Start small:** Fund with $1-5 USDC for testing
 2. **Monitor usage:** Run `./usage-stats.sh` regularly
-3. **Check balance:** Run `./check-balance.sh` before large operations
-4. **Backup wallet:** Keep a secure backup of `~/.apiosk/wallet.json`
-5. **Never share:** Don't share your private key with anyone
-6. **Use dedicated wallet:** Don't reuse wallets from other services
+3. **Dedicated wallet:** Don't reuse wallets from other services
+4. **Backup:** Keep a secure backup of `~/.apiosk/wallet.json`
+5. **Never share** your private key with anyone
 
 ### Reporting Security Issues
 
-If you discover a security vulnerability, please email:
-- **Security contact:** olivier@walhallah.com
-- **Subject:** [SECURITY] Apiosk Skill Vulnerability
+Email: olivier@walhallah.com  
+Subject: `[SECURITY] Apiosk Skill Vulnerability`
 
-**Please do NOT open public GitHub issues for security vulnerabilities.**
-
-We will respond within 48 hours and work with you to address the issue.
-
-### Security Audit Status
-
-**Current status:** Not audited
-
-This skill has not undergone a professional security audit. Use at your own risk.
-
-If you would like to sponsor a security audit, please contact us.
+Please do NOT open public GitHub issues for security vulnerabilities.
 
 ### License
 
-MIT License - See LICENSE file for details.
-
-**Disclaimer:** This software is provided "as is" without warranty of any kind. Use at your own risk.
+MIT — Use at your own risk.

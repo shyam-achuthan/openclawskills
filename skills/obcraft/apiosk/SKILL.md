@@ -36,11 +36,13 @@ git clone https://github.com/olivierbrinkman/apiosk-skill
 ./setup-wallet.sh
 
 # This creates ~/.apiosk/wallet.json with:
-# - Private key (stored locally, chmod 600 for security)
-# - Public address
-# - Base mainnet RPC
-
-**IMPORTANT:** The private key is stored in plaintext in `~/.apiosk/wallet.json` (with restrictive file permissions). Only fund this wallet with small amounts for testing. For production, use a hardware wallet or external key management.
+# - Ethereum address (public)
+# - Private key (stored locally, chmod 600)
+# - Creation timestamp
+#
+# ⚠️ The private key is stored in plaintext with restrictive permissions.
+# Only fund with small amounts for testing ($1-10).
+# For production, use a hardware wallet or external KMS.
 ```
 
 **Important:** Fund your wallet with USDC on Base mainnet (minimum $1-10 recommended).
@@ -280,11 +282,11 @@ console.log(await getDailyDigest(['technology', 'business']));
 
 **Apiosk (x402):**
 ```
-1. Make request
-2. Gateway returns 402 Payment Required
-3. Your wallet signs payment proof
-4. Gateway verifies on-chain
-5. Gateway forwards to API
+1. Generate wallet (keypair stored locally)
+2. Fund with USDC on Base
+3. Make request — gateway returns 402
+4. Client signs payment with your private key
+5. Gateway verifies on-chain
 6. You get response
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "apiosk-skill",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Pay-per-request API access for OpenClaw agents using x402 protocol (USDC micropayments on Base). Requires wallet setup and funding.",
   "main": "apiosk-client.js",
   "scripts": {
@@ -28,5 +28,7 @@
   "bugs": {
     "url": "https://github.com/olivierbrinkman/apiosk-skill/issues"
   },
-  "dependencies": {}
+  "dependencies": {
+    "ethers": "^6.0.0"
+  }
 }
