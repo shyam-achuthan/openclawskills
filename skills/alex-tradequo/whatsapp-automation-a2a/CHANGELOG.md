@@ -4,6 +4,24 @@ All notable changes to the **MoltFlow Skills** package are documented here.
 
 ---
 
+## v2.3.2 (2026-02-13)
+
+### Changed
+- Improved root SKILL.md formatting and content clarity
+- Pretty-printed JSON in all curl code samples
+- Simplified Privacy & Data Flow section (prose instead of table)
+- Condensed comparison table column headers
+
+---
+
+## v2.3.1 (2026-02-13)
+
+### Fixed
+- Restored `metadata.openclaw` in frontmatter — ClawHub registry reads env vars from this field, not top-level `requiredEnv`
+- Replaced `$JWT` with `$MOLTFLOW_API_KEY` in scoped API key creation example — JWT is not a declared env var
+
+---
+
 ## v2.3.0 (2026-02-13)
 
 ### Added

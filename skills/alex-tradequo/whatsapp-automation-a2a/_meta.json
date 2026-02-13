@@ -3,11 +3,16 @@
   "slug": "whatsapp-automation-a2a",
   "displayName": "WhatsApp All-in-One — AI Messaging, Leads, Bulk Send & A2A",
   "latest": {
-    "version": "2.3.0",
-    "publishedAt": 1770986919076,
-    "commit": "https://github.com/openclaw/skills/commit/db15fc55e58fbeea6427273ef2a65f241ebfe63b"
+    "version": "2.3.2",
+    "publishedAt": 1770987622562,
+    "commit": null
   },
   "history": [
+    {
+      "version": "2.3.0",
+      "publishedAt": 1770986919076,
+      "commit": "https://github.com/openclaw/skills/commit/db15fc55e58fbeea6427273ef2a65f241ebfe63b"
+    },
     {
       "version": "2.1.2",
       "publishedAt": 1770885750132,

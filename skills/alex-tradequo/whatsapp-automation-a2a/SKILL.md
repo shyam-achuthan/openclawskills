@@ -1,6 +1,6 @@
 ---
 name: "WhatsApp All-in-One — AI Messaging, Leads, Bulk Send & A2A"
-version: "2.3.0"
+version: "2.3.2"
 description: "MoltFlow — complete WhatsApp automation platform with built-in BizDev growth agent. Proactive account scanning, chat mining for hidden leads, retention plays, and automated setup. Plus: bulk messaging, scheduled messages, custom groups, lead detection & CRM, AI replies with style cloning, knowledge base (RAG), voice transcription, group monitoring, labels, anti-spam, content safeguards, review collection, webhooks, GDPR compliance, and agent-to-agent protocol. 90+ API endpoints."
 source: "MoltFlow Team"
 risk: safe
@@ -9,6 +9,7 @@ requiredEnv:
   - MOLTFLOW_API_KEY
 primaryEnv: MOLTFLOW_API_KEY
 disable-model-invocation: true
+metadata: {"openclaw":{"emoji":"📱","homepage":"https://molt.waiflow.app","requires":{"env":["MOLTFLOW_API_KEY"]},"primaryEnv":"MOLTFLOW_API_KEY"}}
 ---
 
 # WhatsApp Automation & A2A
@@ -26,22 +27,28 @@ Complete WhatsApp automation platform — 90+ API endpoints, proactive growth ag
 Install the skill, set your API key, and start talking:
 
 **"Scan my WhatsApp account for growth opportunities"**
-BizDev agent runs 11 API calls, finds unanswered contacts, unmonitored high-value groups, and leads going cold.
+BizDev agent runs 11 API calls, finds unanswered contacts,
+unmonitored high-value groups, and leads going cold.
 
 **"Find cold leads I haven't followed up with"**
-Scans your chats, identifies contacts with no reply in 7+ days, suggests re-engagement messages in your writing style.
+Scans your chats, identifies contacts with no reply in 7+ days,
+suggests re-engagement messages in your writing style.
 
 **"Set up keyword monitoring for my real estate groups"**
-Lists your WhatsApp groups, adds monitoring for "looking for", "need help", "budget" — auto-detects leads into your pipeline.
+Lists your WhatsApp groups, adds monitoring for "looking for",
+"need help", "budget" — auto-detects leads into your pipeline.
 
 **"Collect customer feedback from my support chats"**
-Configures review collectors with sentiment analysis, auto-approves positive reviews, exports testimonials as HTML.
+Configures review collectors with sentiment analysis,
+auto-approves positive reviews, exports testimonials as HTML.
 
 **"Send a promo to my VIP client list every Monday at 9 AM"**
-Creates a scheduled message with timezone-aware cron, ban-safe throttling, and delivery tracking.
+Creates a scheduled message with timezone-aware cron,
+ban-safe throttling, and delivery tracking.
 
 **"Reply to my WhatsApp messages while I'm in meetings"**
-Trains a style profile from your messages, generates AI replies that match your tone. Preview before sending.
+Trains a style profile from your messages, generates AI replies
+that match your tone. Preview before sending.
 
 ---
 
@@ -52,7 +59,11 @@ Trains a style profile from your messages, generates AI replies that match your 
 ```bash
 curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"session_id": "uuid", "chat_id": "1234567890@c.us", "message": "Hello!"}' \
+  -d '{
+    "session_id": "uuid",
+    "chat_id": "1234567890@c.us",
+    "message": "Hello!"
+  }' \
   https://apiv2.waiflow.app/api/v2/messages/send
 ```
 
@@ -61,7 +72,11 @@ curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
 ```bash
 curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"custom_group_id": "group-uuid", "session_id": "uuid", "message": "Weekly update..."}' \
+  -d '{
+    "custom_group_id": "group-uuid",
+    "session_id": "uuid",
+    "message": "Weekly update..."
+  }' \
   https://apiv2.waiflow.app/api/v2/bulk-send
 ```
 
@@ -70,7 +85,15 @@ curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
 ```bash
 curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"name": "Monday update", "session_id": "uuid", "chat_id": "123@c.us", "message": "...", "recurrence": "weekly", "scheduled_time": "2026-02-17T09:00:00", "timezone": "America/New_York"}' \
+  -d '{
+    "name": "Monday update",
+    "session_id": "uuid",
+    "chat_id": "123@c.us",
+    "message": "...",
+    "recurrence": "weekly",
+    "scheduled_time": "2026-02-17T09:00:00",
+    "timezone": "America/New_York"
+  }' \
   https://apiv2.waiflow.app/api/v2/scheduled-messages
 ```
 
@@ -79,7 +102,12 @@ curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
 ```bash
 curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"session_id": "uuid", "wa_group_id": "120363012345@g.us", "monitor_mode": "keywords", "monitor_keywords": ["looking for", "need help", "budget"]}' \
+  -d '{
+    "session_id": "uuid",
+    "wa_group_id": "120363012345@g.us",
+    "monitor_mode": "keywords",
+    "monitor_keywords": ["looking for", "need help", "budget"]
+  }' \
   https://apiv2.waiflow.app/api/v2/groups
 ```
 
@@ -95,7 +123,12 @@ curl -H "X-API-Key: $MOLTFLOW_API_KEY" \
 ```bash
 curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"contact_id": "5511999999999@c.us", "context": "Customer asks: What is your return policy?", "use_rag": true, "apply_style": true}' \
+  -d '{
+    "contact_id": "5511999999999@c.us",
+    "context": "Customer asks: What is your return policy?",
+    "use_rag": true,
+    "apply_style": true
+  }' \
   https://apiv2.waiflow.app/api/v2/ai/generate-reply
 ```
 
@@ -104,7 +137,14 @@ curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
 ```bash
 curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"name": "Customer Feedback", "session_id": "uuid", "source_type": "all", "min_sentiment_score": 0.7, "include_keywords": ["thank", "recommend", "love"], "languages": ["en"]}' \
+  -d '{
+    "name": "Customer Feedback",
+    "session_id": "uuid",
+    "source_type": "all",
+    "min_sentiment_score": 0.7,
+    "include_keywords": ["thank", "recommend", "love"],
+    "languages": ["en"]
+  }' \
   https://apiv2.waiflow.app/api/v2/reviews/collectors
 ```
 
@@ -117,9 +157,17 @@ curl https://apiv2.waiflow.app/.well-known/agent.json
 ### Create a scoped API key
 
 ```bash
-curl -X POST -H "Authorization: Bearer $JWT" \
+curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"name": "outreach-bot", "scopes": ["messages:send", "custom-groups:manage", "bulk-send:manage"], "expires_in_days": 90}' \
+  -d '{
+    "name": "outreach-bot",
+    "scopes": [
+      "messages:send",
+      "custom-groups:manage",
+      "bulk-send:manage"
+    ],
+    "expires_in_days": 90
+  }' \
   https://apiv2.waiflow.app/api/v2/api-keys
 ```
 
@@ -128,7 +176,14 @@ curl -X POST -H "Authorization: Bearer $JWT" \
 ```bash
 curl -X POST -H "X-API-Key: $MOLTFLOW_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://your-server.com/webhook", "events": ["message.received", "lead.detected", "session.connected"]}' \
+  -d '{
+    "url": "https://your-server.com/webhook",
+    "events": [
+      "message.received",
+      "lead.detected",
+      "session.connected"
+    ]
+  }' \
   https://apiv2.waiflow.app/api/v2/webhooks
 ```
 
@@ -197,16 +252,16 @@ Full API reference with all endpoints: see each module's SKILL.md below.
 
 ## How MoltFlow Compares
 
-| Category | MoltFlow | whatsapp-ultimate | wacli | whatsapp-automation |
-|----------|:--------:|:-----------------:|:-----:|:-------------------:|
-| Messaging | 18/18 | 14/18 | 3/18 | 1/18 |
+| Category | Molt | wa-ultimate | wacli | wa-auto |
+|----------------------|:----:|:----------:|:-----:|:------:|
+| Messaging | 18 | 14 | 3 | 1 |
 | Groups & Monitoring | 8 | 4 | 0 | 0 |
-| Outreach & Scheduling | 7 | 0 | 0 | 0 |
+| Outreach & Scheduling| 7 | 0 | 0 | 0 |
 | CRM & Leads | 7 | 0 | 0 | 0 |
 | AI & Intelligence | 7 | 0 | 0 | 0 |
 | Reviews & Analytics | 8 | 0 | 0 | 0 |
-| Compliance & Security | 10 | 0 | 0 | 0 |
-| Platform & Infrastructure | 8 | 0 | 0 | 0 |
+| Compliance & Security| 10 | 0 | 0 | 0 |
+| Platform & Infra | 8 | 0 | 0 | 0 |
 | **Total** | **80+** | **~15** | **~3** | **~1** |
 
 ---
@@ -215,13 +270,20 @@ Full API reference with all endpoints: see each module's SKILL.md below.
 
 This skill is **read-only by default** — it calls the MoltFlow HTTPS API to retrieve and display data. No data is sent to third parties beyond `apiv2.waiflow.app`.
 
-| Data | Where it stays | What happens |
-|------|---------------|--------------|
-| Chat metadata | MoltFlow server only | Queried via API, displayed locally, never copied elsewhere |
-| Message content | MoltFlow server only | 500-char truncated previews; full messages are not stored |
-| BizDev scan results | Local `.moltflow.json` | Aggregate counts and settings only (no PII, no message content) |
-| Style profiles | MoltFlow server only | Statistical patterns only — raw text never stored or transmitted |
-| API key | Local environment variable | Never logged, never sent to any service other than `apiv2.waiflow.app` |
+**Chat metadata** — MoltFlow server only.
+Queried via API, displayed locally, never copied elsewhere.
+
+**Message content** — MoltFlow server only.
+500-char truncated previews; full messages are not stored.
+
+**BizDev scan results** — Local `.moltflow.json`.
+Aggregate counts and settings only (no PII, no message content).
+
+**Style profiles** — MoltFlow server only.
+Statistical patterns only — raw text never stored or transmitted.
+
+**API key** — Local environment variable.
+Never logged, never sent to any service other than `apiv2.waiflow.app`.
 
 **Chat history access** is gated by tenant opt-in (default: disabled). Enable at Settings > Account > Data Access before using chat-related features.
 
@@ -235,9 +297,9 @@ This skill is **read-only by default** — it calls the MoltFlow HTTPS API to re
 
 > **Yearly plans save up to 17%** — pay once, use for 12 months.
 
-| Plan | Monthly | Yearly | Messages/mo | Sessions | Groups | API Rate |
-|------|---------|--------|-------------|----------|--------|----------|
-| Free | $0 | -- | 50 | 1 | 2 | 10/min |
+| Plan | Monthly | Yearly | Msgs/mo | Sessions | Groups | Rate |
+|----------|---------|---------|---------|----------|--------|--------|
+| Free | $0 | — | 50 | 1 | 2 | 10/min |
 | Starter | $9.90 | $99/yr | 500 | 1 | 5 | 20/min |
 | Pro | $29.90 | $299/yr | 1,500 | 5 | 20 | 40/min |
 | Business | $69.90 | $699/yr | 3,000 | 15 | 100 | 60/min |
@@ -335,7 +397,7 @@ Run any script: `MOLTFLOW_API_KEY=your-key python scripts/quickstart.py`
 
 ## Changelog
 
-**v2.3.0** (2026-02-13) — See [CHANGELOG.md](CHANGELOG.md) for full history.
+**v2.3.2** (2026-02-13) — See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 <!-- FILEMAP:BEGIN -->
 ```text
