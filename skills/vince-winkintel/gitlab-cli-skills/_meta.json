@@ -3,11 +3,16 @@
   "slug": "gitlab-cli-skills",
   "displayName": "Gitlab Cli Skills",
   "latest": {
-    "version": "1.2.1",
-    "publishedAt": 1770961526781,
-    "commit": "https://github.com/openclaw/skills/commit/9fa8c3f82462bffa157dad3540e941af700ec6bc"
+    "version": "1.2.2",
+    "publishedAt": 1770993193673,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.2.1",
+      "publishedAt": 1770961526781,
+      "commit": "https://github.com/openclaw/skills/commit/9fa8c3f82462bffa157dad3540e941af700ec6bc"
+    },
     {
       "version": "1.1.0",
       "publishedAt": 1770873975313,
