@@ -3,11 +3,16 @@
   "slug": "jobforbots",
   "displayName": "JobForBots",
   "latest": {
-    "version": "2.0.0",
-    "publishedAt": 1769971785528,
-    "commit": "https://github.com/clawdbot/skills/commit/ab9cac19309ca7132b56f363be506297d9228470"
+    "version": "3.2.0",
+    "publishedAt": 1771038598338,
+    "commit": null
   },
   "history": [
+    {
+      "version": "2.0.0",
+      "publishedAt": 1769971785528,
+      "commit": "https://github.com/clawdbot/skills/commit/ab9cac19309ca7132b56f363be506297d9228470"
+    },
     {
       "version": "1.2.3",
       "publishedAt": 1769948595632,
