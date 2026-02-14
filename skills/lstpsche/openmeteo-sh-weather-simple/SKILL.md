@@ -64,13 +64,14 @@ Defaults are sensible for general weather. Override only when needed.
 ## Rules
 
 1. Always pass `--llm`.
-2. Never use `help` subcommand or `--raw` — work only with what's described here.
-3. No location specified -> check **USER.md** for city/country.
-4. Summarize results naturally — never paste raw output.
-5. Use `--forecast-days=1` for today, `=2` for tomorrow — minimize token waste.
-6. Use `--forecast-since=N` to skip to a specific future day.
-7. For targeted questions, override params to fetch only what's needed.
-8. When the user switches cities ("and what about London?"), carry over all params used in prior weather queries this conversation — including any added in follow-ups. The new city gets the union of all previously requested params.
+2. **Quote all user-provided values** in shell commands: `--city="New York"`, `--city="St. Petersburg"`. Only known-safe tokens (numbers, single ASCII words) may be unquoted.
+3. Never use `help` subcommand or `--raw` — work only with what's described here.
+4. No location specified -> use the user's default city/country if known from session context.
+5. Summarize results naturally — never paste raw output.
+6. Use `--forecast-days=1` for today, `=2` for tomorrow — minimize token waste.
+7. Use `--forecast-since=N` to skip to a specific future day.
+8. For targeted questions, override params to fetch only what's needed.
+9. When the user switches cities ("and what about London?"), carry over all params used in prior weather queries this conversation — including any added in follow-ups. The new city gets the union of all previously requested params.
 
 ## Examples
 
