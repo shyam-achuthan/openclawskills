@@ -151,8 +151,8 @@ const memoryToolsPlugin = {
     // Auto-inject standing instructions at conversation start
     if (cfg.autoInjectInstructions !== false) {
       api.on('before_agent_start', async (event: { prompt?: string }) => {
-        // Get standing instructions
-        const instructions = store.getByCategory('instruction', 10);
+        // Get standing instructions (use async to ensure DB is initialized)
+        const instructions = await store.getByCategoryAsync('instruction', 10);
 
         if (instructions.length === 0) {
           return { systemPrompt: MEMORY_SYSTEM_PROMPT };
@@ -184,11 +184,11 @@ const memoryToolsPlugin = {
         memory
           .command('stats')
           .description('Show memory statistics')
-          .action(() => {
-            const total = store.count();
-            const instructions = store.getByCategory('instruction').length;
-            const facts = store.getByCategory('fact').length;
-            const preferences = store.getByCategory('preference').length;
+          .action(async () => {
+            const total = await store.countAsync();
+            const instructions = (await store.getByCategoryAsync('instruction')).length;
+            const facts = (await store.getByCategoryAsync('fact')).length;
+            const preferences = (await store.getByCategoryAsync('preference')).length;
 
             console.log(`Memory Statistics:`);
             console.log(`  Total: ${total}`);
@@ -202,8 +202,8 @@ const memoryToolsPlugin = {
           .description('List memories')
           .option('-c, --category <category>', 'Filter by category')
           .option('-l, --limit <n>', 'Max results', '20')
-          .action((opts: { category?: string; limit?: string }) => {
-            const results = store.list({
+          .action(async (opts: { category?: string; limit?: string }) => {
+            const results = await store.listAsync({
               category: opts.category as any,
               limit: parseInt(opts.limit ?? '20'),
             });
@@ -233,8 +233,8 @@ const memoryToolsPlugin = {
         memory
           .command('export')
           .description('Export all memories as JSON')
-          .action(() => {
-            const results = store.list({ limit: 10000 });
+          .action(async () => {
+            const results = await store.listAsync({ limit: 10000 });
             console.log(JSON.stringify(results.items, null, 2));
           });
       },
@@ -247,8 +247,9 @@ const memoryToolsPlugin = {
 
     api.registerService({
       id: 'memory-tools',
-      start: () => {
-        api.logger.info(`memory-tools: service started (${store.count()} memories)`);
+      start: async () => {
+        const count = await store.countAsync();
+        api.logger.info(`memory-tools: service started (${count} memories)`);
       },
       stop: () => {
         store.close();

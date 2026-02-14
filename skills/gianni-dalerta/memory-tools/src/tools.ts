@@ -191,7 +191,7 @@ Use when:
           importance?: number;
         }
       ) {
-        const existing = store.get(params.id);
+        const existing = await store.getAsync(params.id);
         if (!existing) {
           return {
             content: [{ type: 'text' as const, text: `Memory ${params.id} not found.` }],
@@ -254,7 +254,7 @@ Use when:
         }
       ) {
         if (params.id) {
-          const existing = store.get(params.id);
+          const existing = await store.getAsync(params.id);
           if (!existing) {
             return {
               content: [{ type: 'text' as const, text: `Memory ${params.id} not found.` }],
@@ -390,7 +390,7 @@ Use when:
         });
 
         // Update last accessed
-        store.touchMany(results.map(r => r.memory.id));
+        await store.touchManyAsync(results.map(r => r.memory.id));
 
         if (results.length === 0) {
           return {
@@ -527,7 +527,7 @@ Use when:
           offset?: number;
         }
       ) {
-        const results = store.list({
+        const results = await store.listAsync({
           category: params.category,
           sortBy: params.sortBy ?? 'createdAt',
           sortOrder: 'desc',

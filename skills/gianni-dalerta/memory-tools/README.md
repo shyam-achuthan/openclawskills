@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="header.png" alt="memory-tools" width="100%">
+</p>
+
 # OpenClaw Memory Tools
 
 Agent-controlled memory plugin for OpenClaw with confidence scoring, decay, and semantic search.

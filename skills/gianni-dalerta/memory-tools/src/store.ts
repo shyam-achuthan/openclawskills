@@ -195,9 +195,9 @@ export class MemoryStore {
   }
 
   /**
-   * Async version of get for internal use
+   * Async get - initializes database if needed
    */
-  private async getAsync(id: string): Promise<Memory | null> {
+  async getAsync(id: string): Promise<Memory | null> {
     const db = await this.ensureSqlite();
     return this.getFromDb(db, id);
   }
