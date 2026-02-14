@@ -3,11 +3,16 @@
   "slug": "token-panel-ultimate",
   "displayName": "Token Panel ULTIMATE",
   "latest": {
-    "version": "1.1.0",
-    "publishedAt": 1770649135859,
-    "commit": "https://github.com/openclaw/skills/commit/a938f93383d76f3fec2255a7a53c11bd62137095"
+    "version": "1.0.8",
+    "publishedAt": 1771022820483,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.1.0",
+      "publishedAt": 1770649135859,
+      "commit": "https://github.com/openclaw/skills/commit/a938f93383d76f3fec2255a7a53c11bd62137095"
+    },
     {
       "version": "1.0.5",
       "publishedAt": 1770593368252,

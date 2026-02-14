@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         OpenClaw Budget Panel v3
+// @name         OpenClaw Budget Panel v4
 // @namespace    https://openclaw.ai
-// @version      3.0.0
-// @description  Real-time budget panel with Claude OAuth API data
+// @version      4.0.0
+// @description  Real-time budget panel — Claude, ChatGPT, Gemini, Manus
 // @match        http://127.0.0.1:18789/*
 // @match        http://localhost:18789/*
 // @run-at       document-idle
@@ -279,6 +279,27 @@
         ${m.addon ? `<div class="bpw-detail" style="margin-top:4px;">💰 ${m.addon.toLocaleString()} addon credits</div>` : ''}
       </div>`;
 
+      // CHATGPT / OPENAI — only show models in our fallback chain
+      const chatgpt = data.chatgpt;
+      if (chatgpt && chatgpt.api_key_status !== 'missing') {
+        // Our configured fallback models (edit this list to match your setup)
+        const OUR_MODELS = ['gpt-4o'];
+        const chatModels = chatgpt.models || {};
+        const showModels = Object.entries(chatModels).filter(([m]) => OUR_MODELS.includes(m));
+        
+        if (showModels.length > 0) {
+          html += `<div class="bpw-section">
+            <div class="bpw-section-header"><span>ChatGPT</span><span style="font-size:8px;color:#666">API</span></div>`;
+          for (const [model, info] of showModels) {
+            const pct = info.utilization_pct || 0;
+            const req = info.requests || {};
+            const detail = `${req.remaining || 0}/${req.limit || 0} req left`;
+            html += renderBar(model, pct, detail);
+          }
+          html += `</div>`;
+        }
+      }
+
       // Footer
       const updateTime = data.claude?.fetchedAt ? new Date(data.claude.fetchedAt).toLocaleTimeString() : new Date().toLocaleTimeString();
       html += `<div style="font-size:8px;color:#888;text-align:center;margin-top:6px;">Updated: ${updateTime}</div>`;
@@ -291,7 +312,8 @@
       const data = {
         claude: { limits: { five_hour: { utilization: 0 }, seven_day: { utilization: 0 } } },
         gemini: {},
-        manus: { daily: { pct: 0 }, monthly: { pct: 0 } }
+        manus: { daily: { pct: 0 }, monthly: { pct: 0 } },
+        chatgpt: null
       };
 
       // Try to fetch from OpenClaw's plugin endpoint
@@ -309,6 +331,7 @@
             if (result.claude) data.claude = result.claude;
             if (result.gemini) data.gemini = result.gemini;
             if (result.manus) data.manus = result.manus;
+            if (result.chatgpt) data.chatgpt = result.chatgpt;
           }
         }
       } catch (e) {
@@ -331,7 +354,7 @@
     // Initial load and periodic refresh
     setTimeout(refresh, 1500);
     setInterval(refresh, 30000);
-    console.log('[Budget Panel] v3.0.0 - Real OAuth data');
+    console.log('[Budget Panel] v4.0.0 - Claude + ChatGPT + Gemini + Manus');
   }
 
   if (document.readyState === 'complete') setTimeout(init, 800);
