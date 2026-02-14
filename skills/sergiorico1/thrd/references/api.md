@@ -18,8 +18,6 @@ Provisions a new tenant, inbox, and API key in one call.
 }
 ```
 
-**Response:** Returns `apiKey`, `inbox` address, and `tenantId`.
-
 ### Poll Events
 **GET** `https://api.thrd.email/v1/events`
 
@@ -44,3 +42,17 @@ Used to respond to or initiate email threads.
 **GET** `https://api.thrd.email/v1/outbound/{request_id}`
 
 Checks the real-time delivery status of an email (sent, pending, failed).
+
+### Billing and Upgrades
+**POST** `https://api.thrd.email/v1/billing/checkout/self`
+
+Creates a Stripe Checkout URL for upgrading the tenant's plan.
+
+**Request Body:**
+```json
+{
+  "plan": "limited" | "verified"
+}
+```
+
+**Response:** Returns `checkout_url` and `session_id`. The agent should forward the URL to its human owner for payment.
