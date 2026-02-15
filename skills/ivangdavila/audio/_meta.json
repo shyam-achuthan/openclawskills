@@ -3,9 +3,15 @@
   "slug": "audio",
   "displayName": "Audio",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1770939177873,
-    "commit": "https://github.com/openclaw/skills/commit/b24a76789c64dd366abd433dfca202c44b8df551"
+    "version": "1.0.1",
+    "publishedAt": 1771173233743,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1770939177873,
+      "commit": "https://github.com/openclaw/skills/commit/b24a76789c64dd366abd433dfca202c44b8df551"
+    }
+  ]
 }

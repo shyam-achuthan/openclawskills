@@ -1,19 +1,21 @@
 ---
 name: Audio
+slug: audio
+version: 1.0.1
 description: Process, enhance, and convert audio files with noise removal, normalization, format conversion, transcription, and podcast workflows.
+changelog: Declare required binaries (ffmpeg, ffprobe), add requirements section with optional deps, add explicit scope
+metadata: {"clawdbot":{"emoji":"🔊","requires":{"bins":["ffmpeg","ffprobe"]},"os":["linux","darwin","win32"]}}
 ---
 
-## Core Capabilities
+## Requirements
 
-| Task | Method |
-|------|--------|
-| Convert formats | FFmpeg (`-acodec`) |
-| Remove noise | FFmpeg filters, SoX, or dedicated tools |
-| Normalize loudness | `ffmpeg-normalize` or `-af loudnorm` |
-| Transcribe | Whisper → text, SRT, VTT |
-| Separate stems | Demucs (vocals, drums, bass, other) |
+**Required:**
+- `ffmpeg` / `ffprobe` — core audio processing
 
----
+**Optional (for advanced features):**
+- `sox` — additional noise reduction
+- `whisper` — local transcription (or use API)
+- `demucs` — stem separation
 
 ## Quick Reference
 
@@ -24,20 +26,15 @@ description: Process, enhance, and convert audio files with noise removal, norma
 | Podcast production workflow | `podcast.md` |
 | Transcription workflow | `transcription.md` |
 
----
+## Core Capabilities
 
-## Workspace
-
-Store audio projects in `~/audio/`:
-```
-~/audio/
-├── input/        # Source files
-├── output/       # Processed results
-├── transcripts/  # SRT, VTT, TXT files
-└── stems/        # Separated tracks
-```
-
----
+| Task | Method |
+|------|--------|
+| Convert formats | FFmpeg (`-acodec`) |
+| Remove noise | FFmpeg filters or SoX |
+| Normalize loudness | `ffmpeg-normalize` or `-af loudnorm` |
+| Transcribe | Whisper → text, SRT, VTT |
+| Separate stems | Demucs (vocals, drums, bass, other) |
 
 ## Execution Pattern
 
@@ -45,9 +42,7 @@ Store audio projects in `~/audio/`:
 2. **Analyze source** — `ffprobe` for codec, sample rate, channels, duration
 3. **Process** — FFmpeg/SoX for transformation
 4. **Verify** — Check output plays, meets specs, sounds correct
-5. **Clean up** — Offer to delete intermediates
-
----
+5. **Deliver** — Provide file to user
 
 ## Common Requests → Actions
 
@@ -59,10 +54,7 @@ Store audio projects in `~/audio/`:
 | "Transcribe this" | Whisper → output SRT/VTT/TXT |
 | "Extract audio from video" | `-vn -acodec copy` or re-encode |
 | "Make it smaller" | Lower bitrate: `-b:a 128k` or `-b:a 96k` |
-| "Remove vocals" | Demucs stem separation → use instrumental |
 | "Speed up 1.5x" | `-af atempo=1.5` |
-
----
 
 ## Format Quick Reference
 
@@ -74,11 +66,17 @@ Store audio projects in `~/audio/`:
 | AAC/M4A | Apple, podcasts | Lossy, efficient |
 | OGG/Opus | WhatsApp, Discord | Lossy, very efficient |
 
----
-
 ## Quality Defaults
 
 - **Podcast:** -16 LUFS (Spotify), -19 LUFS (Apple)
 - **Music:** -14 LUFS (Spotify), -16 LUFS (Apple Music)
 - **MP3 quality:** VBR `-q:a 2` (~190 kbps) or CBR `-b:a 192k`
 - **Sample rate:** 44.1kHz for music, 48kHz for video sync
+
+## Scope
+
+This skill:
+- Processes audio files user explicitly provides
+- Runs FFmpeg commands on user request
+- Does NOT access cloud services without user knowing
+- Does NOT store files persistently (user manages their files)
