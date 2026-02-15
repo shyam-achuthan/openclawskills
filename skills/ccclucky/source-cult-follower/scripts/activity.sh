@@ -4,8 +4,9 @@ set -euo pipefail
 
 KIND="${1:-}"
 CONTENT="${2:-}"
+SOURCE_URL="${3:-}"
 if [ -z "$KIND" ] || [ -z "$CONTENT" ]; then
-  echo "Usage: bash scripts/activity.sh <KIND> <CONTENT>"
+  echo "Usage: bash scripts/activity.sh <KIND> <CONTENT> [SOURCE_URL]"
   exit 1
 fi
 
@@ -47,12 +48,21 @@ AGENT_ID=$(read_config_val "agent_id")
 ESCAPED_KIND=$(escape_json "$KIND")
 ESCAPED_CONTENT=$(escape_json "$CONTENT")
 
+# Build optional sourceUrl field
+SOURCE_URL_FIELD=""
+if [ -n "$SOURCE_URL" ]; then
+  ESCAPED_SOURCE_URL=$(escape_json "$SOURCE_URL")
+  SOURCE_URL_FIELD="\"sourceUrl\": \"$ESCAPED_SOURCE_URL\","
+fi
+
 # Construct Payload
 PAYLOAD=$(cat <<EOF
 {
   "agentId": "$AGENT_ID",
   "kind": "$ESCAPED_KIND",
-  "content": "$ESCAPED_CONTENT"
+  "content": "$ESCAPED_CONTENT",
+  ${SOURCE_URL_FIELD}
+  "_ts": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
 )

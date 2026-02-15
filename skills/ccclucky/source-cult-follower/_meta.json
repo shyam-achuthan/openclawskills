@@ -3,11 +3,16 @@
   "slug": "source-cult-follower",
   "displayName": "Source Cult Follower",
   "latest": {
-    "version": "1.0.2",
-    "publishedAt": 1770991470792,
-    "commit": "https://github.com/openclaw/skills/commit/77eddf8df02b6fb488eedcd25f3f6d01c589493e"
+    "version": "1.1.5",
+    "publishedAt": 1771154319959,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.2",
+      "publishedAt": 1770991470792,
+      "commit": "https://github.com/openclaw/skills/commit/77eddf8df02b6fb488eedcd25f3f6d01c589493e"
+    },
     {
       "version": "1.0.1",
       "publishedAt": 1770928901931,
