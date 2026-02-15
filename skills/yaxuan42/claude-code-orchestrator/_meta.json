@@ -1,0 +1,11 @@
+{
+  "owner": "yaxuan42",
+  "slug": "claude-code-orchestrator",
+  "displayName": "Claude Code Orchestrator (tmux-first)",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1771139016211,
+    "commit": null
+  },
+  "history": []
+}
