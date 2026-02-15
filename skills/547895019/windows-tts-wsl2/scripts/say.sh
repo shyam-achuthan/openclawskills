@@ -8,11 +8,11 @@ VOLUME=""
 usage() {
   cat <<'EOF'
 Usage:
-  saycn.sh [--voice "VOICE_NAME"] [--rate -10..10] [--volume 0..100] "TEXT..."
+  say.sh [--voice "VOICE_NAME"] [--rate -10..10] [--volume 0..100] "TEXT..."
 
 Examples:
-  saycn.sh "你好，我是你的助手。"
-  saycn.sh --voice "Microsoft Xiaoxiao - Chinese (Simplified, PRC)" "你好"
+  say.sh "你好，我是你的助手。"
+  say.sh --voice "Microsoft Xiaoxiao - Chinese (Simplified, PRC)" "你好"
 EOF
 }
 
@@ -41,11 +41,9 @@ fi
 
 TEXT="$*"
 
-# Build PowerShell command. Important: keep it as ONE -Command string and escape $ to avoid bash expansion.
 PS="Add-Type -AssemblyName System.Speech; \$s=[System.Speech.Synthesis.SpeechSynthesizer]::new();"
 
 if [[ -n "$VOICE" ]]; then
-  # Escape double quotes for PowerShell double-quoted strings:  "  ->  `"
   VOICE_ESC=$(printf '%s' "$VOICE" | sed 's/"/`"/g')
   PS+=" \$s.SelectVoice(\"$VOICE_ESC\");"
 fi
@@ -58,7 +56,6 @@ if [[ -n "$VOLUME" ]]; then
   PS+=" \$s.Volume=[int]$VOLUME;"
 fi
 
-# Escape double quotes for PowerShell double-quoted strings
 TEXT_ESC=$(printf '%s' "$TEXT" | sed 's/"/`"/g')
 PS+=" \$s.Speak(\"$TEXT_ESC\");"
 
