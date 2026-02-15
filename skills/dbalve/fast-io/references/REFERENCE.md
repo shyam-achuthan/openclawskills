@@ -1,6 +1,6 @@
 # Fast.io for AI Agents
 
-> **Version:** 1.18.0 | **Last updated:** 2026-02-12
+> **Version:** 1.21.0 | **Last updated:** 2026-02-14
 >
 > This guide is available at the `/current/agents/` endpoint on the connected API server.
 
@@ -23,7 +23,8 @@ below for the full tool list.
 
 MCP-connected agents also receive guided prompts (`prompts/list`, `prompts/get`) for common multi-step operations — see
 the "MCP Prompts" section below — and can read resources (`resources/read`) including `skill://guide` for full tool
-documentation and `session://status` for current authentication state.
+documentation, `session://status` for current authentication state, and `download://` resource templates for direct
+file content retrieval.
 
 This guide covers platform concepts and capabilities; the MCP server provides tool-level details through its standard
 protocol interface. The API endpoints referenced below are what the MCP server calls under the hood, and are available
@@ -186,6 +187,25 @@ needed.
 authenticated user's ID. This is useful at startup to confirm your credentials are valid before beginning work, or to
 detect an expired token without waiting for a 401 error on a real request.
 
+### OAuth Scopes — Controlling Access
+
+When using PKCE browser login, you can request scoped access tokens that limit what the agent can do. Scopes follow
+an inheritance model — broader scopes automatically include access to their children.
+
+**Scope types:**
+
+| Scope Type       | Description                                                                 |
+|------------------|-----------------------------------------------------------------------------|
+| `all_orgs`       | Access to all organizations the user owns or is a member of                 |
+| `all_workspaces` | Access to all workspaces across accessible organizations                    |
+| `all_shares`     | Access to all shares across accessible organizations and workspaces         |
+
+**Inheritance:** `all_orgs` includes `all_workspaces`, which includes `all_shares`. Requesting `all_orgs` grants full
+access to all orgs, workspaces, and shares the user has access to.
+
+Pass the desired `scope_type` when initiating the PKCE authorization flow (`POST /current/oauth/authorize/`). If
+omitted, the token defaults to full access (equivalent to `all_orgs`).
+
 ### Organizations — Collectors of Workspaces
 
 An organization (org) is a collector of workspaces. It can represent a company, a business unit, a team, or simply your own personal collection. Every workspace and share lives under an org, and orgs are the billable entity — storage, credits, and member limits are tracked at the org level.
@@ -301,7 +321,7 @@ activity feed — a shared environment where agents collaborate with other agent
 Workspaces have an **intelligence** toggle that controls whether AI features are active. This is a critical decision:
 
 **Intelligence OFF** — the workspace stores files without AI indexing. You can still attach files directly to an AI chat
-conversation (up to 10 files), but files are not persistently indexed. This is fine for coordination workflows where
+conversation (up to 20 files), but files are not persistently indexed. This is fine for coordination workflows where
 you don't need to query your content.
 
 **Intelligence ON** — the workspace becomes an AI-powered knowledge base. Every file uploaded is automatically ingested,
@@ -782,16 +802,37 @@ Body: from={"type":"upload","upload":{"id":"{session_id}"}}
 
 This is useful when you need to upload first and decide where to place the file later.
 
-#### MCP Binary Upload (Blob Sidecar)
+#### MCP Binary Upload — Three Approaches
 
-MCP-connected agents can avoid base64 encoding overhead (~33% size savings) by staging raw binary data through a
-sidecar endpoint:
+MCP agents have three ways to pass binary data when uploading chunks. Each uses the `upload` tool's `chunk` action
+with exactly one of `data`, `blob_ref`, or `content` (for text):
 
-1. `POST /blob` with your `Mcp-Session-Id` header and the raw bytes as the request body
-2. The server returns a `blob_id`
-3. Pass `blob_ref` (the `blob_id`) instead of the base64-encoded `chunk` field when calling the `upload` tool with action `chunk`
+**1. `data` parameter (base64) — simplest for MCP agents**
 
-This is MCP-specific — the REST API continues to use `multipart/form-data` as described above.
+Pass base64-encoded binary directly in the `data` parameter of the `chunk` action. No extra steps required. Works
+with any MCP client. Adds ~33% size overhead from base64 encoding.
+
+**2. `stage-blob` action — MCP tool-based blob staging**
+
+Use the `upload` tool's `stage-blob` action with `data` (base64) to pre-stage binary data as a blob. Returns a
+`blob_id` that you pass as `blob_ref` in the `chunk` call. Useful when decoupling staging from uploading or preparing
+multiple chunks in advance.
+
+1. `upload` action `stage-blob` with `data` (base64-encoded binary) → returns `{ blob_id, size }`
+2. `upload` action `chunk` with `blob_ref` set to the `blob_id`
+
+**3. `POST /blob` endpoint — HTTP blob staging for non-MCP clients**
+
+A sidecar HTTP endpoint that accepts raw binary data outside the JSON-RPC pipe, avoiding base64 encoding entirely.
+Useful for clients that can make direct HTTP requests alongside MCP tool calls.
+
+1. `POST /blob` with `Mcp-Session-Id` header and raw bytes as the request body → returns `{ blob_id, size }`
+2. `upload` action `chunk` with `blob_ref` set to the `blob_id`
+
+**Blob constraints (apply to both staging methods):**
+- Blobs expire after **5 minutes** — stage and consume them promptly
+- Each blob is consumed (deleted) on first use and cannot be reused
+- Maximum blob size: **100 MB**
 
 **Agent use case:** You're generating a 200 MB report. Create an upload session targeting the client's workspace, split
 the file into 5 MB chunks, upload 3 at a time, trigger assembly, and poll until `stored`. The file appears in the
@@ -1055,8 +1096,9 @@ The server holds the connection open for up to 95 seconds and returns **immediat
 entity — file uploads complete, previews finish generating, AI indexing completes, comments are added, etc.
 
 The response includes activity keys that tell you *what* changed (e.g., `storage:{fileId}` for file changes,
-`preview:{fileId}` for preview readiness, `ai_chat:{chatId}` for chat updates, `upload:{uploadId}` for upload
-completion). Pass the returned `lastactivity` timestamp into your next poll to receive only newer changes.
+`preview:{fileId}` for preview readiness, `ai_chat:{chatId}` for chat updates, `ai_state:{fileId}` for AI indexing
+state changes, `upload:{uploadId}` for upload completion). Pass the returned `lastactivity` timestamp into your next
+poll to receive only newer changes.
 
 This gives you near-instant reactivity with a single open connection per entity, instead of hammering individual
 endpoints.
@@ -1228,8 +1270,8 @@ When intelligence is enabled, each file progresses through AI processing states 
 
 | Parameter | Constraint |
 |-----------|-----------|
-| `type` | `chat` or `chat_with_rag` |
-| `personality` | `concise` (default), `detailed`, `fun` |
+| `type` | `chat` or `chat_with_files` |
+| `personality` | `concise`, `detailed` (default) |
 | `privacy` / `visibility` | `private`, `public` (default: `public`) |
 | `name` | Max 100 characters |
 | `question` | Max 12,768 characters |
@@ -1248,6 +1290,10 @@ When intelligence is enabled, each file progresses through AI processing states 
 Use `GET .../storage/{node_id}/requestread/` to generate a temporary auth-free download token. Pass the returned
 `token` as a query parameter: `GET .../storage/{node_id}/read/?token={token}`. This is useful for opening files in
 browser tabs without sending Authorization headers.
+
+**MCP agents** have additional download options: use the `download://` resource templates for direct content retrieval
+(up to 50 MB), or the `/file/` HTTP pass-through endpoint for streaming larger files. See the "MCP Tool Architecture"
+section for details.
 
 #### Unit Calculations
 
@@ -1372,7 +1418,7 @@ the human upgrades when they're ready. The agent retains admin access to keep ma
 
 1. Create a workspace (intelligence off is fine)
 2. Upload the files you want to analyze
-3. Create an AI chat and attach the specific files directly (up to 10 files)
+3. Create an AI chat and attach the specific files directly (up to 20 files)
 4. Ask questions — AI reads the attachments and responds with citations
 5. No persistent indexing, no credit cost for ingestion
 
@@ -1411,11 +1457,11 @@ named actions.
 |--------------|---------------------------------|-------------------------------------------------------------------------------|
 | `auth`       | Authentication                  | `signin`, `signup`, `set-api-key`, `pkce-login`, `pkce-complete`, `status`, `signout` |
 | `org`        | Organizations                   | `list`, `details`, `create`, `update`, `discover-all`                         |
-| `workspace`  | Workspaces                      | `list`, `details`, `create`, `update`, `check-name`                           |
+| `workspace`  | Workspaces & metadata           | `list`, `details`, `create`, `update`, `check-name`, plus 17 `metadata-*` actions for template management, node metadata CRUD, AI extraction, and saved views |
 | `share`      | Shares                          | `list`, `create`, `update`, `delete`, `quickshare-create`                     |
-| `storage`    | Files, folders, locks, previews | `list`, `details`, `search`, `create-folder`, `create-note`, `move`, `delete`, `lock-acquire`, `lock-status`, `lock-release`, `preview-url`, `preview-transform` |
-| `upload`     | File uploads                    | `create-session`, `chunk`, `complete`, `text-file`, `web-import`              |
-| `download`   | Downloads                       | `file-url`, `zip-create`, `quickshare-details`                                |
+| `storage`    | Files, folders, locks, previews | `list`, `details`, `search`, `create-folder`, `create-note`, `move`, `delete`, `lock-acquire`, `lock-status`, `lock-release`, `preview-url` (returns constructed `preview_url`), `preview-transform` (returns constructed `transform_url`) |
+| `upload`     | File uploads                    | `create-session`, `stage-blob`, `chunk`, `finalize`, `text-file`, `web-import` |
+| `download`   | Downloads                       | `file-url`, `zip-url`, `quickshare-details`                                   |
 | `ai`         | AI chat (scope defaults to entire workspace — omit scope params to search all files). Folder scope expands subfolder tree only — files within scoped folders are searched automatically by RAG, not enumerated individually. | `chat-create`, `message-send`, `message-read`, `chat-list` |
 | `member`     | Members                         | `add`, `update`, `remove`, `details`                                          |
 | `invitation` | Invitations                     | `list`, `send`, `revoke`, `accept-all`                                        |
@@ -1424,17 +1470,74 @@ named actions.
 | `event`      | Events & audit                  | `search`, `details`, `summarize`, `activity-poll`                             |
 | `user`       | Account mgmt                    | `me`, `update`, `invitation-list`, `allowed`                                  |
 
+### `web_url` in Tool Responses — Use It Instead of Building URLs
+
+All entity-returning tool responses include a `web_url` field containing a ready-to-use link to the resource in the Fast.io web UI.
+**Use `web_url` directly** instead of constructing URLs manually from API response fields. This avoids errors from
+slug generation, subdomain routing, or parameter formatting.
+
+Tools that return `web_url`:
+
+| Tool | Actions |
+|------|---------|
+| `org` | `list`, `details`, `create`, `update`, `public-details`, `list-workspaces`, `list-shares`, `create-workspace`, `transfer-token-create`, `transfer-token-list`, `discover-all`, `discover-available`, `discover-external` |
+| `workspace` | `list`, `details`, `update`, `available`, `list-shares`, `create-note`, `update-note`, `quickshare-get`, `quickshares-list` |
+| `share` | `list`, `details`, `create`, `update`, `public-details`, `available` |
+| `storage` | `list`, `details`, `search`, `trash-list`, `create-folder`, `copy`, `move`, `rename`, `restore`, `add-file`, `version-list`, `version-restore`, `preview-url`, `preview-transform` |
+| `ai` | `chat-create`, `chat-details`, `chat-list` |
+| `upload` | `text-file`, `finalize` |
+| `download` | `file-url`, `quickshare-details` |
+
+When presenting links to users, always use `web_url` from tool responses. Never construct URLs manually.
+
 **Resources** available via `resources/read`:
 - `skill://guide` — full tool documentation with parameters and examples
 - `session://status` — current authentication state
+- `download://workspace/{workspace_id}/{node_id}` — download a workspace file (returns base64 content up to 50 MB)
+- `download://share/{share_id}/{node_id}` — download a share file (returns base64 content up to 50 MB)
+- `download://quickshare/{quickshare_id}` — download a quickshare file (public, no auth required, up to 50 MB)
+
+The `download://` resource templates provide direct file content retrieval via the MCP `resources/read` protocol.
+Files up to 50 MB are returned inline as base64 blobs. Larger files return a fallback message directing to the HTTP
+pass-through endpoint (see below). The `download` tool's `file-url` and `quickshare-details` actions include a
+`resource_uri` field in their response that points to the corresponding `download://` resource URI.
+
+**HTTP pass-through endpoint** for file downloads:
+
+The MCP server exposes a `/file/` HTTP endpoint that streams file content directly with proper `Content-Type`,
+`Content-Length`, and `Content-Disposition` headers — useful for large files that exceed the 50 MB MCP resource limit
+or when streaming is preferred over base64 encoding.
+
+| Path | Auth | Description |
+|------|------|-------------|
+| `GET /file/workspace/{workspace_id}/{node_id}` | `Mcp-Session-Id` header required | Stream a workspace file |
+| `GET /file/share/{share_id}/{node_id}` | `Mcp-Session-Id` header required | Stream a share file |
+| `GET /file/quickshare/{quickshare_id}` | None (public) | Stream a quickshare file |
+
+For workspace and share downloads, include the `Mcp-Session-Id` header from your active MCP session. The server uses
+the session's auth token to fetch the file and streams it back.
+
+**Query parameters:**
+- `?error=html` — returns error pages as HTML instead of JSON (useful for browser-facing links)
+
+**Size limits:** The `download://` resource templates return file content inline (base64) for files up to **50 MB**.
+Larger files return a fallback message directing to the `/file/` HTTP pass-through endpoint.
+
+**`web_url` in download responses:** The `download` tool's `file-url` and `quickshare-details` actions include both
+a `resource_uri` (for MCP resource reads) and a `web_url` (for browser-facing links) in their responses.
+
+**Resource completion** — The workspace and share `download://` resource templates support MCP `completion/complete`
+for tab-completion of IDs. Agents can use this to discover valid workspace IDs, share IDs, and node IDs without
+needing to call separate list actions first.
 
 ### Tool Annotations — Safety & Side Effects
 
-All 14 tools include explicit MCP annotations (`title`, `readOnlyHint`, `destructiveHint`) so agents and agent
-frameworks can make informed decisions about confirmation prompts and automated execution.
+All 14 tools include explicit MCP annotations (`title`, `readOnlyHint`, `destructiveHint`, `idempotentHint`,
+`openWorldHint`) so agents and agent frameworks can make informed decisions about confirmation prompts, retries, and
+automated execution.
 
-**Read-only tools** (safe, no confirmation needed):
-- `download`, `event` — these tools only read data and never modify state
+**Read-only tools** (safe, no confirmation needed, `idempotentHint: true`):
+- `download`, `event` — these tools only read data, never modify state, and are safe to retry
 
 **Non-destructive mutation tools** (create or update, no delete actions):
 - `upload`, `invitation` — these tools create or modify resources but cannot delete them
@@ -1444,11 +1547,86 @@ frameworks can make informed decisions about confirmation prompts and automated 
   least one action that permanently removes or closes a resource. Agent frameworks should prompt for confirmation before
   executing destructive actions.
 
+**Discovery tools** (`openWorldHint: true`):
+- `org`, `user`, `workspace`, `share`, `storage` — these tools can discover resources beyond the agent's current
+  context. Agents may encounter resources they haven't seen before in list/search results.
+
 **Credit-consuming operations** to be aware of:
 - AI chat: 1 credit per 100 tokens
 - File uploads: storage credits (100 credits/GB)
 - Downloads: bandwidth credits (212 credits/GB)
 - Document ingestion: 10 credits/page (when intelligence is enabled)
+
+### Response Hints — Guided Agent Workflows
+
+Tool responses include structured hints that help agents navigate multi-step workflows, handle errors gracefully, and
+understand resource state. Agents should read and act on these hints rather than guessing the next step.
+
+**`_next` — Suggested next actions:**
+
+Successful tool responses include a `_next` array of contextual next-step suggestions using exact tool names, action
+names, and IDs from the response. Agents should follow these hints instead of guessing the next step or consulting
+docs. Present on approximately 30 actions across all tools.
+
+Example: after `storage` action `list`, `_next` might suggest `["storage folder-details {node_id}",
+"download file-url {node_id}", "ai chat"]` with actual IDs from the response populated in the suggestions.
+
+**`_warnings` — Destructive or gated action warnings:**
+
+Actions that are destructive, irreversible, or have significant side effects include `_warnings` strings in their
+response. Agents should read these warnings before proceeding and present them to the user when appropriate. Present on
+the following actions:
+- `storage`: purge, bulk copy/move/delete/restore (partial failure warnings)
+- `workspace`: update (intelligence disable), archive, delete
+- `org`: close, billing-create
+- `share`: delete, archive, update (type change)
+- `ai`: chat-delete
+- `download`: file-url (token expiry), zip-url
+- `upload`: stage-blob (5-minute expiry)
+- `org`: transfer-token-create
+
+**`_recovery` — Error recovery hints:**
+
+Error responses (`isError: true`) include `_recovery` hints as actionable bullet points appended to the error text.
+Hints are matched by HTTP status code (10 codes) and error message patterns (12 patterns), guiding agents toward the
+correct resolution. All errors also include `(during: <tool> <action>)` so agents know exactly which operation failed.
+
+| Status | Recovery hint |
+|--------|---------------|
+| 400    | Bad request — check required parameters and value formats |
+| 401    | Re-authenticate using `auth` action `signin` or `pkce-login` |
+| 402    | Credits exhausted — check with `org` action `limits` |
+| 403    | Permission denied — check role with `org` action `details` |
+| 404    | Resource not found — verify the ID is correct |
+| 405    | Method not allowed — check the action name is valid for this tool |
+| 409    | Conflict — resource may already exist |
+| 413    | Payload too large — reduce file size or use chunked upload |
+| 422    | Validation failed — check field values against documented constraints |
+| 429    | Rate limited — wait 2–4 seconds, retry with exponential backoff |
+
+Error message pattern matching provides additional context-specific recovery steps (e.g., "email not verified" →
+use `auth` action `email-verify`; "workspace not found" → check workspace ID with `workspace` action `list`).
+
+**`ai_capabilities` — AI mode availability:**
+
+Included in `workspace` action `details` responses. Shows the available AI modes for the workspace:
+- **Intelligence ON:** `files_scope`, `folders_scope`, `files_attach` (full RAG with indexed search)
+- **Intelligence OFF:** `files_attach` only (max 20 files, 200 MB total)
+
+**`_ai_state_legend` — File AI processing state:**
+
+Included in `storage` action `list` and `search` responses when files have AI state. Describes the possible states:
+- `ready` — file is indexed and available for AI queries
+- `pending` — file is queued for AI processing
+- `inprogress` — file is currently being processed
+- `disabled` — AI processing is disabled for this file
+- `failed` — AI processing failed for this file
+
+**`_context` — Contextual metadata:**
+
+Certain responses include `_context` with additional metadata specific to the operation. For example, `comment` action
+`add` responses include `anchor_formats` describing supported anchor types for positioning comments on files (image
+regions, video/audio timestamps, PDF pages).
 
 ---
 
@@ -1463,10 +1641,11 @@ Retrieve the full list with `prompts/list` and get detailed guidance for a speci
 | Prompt                 | Name                          | When to Use                                                                                          |
 |------------------------|-------------------------------|------------------------------------------------------------------------------------------------------|
 | `get-started`          | Getting Started Guide         | First-time onboarding: create account, org, and workspace. Covers autonomous agents, API key auth, browser login (PKCE), and agents invited to existing orgs. |
-| `add-file`             | Add File Guide                | Adding files from text content, chunked binary upload (with blob staging), or URL import (Google Drive, OneDrive, Dropbox). |
+| `add-file`             | Add File Guide                | Adding files from text content, chunked binary upload (with `stage-blob` action or `POST /blob` for binary data), or URL import (Google Drive, OneDrive, Dropbox). |
 | `ask-ai`               | AI Chat Guide                 | Querying files with AI. Covers RAG-indexed vs file attachment modes, intelligence state checks, scoping (folder scope = search boundary, not file enumeration), polling, and response structure. |
 | `comment-conversation` | Comment Collaboration Guide   | Agent-human feedback loop on files. Read/write anchored comments (image regions, video timestamps, PDF pages), threaded replies, emoji reactions, and deep-link URL construction. |
 | `catch-up`             | Activity Catch-Up Guide       | Understanding what happened. AI-powered activity summaries, event search with filters, real-time change monitoring with activity-poll. |
+| `metadata`             | Metadata Extraction Guide     | Extracting structured metadata from files. Covers template creation, workspace assignment, manual and batch AI extraction, and saved views. |
 
 **When to use prompts instead of this guide:**
 
@@ -1493,6 +1672,8 @@ becomes the subdomain for all org URLs:
 Organization domain: `"acme"` → All org URLs live at: `https://acme.fast.io/...`
 
 The base domain `go.fast.io` is used for routes that don't require org context (public shares, auth, claim).
+
+> **Prefer `web_url`.** The URL patterns below are reference material. In practice, always use the `web_url` field from tool responses — it handles subdomain routing, slug generation, and edge cases automatically. Only fall back to manual construction when `web_url` is absent (e.g., share-context storage operations).
 
 ### Building URLs From API Responses
 

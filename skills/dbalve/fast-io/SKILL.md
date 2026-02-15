@@ -14,14 +14,14 @@ compatibility: >-
   via Streamable HTTP (/mcp) or SSE (/sse).
 metadata:
   author: fast-io
-  version: "1.54.0"
+  version: "1.64.0"
 homepage: "https://fast.io"
 ---
 
 # Fast.io MCP Server -- AI Agent Guide
 
-**Version:** 1.54
-**Last Updated:** 2026-02-13
+**Version:** 1.64
+**Last Updated:** 2026-02-14
 
 The definitive guide for AI agents using the Fast.io MCP server. Covers why and how to use the platform: product capabilities, the free agent plan, authentication, core concepts (workspaces, shares, intelligence, previews, comments, URL import, metadata, ownership transfer), 10 end-to-end workflows, and all 14 consolidated tools with action-based routing.
 
@@ -74,12 +74,34 @@ Two transports are available on each:
 
 ### MCP Resources
 
-The server exposes two MCP resources that clients can read directly via `resources/list` and `resources/read`:
+The server exposes two static MCP resources and three file download resource templates. Clients can read them via `resources/list` and `resources/read`:
 
 | URI | Name | Description | MIME Type |
 |-----|------|-------------|-----------|
 | `skill://guide` | skill-guide | Full agent guide (this document) with all 14 tools, workflows, and platform documentation | `text/markdown` |
-| `session://status` | session-status | Current authentication state: `authenticated` boolean, `user_id`, `user_email`, `token_expires_at` (Unix epoch), `token_expires_at_iso` (ISO 8601), `scopes` (array of granted scopes or null), `agent_name` (string or null) | `application/json` |
+| `session://status` | session-status | Current authentication state: `authenticated` boolean, `user_id`, `user_email`, `token_expires_at` (Unix epoch), `token_expires_at_iso` (ISO 8601), `scopes` (raw scope string or null), `scopes_detail` (array of hydrated scope objects with entity names/domains/parents, or null), `agent_name` (string or null) | `application/json` |
+
+**File download resource templates** -- read file content directly through MCP without needing external HTTP access:
+
+| URI Template | Name | Auth | Description |
+|---|---|---|---|
+| `download://workspace/{workspace_id}/{node_id}` | download-workspace-file | Session token | Download a file from a workspace |
+| `download://share/{share_id}/{node_id}` | download-share-file | Session token | Download a file from a share |
+| `download://quickshare/{quickshare_id}` | download-quickshare-file | None (public) | Download a quickshare file |
+
+Files up to 50 MB are returned inline as base64-encoded blob content. Larger files return a text fallback with a URL to the HTTP pass-through endpoint (see below). The `download` tool responses include a `resource_uri` field with the appropriate URI for each file.
+
+### HTTP File Pass-Through
+
+For files larger than 50 MB or when raw binary streaming is needed, the server provides an HTTP pass-through endpoint that streams file content directly from the API:
+
+| Endpoint | Auth | Description |
+|---|---|---|
+| `GET /file/workspace/{workspace_id}/{node_id}` | `Mcp-Session-Id` header | Stream a workspace file |
+| `GET /file/share/{share_id}/{node_id}` | `Mcp-Session-Id` header | Stream a share file |
+| `GET /file/quickshare/{quickshare_id}` | None (public) | Stream a quickshare file |
+
+The response includes proper `Content-Type`, `Content-Length`, and `Content-Disposition` headers from the upstream API. Errors are returned as HTML pages. The `Mcp-Session-Id` header is the same session identifier used for MCP protocol communication.
 
 ### MCP Prompts
 
@@ -804,13 +826,13 @@ File and folder operations within workspaces and shares. List, create folders, m
 
 ### upload
 
-File upload operations. Single-step text file upload, chunked upload lifecycle (create session, upload chunks as plain text, staged binary blobs, or legacy base64, finalize, check status, cancel), web imports from external URLs, upload limits and file extension restrictions, and session management.
+File upload operations. Single-step text file upload, chunked upload lifecycle (create session, stage binary blobs, upload chunks as plain text / base64 / blob reference, finalize, check status, cancel), web imports from external URLs, upload limits and file extension restrictions, and session management.
 
-**Actions:** create-session, chunk, finalize, status, cancel, list-sessions, cancel-all, chunk-status, chunk-delete, text-file, web-import, web-list, web-cancel, web-status, limits, extensions
+**Actions:** create-session, chunk, finalize, status, cancel, list-sessions, cancel-all, chunk-status, chunk-delete, stage-blob, text-file, web-import, web-list, web-cancel, web-status, limits, extensions
 
 ### download
 
-Generate download URLs and ZIP archive URLs for workspace files, share files, and quickshare links. MCP tools cannot stream binary data -- these actions return URLs that can be opened in a browser or passed to download utilities. Requires `context_type` parameter (`workspace` or `share`) for file-url and zip-url actions.
+Generate download URLs and ZIP archive URLs for workspace files, share files, and quickshare links. MCP tools cannot stream binary data -- these actions return URLs that can be opened in a browser or passed to download utilities. Requires `context_type` parameter (`workspace` or `share`) for file-url and zip-url actions. Responses include a `resource_uri` field (e.g. `download://workspace/{id}/{node_id}`) that MCP clients can use to read file content directly via MCP resources. Direct download URLs include `?error=html` so errors render as human-readable HTML in browsers.
 
 **Actions:** file-url, zip-url, quickshare-details
 
@@ -890,7 +912,7 @@ See **Choosing the Right Approach** in section 2 for which option fits your scen
 2. `org` action `list-workspaces` with `org_id` -- get workspaces in the organization. Note the `workspace_id` values.
 3. `storage` action `list` with `context_type: "workspace"`, `context_id` (workspace ID), and `node_id: "root"` -- browse the root folder. Note the `node_id` values for files and subfolders.
 4. `storage` action `details` with `context_type: "workspace"`, `context_id`, and `node_id` -- get full details for a specific file (name, size, type, versions).
-5. `download` action `file-url` with `context_type: "workspace"`, `context_id`, and `node_id` -- get a temporary download URL with an embedded token. Return this URL to the user.
+5. `download` action `file-url` with `context_type: "workspace"`, `context_id`, and `node_id` -- get a temporary download URL with an embedded token. The response also includes a `resource_uri` (e.g. `download://workspace/{id}/{node_id}`) that MCP clients can use to read file content directly. Return the download URL to the user, or use the resource URI to read the file through MCP.
 
 ### 3. Upload a File to a Workspace
 
@@ -901,8 +923,8 @@ See **Choosing the Right Approach** in section 2 for which option fits your scen
 1. `upload` action `create-session` with `profile_type: "workspace"`, `profile_id` (the workspace ID), `parent_node_id` (target folder or `"root"`), `filename`, and `filesize` in bytes. Returns an `upload_id`.
 2. `upload` action `chunk` with `upload_id`, `chunk_number` (1-indexed), and chunk data. Three options for passing data (provide exactly one):
    - **`content`** — for text (strings, code, JSON, etc.). Do NOT use `data` for text.
-   - **`blob_ref`** — *preferred for binary*. First `POST` raw bytes to `/blob` (with `Mcp-Session-Id` header, `Content-Type: application/octet-stream`). The server returns `{ blob_id, size }`. Then pass that `blob_id` as `blob_ref`. Avoids base64 overhead entirely. Blobs expire after 5 minutes and are consumed (deleted) on use.
-   - **`data`** — legacy base64-encoded binary. Still works but adds ~33% size overhead.
+   - **`data`** — base64-encoded binary. The simplest approach for binary uploads through MCP tool calls.
+   - **`blob_ref`** — blob ID from `upload` action `stage-blob` or `POST /blob`. Useful when pre-staging data or when using the HTTP blob endpoint from non-MCP clients. Blobs expire after 5 minutes and are consumed (deleted) on use.
    Repeat for each chunk. Wait for each chunk to return success before sending the next.
 3. `upload` action `finalize` with `upload_id` -- triggers file assembly and polls until stored. Returns the final session state with `status: "stored"` or `"complete"` on success (including `new_file_id`), or throws on assembly failure. The file is automatically added to the target workspace and folder specified in step 1 -- no separate add-file call is needed.
 
@@ -1016,20 +1038,35 @@ MCP tools return download URLs -- they never stream binary content directly. `do
 
 `download` actions `zip-url` (workspace and share) return the URL along with the required `Authorization` header value.
 
-### Binary Uploads (Blob Staging)
+### Binary Uploads
 
-For binary chunk uploads, the server provides a sidecar `POST /blob` endpoint that accepts raw binary data outside the JSON-RPC pipe. This avoids the ~33% size overhead and CPU cost of base64 encoding.
+Three approaches for uploading binary data as chunks, each suited to different situations:
+
+**1. `data` parameter (base64) — simplest for MCP agents**
+
+Pass base64-encoded binary directly in the `data` parameter of `upload` action `chunk`. No extra steps required. Works with any MCP client. Adds ~33% size overhead from base64 encoding.
+
+**2. `stage-blob` action — MCP tool-based blob staging**
+
+Use `upload` action `stage-blob` with `data` (base64) to pre-stage binary data as a blob. Returns a `blob_id` that you pass as `blob_ref` in the chunk call. Useful when you want to decouple staging from uploading, or when preparing multiple chunks in advance.
 
 **Flow:**
-1. `POST /blob` with headers `Mcp-Session-Id: <session_id>` and `Content-Type: application/octet-stream`. Send raw binary bytes as the request body. The server returns `{ "blob_id": "<uuid>", "size": <bytes> }` (HTTP 201).
-2. Call `upload` action `chunk` with `blob_ref: "<blob_id>"` instead of `data`. The server retrieves the staged bytes and uploads them to the Fast.io API.
+1. `upload` action `stage-blob` with `data` (base64-encoded binary). Returns `{ "blob_id": "<uuid>", "size": <bytes> }`.
+2. `upload` action `chunk` with `blob_ref: "<blob_id>"`. The server retrieves the staged bytes and uploads them.
 
-**Constraints:**
+**3. `POST /blob` endpoint — HTTP blob staging for non-MCP clients**
+
+A sidecar HTTP endpoint that accepts raw binary data outside the JSON-RPC pipe. This avoids base64 encoding entirely — useful for clients that can make direct HTTP requests alongside MCP tool calls.
+
+**Flow:**
+1. `POST /blob` with headers `Mcp-Session-Id: <session_id>` and `Content-Type: application/octet-stream`. Send raw binary bytes as the request body. Returns `{ "blob_id": "<uuid>", "size": <bytes> }` (HTTP 201).
+2. `upload` action `chunk` with `blob_ref: "<blob_id>"`.
+
+**Blob constraints (apply to both staging methods):**
 - Blobs expire after **5 minutes**. Stage and consume them promptly.
 - Each blob is consumed (deleted) on first use — it cannot be reused.
 - Maximum blob size: **100 MB**.
 - SSE transport clients must add `?transport=sse` to the `/blob` URL.
-- The `content` parameter (for text) and `data` parameter (for base64) remain available. `blob_ref` is the preferred method for binary data.
 
 ### Event Filtering Reference
 
@@ -1155,7 +1192,9 @@ The auth token, user ID, email, and token expiry are persisted in the server ses
 
 ### Human-Facing URLs
 
-MCP tools manage data via the API, but humans access Fast.io through a web browser. **You must construct real, clickable URLs and include them in your responses whenever you create or reference a workspace, share, or transfer.** The human cannot see API responses directly -- the URL you provide is how they get to their content. Build the URL by substituting values from API responses into these patterns:
+MCP tools manage data via the API, but humans access Fast.io through a web browser. **Always use the `web_url` field from tool responses** -- it is a ready-to-use, clickable URL for the resource. Include it in your responses whenever you create or reference a workspace, share, file, note, or transfer. The human cannot see API responses directly -- the URL you provide is how they get to their content. Fall back to the URL patterns below only when `web_url` is absent (e.g., share-context storage operations):
+
+> **Automatic `web_url` field.** All entity-returning tool responses include a `web_url` field — a ready-to-use, human-friendly URL for the resource. **NEVER construct URLs manually — always use the `web_url` field from tool responses.** It appears on: org list/details/create/update/public-details/discover-*, org list-workspaces/list-shares, workspace list/details/update/available/list-shares, share list/details/create/update/public-details/available, storage list/details/search/trash-list/copy/move/rename/restore/add-file/create-folder/version-list/version-restore/preview-url/preview-transform, quickshare create/get/list, upload text-file/finalize, download file-url/quickshare-details, AI chat-create/chat-details/chat-list, transfer-token create/list, and notes create/update. Fall back to the URL patterns below only when `web_url` is absent (e.g., share context storage operations).
 
 Organization `domain` values become subdomains: `"acme"` → `https://acme.fast.io/`. The base domain `go.fast.io` handles public routes that do not require org context.
 
@@ -1214,6 +1253,55 @@ Organization `domain` values become subdomains: `"acme"` → `https://acme.fast.
 
 **Important:** The `domain` is the org's domain string (e.g. `acme`), not the numeric org ID. The `folder_name` is the workspace's folder name string (e.g. `q4-reports`), not the numeric workspace ID. Both are returned by their respective API tools.
 
+### Response Hints (`_next`, `_warnings`, and `_recovery`)
+
+Workflow-critical tool responses include a `_next` field -- a short array of suggested next actions using exact tool and action names. Use these hints to guide your workflow instead of guessing what to do next. Example:
+
+```json
+{
+  "workspace_id": "...",
+  "web_url": "https://acme.fast.io/workspace/q4-reports/storage/root",
+  "_next": [
+    "Upload files: upload action text-file or web-import",
+    "Create a share: share action create",
+    "Query with AI: ai action chat-create"
+  ]
+}
+```
+
+**`_warnings`** appear on destructive, irreversible, or potentially problematic actions. Always read warnings before proceeding -- they flag permanent consequences or important caveats. Actions with `_warnings`: storage purge, storage bulk copy/move/delete/restore (partial failures), workspace details (intelligence=false), workspace update (intelligence=false), workspace archive/delete, org close, org billing-create, share delete, share archive, share update (type change), ai chat-delete, download file-url (token expiry), download zip-url (auth required), upload stage-blob (5-min expiry), org transfer-token-create.
+
+**`_recovery`** hints appear on error responses (when `isError: true`). They provide recovery actions based on HTTP status codes AND error message pattern matching. Error messages also include action context (e.g., "during: org create") to help pinpoint the failing operation.
+
+| HTTP Status | Recovery |
+|-------------|----------|
+| 400 | Check required parameters and ID formats |
+| 401 | Re-authenticate: auth action signin or pkce-login |
+| 402 | Credits exhausted -- check balance: org action limits |
+| 403 | Permission denied -- check role: org action details |
+| 404 | Resource not found -- verify the ID, use list actions to discover valid IDs |
+| 409 | Conflict -- resource may already exist |
+| 413 | Request too large -- reduce file/chunk size |
+| 422 | Validation error -- check field formats and constraints |
+| 429 | Rate limited -- wait 2-4s and retry with exponential backoff |
+| 500/503 | Server error -- retry after 2-5 seconds |
+
+Pattern-based recovery: error messages are also matched against common patterns (e.g., "email not verified", "workspace not found", "intelligence disabled") to provide specific recovery steps even when the HTTP status is generic.
+
+**`ai_capabilities`** is included in workspace details responses. It shows which AI modes are available based on the workspace intelligence setting:
+- Intelligence ON: `files_scope`, `folders_scope`, `files_attach` (full RAG indexing)
+- Intelligence OFF: `files_attach` only (max 20 files, 200 MB, no RAG indexing)
+
+**`_ai_state_legend`** is included in storage list and search responses when files have AI indexing state. States: `ready` (indexed, queryable), `pending` (queued), `inprogress` (indexing), `disabled` (intelligence off), `failed` (re-upload needed).
+
+**`_context`** provides contextual metadata on specific responses. Currently used by comment add when anchoring is involved, providing `anchor_formats` with the expected format for image regions, video/audio timestamps, and PDF pages.
+
+**All tool actions now include `_next` hints.** Every successful tool response includes contextual next-step suggestions. Key workflow transitions: auth → org list/create, org create → workspace create, workspace create → upload/share/AI, upload → AI chat/comment/download, share create → add files/members, AI chat create → message read. The hints include the exact tool name, action, and relevant IDs from the current response.
+
+**Tool annotations:** Tools include MCP annotation hints -- `readOnlyHint`, `destructiveHint`, `idempotentHint` (download, event), and `openWorldHint` (org, user, workspace, share, storage) -- to help clients understand tool behavior without documentation.
+
+**Resource completion:** The `download://workspace/{workspace_id}` and `download://share/{share_id}` resource templates support tab-completion for IDs. MCP clients that support `completion/complete` will automatically suggest valid workspace and share IDs from your session.
+
 ### Unauthenticated Tools
 
 The following actions work without a session: `auth` actions `signin`, `signup`, `set-api-key`, `pkce-login`, `email-check`, `password-reset-request`, `password-reset`; and `download` action `quickshare-details`.
@@ -1248,7 +1336,7 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 **email-verify** -- Send or validate an email verification code. When email_token is omitted a new code is sent. When provided the code is validated and the email marked as verified.
 
-**status** -- Check local session status. No API call is made. Returns whether the user is authenticated, and if so their user_id, email, token expiry, scopes (if scoped access), and agent_name (if set).
+**status** -- Check local session status. No API call is made. Returns whether the user is authenticated, and if so their user_id, email, token expiry, scopes (raw string), scopes_detail (hydrated array with entity names, domains, and parent hierarchy -- or null if not yet fetched), and agent_name (if set).
 
 **pkce-login** -- Start a browser-based PKCE login flow. Returns a URL for the user to open in their browser. After signing in and approving access, the browser displays an authorization code. The user copies the code and provides it to pkce-complete to finish signing in. No password is sent through the agent. Optional params: `scope_type` (default `"user"` for full access; use `"org"`, `"workspace"`, `"all_orgs"`, `"all_workspaces"`, or `"all_shares"` for scoped access), `agent_name` (displayed in the approval screen and audit logs; defaults to MCP client name).
 
@@ -1316,9 +1404,9 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 ### org
 
-**list** -- List internal organizations (orgs the user is a direct member of, `member: true`). Returns member orgs with subscription status, user permission, and plan info. Non-admin members only see orgs with active subscriptions. Does not include external orgs -- use discover-external for those.
+**list** -- List internal organizations (orgs the user is a direct member of, `member: true`). Each org includes `web_url`. Returns member orgs with subscription status, user permission, and plan info. Non-admin members only see orgs with active subscriptions. Does not include external orgs -- use discover-external for those.
 
-**details** -- Get detailed information about an organization. Fields returned vary by the caller's role: owners see encryption keys and storage config, admins see billing and permissions, members see basic info.
+**details** -- Get detailed information about an organization. Returns `web_url`. Fields returned vary by the caller's role: owners see encryption keys and storage config, admins see billing and permissions, members see basic info.
 
 **members** -- List all members of an organization with their IDs, emails, names, and permission levels.
 
@@ -1330,19 +1418,19 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 **limits** -- Get organization plan limits and credit usage. Returns credit limits, usage stats, billing period, trial info, and run-rate projections. Requires admin or owner role.
 
-**list-workspaces** -- List workspaces in an organization that the current user can access. Owners and admins see all workspaces; members see workspaces matching the join permission setting.
+**list-workspaces** -- List workspaces in an organization that the current user can access. Each workspace includes `web_url`. Owners and admins see all workspaces; members see workspaces matching the join permission setting.
 
-**list-shares** -- List shares accessible to the current user. Returns all shares including parent org and workspace info. Use parent_org in the response to identify shares belonging to a specific organization.
+**list-shares** -- List shares accessible to the current user. Each share includes `web_url`. Returns all shares including parent org and workspace info. Use parent_org in the response to identify shares belonging to a specific organization.
 
 **create** -- Create a new organization on the "agent" billing plan. The authenticated user becomes the owner. A storage instance and agent-plan subscription (free, 50 GB, 5,000 credits/month) are created automatically. Returns the new org and trial status.
 
-**update** -- Update organization details. Only provided fields are changed. Supports identity, branding, social links, permissions, and billing email. Requires admin or owner role.
+**update** -- Update organization details. Returns `web_url`. Only provided fields are changed. Supports identity, branding, social links, permissions, and billing email. Requires admin or owner role.
 
 **close** -- Close/delete an organization. Cancels any active subscription and initiates deletion. Requires owner role. The confirm field must match the org domain or org ID.
 
-**public-details** -- Get public details for an organization. Does not require membership -- returns public-level fields only (name, domain, logo, accent color). The org must exist and not be closed/suspended.
+**public-details** -- Get public details for an organization. Returns `web_url`. Does not require membership -- returns public-level fields only (name, domain, logo, accent color). The org must exist and not be closed/suspended.
 
-**create-workspace** -- Create a new workspace within the organization. Checks workspace feature availability and creation limits based on the org billing plan. The creating user becomes the workspace owner.
+**create-workspace** -- Create a new workspace within the organization. Returns `web_url`. Checks workspace feature availability and creation limits based on the org billing plan. The creating user becomes the workspace owner.
 
 **billing-plans** -- List available billing plans with pricing, features, and plan defaults. Returns plan IDs needed for subscription creation.
 
@@ -1368,7 +1456,7 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 **transfer-token-create** -- Create a transfer token (valid 72 hours) for an organization. Send the claim URL `https://go.fast.io/claim?token=<token>` to a human. Use when handing off an org or when hitting 402 Payment Required on the agent plan. Requires owner role.
 
-**transfer-token-list** -- List all active transfer tokens for an organization. Requires owner role.
+**transfer-token-list** -- List all active transfer tokens for an organization. Each token includes `web_url` (claim URL). Requires owner role.
 
 **transfer-token-delete** -- Delete (revoke) a pending transfer token. Requires owner role.
 
@@ -1390,21 +1478,21 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 **asset-list** -- List all organization assets.
 
-**discover-all** -- List all accessible organizations (joined + invited). Returns org data with user_status indicating relationship.
+**discover-all** -- List all accessible organizations (joined + invited). Each org includes `web_url`. Returns org data with user_status indicating relationship.
 
-**discover-available** -- List organizations available to join. Excludes orgs the user is already a member of.
+**discover-available** -- List organizations available to join. Each org includes `web_url`. Excludes orgs the user is already a member of.
 
 **discover-check-domain** -- Check if an organization domain name is available for use. Validates format, checks reserved names, and checks existing domains.
 
-**discover-external** -- List external organizations (`member: false`) -- orgs the user can access only through workspace membership, not as a direct org member. Common when a human invites an agent to a workspace without inviting them to the org. See **Internal vs External Orgs** in the Organizations section.
+**discover-external** -- List external organizations (`member: false`). Each org includes `web_url`. Orgs the user can access only through workspace membership, not as a direct org member. Common when a human invites an agent to a workspace without inviting them to the org. See **Internal vs External Orgs** in the Organizations section.
 
 ### workspace
 
-**list** -- List all workspaces the user has access to across all organizations.
+**list** -- List all workspaces the user has access to across all organizations. Each workspace includes `web_url`.
 
-**details** -- Get detailed information about a specific workspace.
+**details** -- Get detailed information about a specific workspace. Returns `web_url`.
 
-**update** -- Update workspace settings such as name, description, branding, and permissions.
+**update** -- Update workspace settings such as name, description, branding, and permissions. Returns `web_url`.
 
 **delete** -- Permanently close (soft-delete) a workspace. Requires Owner permission and confirmation.
 
@@ -1414,23 +1502,23 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 **members** -- List all members of a workspace with their roles and status.
 
-**list-shares** -- List all shares within a workspace, optionally filtered by archive status.
+**list-shares** -- List all shares within a workspace, optionally filtered by archive status. Each share includes `web_url`.
 
 **import-share** -- Import a user-owned share into a workspace. You must be the sole owner of the share.
 
-**available** -- List workspaces the current user can join but has not yet joined.
+**available** -- List workspaces the current user can join but has not yet joined. Each workspace includes `web_url`.
 
 **check-name** -- Check if a workspace folder name is available for use.
 
-**create-note** -- Create a new markdown note in workspace storage.
+**create-note** -- Create a new markdown note in workspace storage. Returns `web_url` (note preview link).
 
-**update-note** -- Update a note's markdown content and/or name (at least one required).
+**update-note** -- Update a note's markdown content and/or name (at least one required). Returns `web_url` (note preview link).
 
-**quickshare-get** -- Get existing quickshare details for a node.
+**quickshare-get** -- Get existing quickshare details for a node. Returns `web_url`.
 
 **quickshare-delete** -- Revoke and delete a quickshare link for a node.
 
-**quickshares-list** -- List all active quickshares in the workspace.
+**quickshares-list** -- List all active quickshares in the workspace. Each quickshare includes `web_url`.
 
 **metadata-template-create** -- Create a new metadata template in the workspace. Requires name, description, category (legal, financial, business, medical, technical, engineering, insurance, educational, multimedia, hr), and fields (JSON-encoded array of field definitions). Each field has name, description, type (string, int, float, bool, json, url, datetime), and optional constraints (min, max, default, fixed_list, can_be_null).
 
@@ -1468,9 +1556,9 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 ### share
 
-**list** -- List shares the authenticated user has access to.
+**list** -- List shares the authenticated user has access to. Each share includes `web_url`.
 
-**details** -- Get full details of a specific share.
+**details** -- Get full details of a specific share. Returns `web_url`.
 
 **create** -- Create a new share in a workspace.
 
@@ -1488,7 +1576,7 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 **members** -- List all members of a share.
 
-**available** -- List shares available to join (joined and owned, excludes pending invitations).
+**available** -- List shares available to join (joined and owned, excludes pending invitations). Each share includes `web_url`.
 
 **check-name** -- Check if a share custom name (URL name) is available.
 
@@ -1498,37 +1586,37 @@ All 14 tools with their actions organized by functional area. Each entry shows t
 
 All storage actions require `context_type` parameter (`workspace` or `share`) and `context_id` (the 19-digit profile ID).
 
-**list** -- List files and folders in a directory with pagination.
+**list** -- List files and folders in a directory with pagination. Each item includes `web_url` (workspace only).
 
-**details** -- Get full details of a specific file or folder.
+**details** -- Get full details of a specific file or folder. Returns `web_url` (human-friendly link to the file preview or folder in the web UI, workspace only).
 
-**search** -- Search for files by keyword or semantic query.
+**search** -- Search for files by keyword or semantic query. Each result includes `web_url` (workspace only).
 
-**trash-list** -- List items currently in the trash.
+**trash-list** -- List items currently in the trash. Each item includes `web_url` (workspace only).
 
-**create-folder** -- Create a new folder.
+**create-folder** -- Create a new folder. Returns `web_url` (workspace only).
 
-**copy** -- Copy files or folders to another location.
+**copy** -- Copy files or folders to another location. Returns `web_url` on the new copy (workspace only).
 
-**move** -- Move files or folders to a different parent folder.
+**move** -- Move files or folders to a different parent folder. Returns `web_url` (workspace only).
 
 **delete** -- Delete files or folders by moving them to the trash.
 
-**rename** -- Rename a file or folder.
+**rename** -- Rename a file or folder. Returns `web_url` (workspace only).
 
 **purge** -- Permanently delete a trashed node (irreversible). Requires Member permission.
 
-**restore** -- Restore files or folders from the trash.
+**restore** -- Restore files or folders from the trash. Returns `web_url` on the restored node (workspace only).
 
-**add-file** -- Link a completed upload to a storage location.
+**add-file** -- Link a completed upload to a storage location. Returns `web_url` (workspace only).
 
 **add-link** -- Add a share reference link node to storage.
 
 **transfer** -- Copy a node to another workspace or share storage instance.
 
-**version-list** -- List version history for a file.
+**version-list** -- List version history for a file. Returns `web_url` for the file (workspace only).
 
-**version-restore** -- Restore a file to a previous version.
+**version-restore** -- Restore a file to a previous version. Returns `web_url` for the file (workspace only).
 
 **lock-acquire** -- Acquire an exclusive lock on a file to prevent concurrent edits.
 
@@ -1536,15 +1624,15 @@ All storage actions require `context_type` parameter (`workspace` or `share`) an
 
 **lock-release** -- Release an exclusive lock on a file.
 
-**preview-url** -- Get a preauthorized preview URL for a file (thumbnail, PDF, image, video, audio, spreadsheet). Requires `preview_type` parameter.
+**preview-url** -- Get a preauthorized preview URL for a file (thumbnail, PDF, image, video, audio, spreadsheet). Requires `preview_type` parameter. Returns `preview_url` (ready-to-use URL) and `web_url` (human-friendly link to the file in the web UI, workspace only).
 
-**preview-transform** -- Request a file transformation (image resize, crop, format conversion) and get a download URL for the result. Requires `transform_name` parameter.
+**preview-transform** -- Request a file transformation (image resize, crop, format conversion) and get a download URL for the result. Requires `transform_name` parameter. Returns `transform_url` (ready-to-use URL) and `web_url` (human-friendly link to the file in the web UI, workspace only).
 
 ### upload
 
 **create-session** -- Create a chunked upload session for a file.
 
-**chunk** -- Upload a single chunk. Use `content` for text/strings, `blob_ref` for binary data staged via `POST /blob` (preferred — avoids base64 overhead), or `data` for legacy base64-encoded binary. Provide exactly one.
+**chunk** -- Upload a single chunk. Use `content` for text/strings, `data` for base64-encoded binary, or `blob_ref` for binary staged via `stage-blob` action or `POST /blob`. Provide exactly one.
 
 **finalize** -- Finalize an upload session, trigger file assembly, and poll until fully stored or failed. Returns the final session state.
 
@@ -1559,6 +1647,8 @@ All storage actions require `context_type` parameter (`workspace` or `share`) an
 **chunk-status** -- Get chunk information for an upload session.
 
 **chunk-delete** -- Delete/reset a chunk in an upload session.
+
+**stage-blob** -- Stage base64-encoded binary data as a blob for later use with the `chunk` action's `blob_ref` parameter. Pass `data` (base64 string). Returns `{ blob_id, size }`. Blobs expire after 5 minutes and are consumed on first use. Alternative to passing `data` directly in the chunk call.
 
 **text-file** -- Upload a text file in a single step. Creates an upload session, uploads the content, finalizes, and polls until stored. Returns the new file ID. Use for text-based files (code, markdown, CSV, JSON, config) instead of the multi-step chunked flow.
 
