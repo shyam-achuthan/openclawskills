@@ -255,6 +255,50 @@ else
 fi
 
 # ==========================================
+# 5. USER TIMEZONE
+# ==========================================
+echo ""
+echo "Checking user timezone..."
+((CHECKED++))
+
+# Extract timezone from USER.md
+if [ -f "USER.md" ]; then
+    USER_TIMEZONE=$(grep -i "^\*\*Timezone:\*\*" USER.md | sed 's/.*Timezone:\*\*[[:space:]]*//' | xargs)
+    
+    if [ -z "$USER_TIMEZONE" ]; then
+        # Try alternate format
+        USER_TIMEZONE=$(grep -i "Timezone:" USER.md | head -1 | sed 's/.*Timezone:[[:space:]]*//' | tr -d '*' | xargs)
+    fi
+    
+    if [ -n "$USER_TIMEZONE" ]; then
+        # Get current userTimezone from config
+        CURRENT_TIMEZONE=$(cat "$CONFIG_FILE" | grep -o '"userTimezone"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"userTimezone"[[:space:]]*:[[:space:]]*"//;s/".*//')
+        
+        if [ "$CURRENT_TIMEZONE" = "$USER_TIMEZONE" ]; then
+            pass "Timezone: $USER_TIMEZONE ✓"
+        else
+            if [ -z "$CURRENT_TIMEZONE" ]; then
+                warn "Timezone: expected '$USER_TIMEZONE', config has none (defaulting to UTC)"
+            else
+                warn "Timezone: expected '$USER_TIMEZONE', got '$CURRENT_TIMEZONE'"
+            fi
+            if [ "$1" = "--fix" ]; then
+                openclaw gateway config.patch "{\"agents\":{\"defaults\":{\"userTimezone\":\"$USER_TIMEZONE\"}}}" 2>/dev/null
+                if [ $? -eq 0 ]; then
+                    fixed "Set userTimezone to $USER_TIMEZONE"
+                else
+                    fail "Failed to set userTimezone"
+                fi
+            fi
+        fi
+    else
+        info "No timezone found in USER.md"
+    fi
+else
+    info "USER.md not found — skipping timezone check"
+fi
+
+# ==========================================
 # SUMMARY
 # ==========================================
 echo ""

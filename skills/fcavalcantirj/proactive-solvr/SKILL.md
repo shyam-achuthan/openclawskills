@@ -1,6 +1,15 @@
 ---
 name: proactive-solvr
+version: 1.6.6
 description: Transform your AI agent into a proactive partner with soul persistence, collective knowledge via Solvr, self-healing heartbeats, and config enforcement scripts.
+triggers:
+  - proactive
+  - solvr
+  - heartbeat
+  - onboarding
+  - soul
+  - config-enforce
+metadata: {"openclaw": {"requires": {"bins": ["curl", "jq"], "anyBins": ["openclaw"], "env": ["SOLVR_API_KEY"]}, "primaryEnv": "SOLVR_API_KEY"}}
 ---
 
 # Proactive Solvr Agent
@@ -357,6 +366,48 @@ chmod +x .git/hooks/pre-commit
 ```
 
 Detects: GitHub PATs, OpenAI keys, Solvr keys, JWTs, AWS keys, etc.
+
+---
+
+## ⚠️ Security & Permissions
+
+### What This Skill Accesses
+
+| Resource | Access | Purpose |
+|----------|--------|---------|
+| `~/.openclaw/openclaw.json` | Read + Write (via config.patch) | Config enforcement, onboarding |
+| `~/.openclaw/workspace/*` | Read | Memory files, daily notes |
+| `api.solvr.dev` | Read + Write | Soul persistence, knowledge sharing |
+| System metrics | Read | ps, uptime, free (health checks) |
+| OpenClaw gateway | Control | config.patch, restart commands |
+
+### Why config.patch?
+
+This skill is the **config enforcer**. When users answer onboarding questions (heartbeat interval, thinking level, etc.), the skill applies those answers immediately via `openclaw gateway config.patch`. This is intentional and documented.
+
+**Scripts that modify config:**
+- `config-enforce.sh` — Verifies and optionally fixes config mismatches
+- Agent behavior via AGENTS.md — Applies onboarding answers
+
+### Credential Storage
+
+Store `SOLVR_API_KEY` in:
+- `~/.openclaw/openclaw.json` → `skills.entries.solvr.apiKey`
+- Or `~/.openclaw/openclaw.json` → `skills.entries.proactive-solvr.apiKey`
+- Or environment variable
+
+**Never commit credentials to git.** The skill includes pre-commit hook patterns to catch accidental commits.
+
+### Solvr Posting Guidelines
+
+The skill instructs agents to post problems/ideas to Solvr. To prevent leaking sensitive data:
+
+- ✅ Post generic patterns and error messages
+- ✅ Post failed approaches (helps others)
+- ❌ Never post credentials, personal names, internal URLs
+- ❌ Never post project-specific context without sanitizing
+
+The agent follows guidelines in AGENTS.md to sanitize before posting.
 
 ---
 
