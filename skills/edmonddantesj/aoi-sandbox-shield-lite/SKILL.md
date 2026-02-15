@@ -28,5 +28,15 @@ node skill.js validate-config --path="$HOME/.openclaw/openclaw.json"
 ## Output
 All commands print JSON to stdout for easy logging.
 
+## Release governance (public)
+We publish AOI skills for free and keep improving them. Every release must pass our Security Gate and include an auditable changelog. We do not ship updates that weaken security or licensing clarity. Repeated violations trigger progressive restrictions (warnings → publish pause → archive).
+
+## Support
+- Issues / bugs / requests: https://github.com/edmonddantesj/aoi-skills/issues
+- Please include the skill slug: `aoi-sandbox-shield-lite`
+
+## Links
+- ClawHub: https://clawhub.com/skills/aoi-sandbox-shield-lite
+
 ## License
 MIT (AOI original).
