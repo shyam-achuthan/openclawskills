@@ -1,7 +1,7 @@
 ---
 name: React
 slug: react
-version: 1.0.2
+version: 1.0.3
 description: Build React applications with hooks, state management, performance optimization, and component patterns.
 ---
 
