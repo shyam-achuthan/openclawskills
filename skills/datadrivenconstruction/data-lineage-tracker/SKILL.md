@@ -1,9 +1,9 @@
 ---
-slug: "data-lineage-tracker"
-display_name: "Data Lineage Tracker"
+name: "data-lineage-tracker"
 description: "Track data origin, transformations, and flow through construction systems. Essential for audit trails, compliance, and debugging data issues."
+homepage: "https://datadrivenconstruction.io"
+metadata: {"openclaw": {"emoji": "✔️", "os": ["darwin", "linux", "win32"], "homepage": "https://datadrivenconstruction.io", "requires": {"bins": ["python3"]}}}
 ---
-
 # Data Lineage Tracker for Construction
 
 ## Overview

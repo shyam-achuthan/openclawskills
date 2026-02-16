@@ -3,9 +3,15 @@
   "slug": "data-lineage-tracker",
   "displayName": "Data Lineage Tracker",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1770475526539,
-    "commit": "https://github.com/openclaw/skills/commit/a0fe7c89b28ee6b020a3a53856e96ad3ec132681"
+    "version": "2.1.0",
+    "publishedAt": 1771175095707,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1770475526539,
+      "commit": "https://github.com/openclaw/skills/commit/a0fe7c89b28ee6b020a3a53856e96ad3ec132681"
+    }
+  ]
 }
