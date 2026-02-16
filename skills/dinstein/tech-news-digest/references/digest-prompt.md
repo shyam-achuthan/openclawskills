@@ -21,6 +21,7 @@ Unified template for both daily and weekly digests. Replace `<...>` placeholders
 | `<LANGUAGE>` | `Chinese` (default) | `Chinese` (default) |
 | `<TEMPLATE>` | `discord` / `email` / `markdown` | `discord` / `email` / `markdown` |
 | `<DATE>` | Today's date in YYYY-MM-DD (caller provides) | Today's date in YYYY-MM-DD (caller provides) |
+| `<VERSION>` | Read from SKILL.md frontmatter `version` field | Read from SKILL.md frontmatter `version` field |
 
 ---
 
@@ -94,13 +95,25 @@ python3 <SKILL_DIR>/scripts/fetch-github.py \
 ```
 Reads `sources.json`, fetches all `type: "github"` sources with `enabled: true`. Fetches recent releases from GitHub API (optional `$GITHUB_TOKEN` for higher rate limits). Outputs structured JSON with releases tagged by topics.
 
-### Step 5: Merge & Score
+### Step 5: Reddit
+```bash
+python3 <SKILL_DIR>/scripts/fetch-reddit.py \
+  --defaults <SKILL_DIR>/config/defaults \
+  --config <WORKSPACE>/config \
+  --hours <RSS_HOURS> \
+  --output /tmp/td-reddit.json \
+  --verbose
+```
+Reads `sources.json`, fetches all `type: "reddit"` sources with `enabled: true`. Uses Reddit's public JSON API (no authentication required). Filters by `min_score` and time window. Outputs structured JSON with posts tagged by topics.
+
+### Step 6: Merge & Score
 ```bash
 python3 <SKILL_DIR>/scripts/merge-sources.py \
   --rss /tmp/td-rss.json \
   --twitter /tmp/td-twitter.json \
   --web /tmp/td-web.json \
   --github /tmp/td-github.json \
+  --reddit /tmp/td-reddit.json \
   --archive-dir <WORKSPACE>/archive/tech-digest/ \
   --output /tmp/td-merged.json \
   --verbose
@@ -110,13 +123,19 @@ Merges all sources, deduplicates (title similarity + domain), applies quality sc
 - Multi-source cross-reference: +5
 - Recency bonus: +2
 - High engagement: +1
+- Reddit score > 500: +5, > 200: +3, > 100: +1
 - Already in previous report: -5
 
 Output is grouped by topic with articles sorted by score.
 
 ## Report Generation
 
-Use the merged output and the appropriate template from `<SKILL_DIR>/references/templates/<TEMPLATE>.md` to generate the report.
+Use the merged output (`/tmp/td-merged.json`) and the appropriate template from `<SKILL_DIR>/references/templates/<TEMPLATE>.md` to generate the report. The merged JSON contains articles from **all 5 sources** (RSS, Twitter, Web, GitHub, Reddit) grouped by topic and sorted by `quality_score`. **Select articles purely by score regardless of source type** — Reddit posts with high scores should appear alongside RSS/Web articles in topic sections. For Reddit posts, append `*[Reddit r/xxx, {{score}}↑]*` after the title.
+
+### Executive Summary
+Place a **2-4 sentence summary** between the title and topic sections, highlighting the day's top 3-5 stories. Select from articles with the highest `quality_score` in the merged JSON. Style: concise and punchy, like a news broadcast opener. No links, no detailed descriptions — just the key events.
+
+Discord format: use `> ` blockquote. Email format: gray background paragraph. Telegram format: `<i>` italic.
 
 ### Topic Sections
 Use sections defined in `topics.json`. Each topic has:
@@ -125,8 +144,8 @@ Use sections defined in `topics.json`. Each topic has:
 - `search.must_include` / `search.exclude` for content filtering
 
 ### Fixed Sections (append after topic sections)
-- 📢 KOL Updates (Twitter KOLs + notable blog posts from RSS authors — **each entry MUST include the source tweet/post URL**. Format: `• **@handle** — summary\n  <https://twitter.com/handle/status/ID>`)
-- 🔥 Twitter/X Trending (**each entry MUST include at least one reference link** — tweet URL, article URL, or web source. No link-free entries allowed.)
+- 📢 KOL Updates (Twitter KOLs + notable blog posts from RSS authors — **each entry MUST include the source tweet/post URL and engagement metrics read from the merged JSON data**. The Twitter data in `/tmp/td-twitter.json` and `/tmp/td-merged.json` contains a `metrics` field per tweet with `impression_count`, `reply_count`, `retweet_count`, `like_count`. **You MUST read these actual values from the JSON data — do NOT default to 0 unless the field is genuinely missing.** Format: ``• **@handle** — summary `👁 12.3K | 💬 45 | 🔁 230 | ❤️ 1.2K`\n  <https://twitter.com/handle/status/ID>``. Mapping: impression_count → 👁, reply_count → 💬, retweet_count → 🔁, like_count → ❤️. **Rules: Always show all 4 metrics in the same order (👁|💬|🔁|❤️). Wrap metrics in backticks (inline code) to prevent emoji enlargement on Discord. Use K for thousands (1.2K), M for millions (4.1M). One tweet per line — if a KOL has multiple notable tweets, list each as a separate bullet with its own metrics and URL.**)
+- 🔥 Community Buzz (Combine Twitter/X trending topics AND top Reddit discussions into one section. Include both tweet-based trends and Reddit hot self-posts. **Each entry MUST include at least one reference link.** For Twitter trends: tweet URL or article URL. For Reddit discussions: format as `• **r/subreddit** — title `{{score}}↑ · {{num_comments}} comments`\n  <{{reddit_url}}>`, read metrics from article's `metrics` field. Sort by relevance/engagement across both platforms.)
 - 📝 Blog Picks (<BLOG_PICKS_COUNT> high-quality deep articles from RSS)
 <EXTRA_SECTIONS>
 
@@ -146,7 +165,8 @@ At the end of the report, append a stats line showing raw data collected from ea
 
 ```
 ---
-📊 数据源统计：RSS {{rss_count}} 篇 | Twitter {{twitter_count}} 条 | Web {{web_count}} 篇 | GitHub {{github_count}} 个 release | 合并去重后 {{merged_count}} 篇
+📊 Data Sources: RSS {{rss_count}} | Twitter {{twitter_count}} | Reddit {{reddit_count}} | Web {{web_count}} | GitHub {{github_count}} releases | After dedup: {{merged_count}} articles
+🤖 Generated by [tech-news-digest](https://github.com/draco-agent/tech-news-digest) v{{version}} | Powered by [OpenClaw](https://openclaw.ai)
 ```
 
 ## Archive

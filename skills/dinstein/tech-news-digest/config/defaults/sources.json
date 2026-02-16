@@ -62,15 +62,14 @@
       "type": "rss",
       "name": "Anthropic Blog",
       "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/refs/heads/main/feeds/feed_anthropic.xml",
-      "note": "Community-maintained mirror (Anthropic has no official RSS). Verify content against anthropic.com.",
+      "note": "Official Anthropic updates (via community RSS mirror)",
       "enabled": true,
       "priority": true,
       "topics": [
         "llm",
         "ai-agent",
         "frontier-tech"
-      ],
-      "note": "Official Anthropic updates (via community RSS mirror)"
+      ]
     },
     {
       "id": "sebas-rss",
@@ -1366,6 +1365,311 @@
         "ai-agent"
       ],
       "note": "Lightweight AI agent framework"
+    },
+    {
+      "id": "bensbites-rss",
+      "type": "rss",
+      "name": "Ben's Bites",
+      "url": "https://www.bensbites.com/feed",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "the-decoder-rss",
+      "type": "rss",
+      "name": "The Decoder",
+      "url": "https://the-decoder.com/feed/",
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "a16zcrypto-rss",
+      "type": "rss",
+      "name": "a16z Crypto",
+      "url": "https://a16zcrypto.substack.com/feed",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "crypto"
+      ]
+    },
+    {
+      "id": "bankless-rss",
+      "type": "rss",
+      "name": "Bankless",
+      "url": "https://newsletter.banklesshq.com/feed",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "crypto"
+      ]
+    },
+    {
+      "id": "twitter-clementdelangue",
+      "type": "twitter",
+      "name": "Clement Delangue",
+      "handle": "ClementDelangue",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "twitter-gaborhm",
+      "type": "twitter",
+      "name": "Greg Brockman",
+      "handle": "GregBrockman",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "twitter-zuck",
+      "type": "twitter",
+      "name": "Mark Zuckerberg",
+      "handle": "zuck",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "github-mcp-servers",
+      "type": "github",
+      "name": "MCP Servers",
+      "repo": "modelcontextprotocol/servers",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "github-deepseek-v3",
+      "type": "github",
+      "name": "DeepSeek V3",
+      "repo": "deepseek-ai/DeepSeek-V3",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm"
+      ]
+    },
+    {
+      "id": "github-meta-llama",
+      "type": "github",
+      "name": "Meta Llama",
+      "repo": "meta-llama/llama-models",
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm"
+      ]
+    },
+    {
+      "id": "reddit-machinelearning",
+      "type": "reddit",
+      "name": "r/MachineLearning",
+      "subreddit": "MachineLearning",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "reddit-localllama",
+      "type": "reddit",
+      "name": "r/LocalLLaMA",
+      "subreddit": "LocalLLaMA",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 30,
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "llm"
+      ]
+    },
+    {
+      "id": "reddit-cryptocurrency",
+      "type": "reddit",
+      "name": "r/CryptoCurrency",
+      "subreddit": "CryptoCurrency",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "crypto"
+      ]
+    },
+    {
+      "id": "reddit-artificial",
+      "type": "reddit",
+      "name": "r/artificial",
+      "subreddit": "artificial",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 30,
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "reddit-ethereum",
+      "type": "reddit",
+      "name": "r/ethereum",
+      "subreddit": "ethereum",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 30,
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "crypto"
+      ]
+    },
+    {
+      "id": "reddit-chatgpt",
+      "type": "reddit",
+      "name": "r/ChatGPT",
+      "subreddit": "ChatGPT",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "reddit-singularity",
+      "type": "reddit",
+      "name": "r/singularity",
+      "subreddit": "singularity",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "llm"
+      ]
+    },
+    {
+      "id": "reddit-openai",
+      "type": "reddit",
+      "name": "r/OpenAI",
+      "subreddit": "OpenAI",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "reddit-bitcoin",
+      "type": "reddit",
+      "name": "r/Bitcoin",
+      "subreddit": "Bitcoin",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "crypto"
+      ]
+    },
+    {
+      "id": "reddit-programming",
+      "type": "reddit",
+      "name": "r/programming",
+      "subreddit": "programming",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "llm",
+        "ai-agent",
+        "crypto"
+      ]
+    },
+    {
+      "id": "reddit-anthropic",
+      "type": "reddit",
+      "name": "r/Anthropic",
+      "subreddit": "Anthropic",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 30,
+      "enabled": true,
+      "priority": true,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
+    },
+    {
+      "id": "reddit-defi",
+      "type": "reddit",
+      "name": "r/defi",
+      "subreddit": "defi",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 30,
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "crypto"
+      ]
+    },
+    {
+      "id": "reddit-experienceddevs",
+      "type": "reddit",
+      "name": "r/ExperiencedDevs",
+      "subreddit": "ExperiencedDevs",
+      "sort": "hot",
+      "limit": 25,
+      "min_score": 50,
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "llm",
+        "ai-agent"
+      ]
     }
   ]
 }
