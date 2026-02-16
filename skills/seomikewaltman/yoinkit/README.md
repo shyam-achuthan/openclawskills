@@ -149,7 +149,6 @@ Copy any example and add it via OpenClaw's cron system.
 
 ## Documentation
 
-- Full API docs: <https://openclaw.yoinkit.ai>
 - Platform reference: [references/platforms.md](references/platforms.md)
 
 ## License
