@@ -1,6 +1,7 @@
 ---
 name: nofx-ai500-report
 description: Generate periodic crypto market intelligence reports from the NOFX AI500 system. Monitors coin selections, analyzes OI (Open Interest), institutional fund flows, K-line technicals, delta, long-short ratios, and funding rates. Use when setting up automated crypto market reports, AI500 signal monitoring, new coin alerts, or periodic trading signal summaries via Telegram/messaging.
+license: MIT
 ---
 
 # NOFX AI500 Report Skill
