@@ -1,7 +1,0 @@
-{
-  "name": "weekly-summary",
-  "version": "1.0.0",
-  "description": "Weekly summary generator",
-  "main": "index.js",
-  "dependencies": {}
-}
