@@ -1,13 +1,18 @@
 {
   "owner": "jononovo",
   "slug": "creditclaw",
-  "displayName": "CreditClaw - Give your Claw Agent a credit card - They can spend anywhere or request payment from anyone.",
+  "displayName": "CreditClaw - Give your Claw spending power ( Powered by Stripe)",
   "latest": {
-    "version": "1.0.2",
-    "publishedAt": 1770504837746,
-    "commit": "https://github.com/openclaw/skills/commit/0f7450651d5ba91676e4e9d079e35abada2ec075"
+    "version": "2.2.0",
+    "publishedAt": 1771041004137,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.2",
+      "publishedAt": 1770504837746,
+      "commit": "https://github.com/openclaw/skills/commit/0f7450651d5ba91676e4e9d079e35abada2ec075"
+    },
     {
       "version": "1.0.1",
       "publishedAt": 1770431254792,
