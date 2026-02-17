@@ -4,6 +4,15 @@ description: "When the user wants to manage, automate, or analyze paid advertisi
 metadata:
   short-description: AI agent that automates ad campaigns across Google, Meta, LinkedIn & TikTok
   homepage: https://www.adspirer.com
+  openclaw:
+    emoji: "📊"
+    requires:
+      env: []
+      bins: []
+    install:
+      - id: openclaw-adspirer
+        kind: node
+        label: "Adspirer Ad Management Plugin"
 ---
 
 # AI Ads Agent — Automate Ad Campaigns via Natural Language
@@ -14,7 +23,7 @@ This is not a reference guide. This skill drives automation. You read and write 
 
 ## How It Works
 
-This skill is powered by the **Adspirer MCP server** (103 tools across 4 ad platforms). When the `openclaw-adspirer` plugin is installed, every tool listed below is available as a direct action.
+This skill is powered by the **Adspirer MCP server** (100+ tools across 4 ad platforms). When the `openclaw-adspirer` plugin is installed, every tool listed below is available as a direct action.
 
 ### Setup (One-Time)
 
@@ -278,7 +287,7 @@ Sign up and connect ad accounts at https://www.adspirer.com/pricing
 
 ---
 
-## Complete Tool Reference (103 Tools)
+## Complete Tool Reference (100+ Tools)
 
 | Platform | Count | Categories |
 |----------|-------|------------|

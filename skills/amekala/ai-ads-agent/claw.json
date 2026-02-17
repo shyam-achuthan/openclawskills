@@ -1,6 +1,6 @@
 {
   "name": "ai-ads-agent",
-  "version": "1.2.0",
+  "version": "1.3.1",
   "description": "AI agent that automates ad campaigns across Google Ads, Meta Ads, LinkedIn Ads, and TikTok Ads. Creates campaigns, reads live performance data, researches keywords, and optimizes budgets through natural language via the Adspirer MCP server.",
   "author": {
     "name": "Adspirer",
@@ -51,7 +51,15 @@
   ],
   "category": "marketing",
   "entry": "SKILL.md",
+  "install": [
+    {
+      "id": "openclaw-adspirer",
+      "kind": "node",
+      "label": "Adspirer Ad Management Plugin"
+    }
+  ],
   "permissions": {
-    "network": ["mcp.adspirer.com"]
+    "network": ["mcp.adspirer.com", "www.adspirer.com"],
+    "sensitive_data": true
   }
 }
