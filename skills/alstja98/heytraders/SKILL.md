@@ -132,13 +132,6 @@ resp = httpx.post(url, json={
 | GET | `/backtest/results/{id}/trades` | Yes | Trade history (paginated) |
 | GET | `/backtest/results/{id}/equity` | Yes | Equity curve |
 | GET | `/backtest/results/{id}/analysis` | Yes | AI-generated analysis |
-
-**Backtest prerequisites:**
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/backtest/strategies` | Yes | List strategy types (`signal`, `dca`, `grid`, `pair_trading`, `cross_sectional`) |
-| GET | `/backtest/strategies/{type}/schema` | Yes | JSON schema for strategy type |
 | POST | `/backtest/validate` | Yes | Validate script syntax (body: `{ "script": "...", "universe": [...] }`) |
 
 ### Live Strategies
@@ -221,7 +214,6 @@ resp = httpx.post(url, json={
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| strategy_type | string | Yes | - | `signal`, `dca`, `grid`, `pair_trading`, `cross_sectional` |
 | start_date | string | Yes | - | `YYYY-MM-DD` |
 | end_date | string | Yes | - | `YYYY-MM-DD` |
 | exchange | string | No | `binance` | Exchange ID |
@@ -230,21 +222,10 @@ resp = httpx.post(url, json={
 | trading_fee | float | No | 0.0005 | Fee as decimal |
 | slippage | float | No | 0.0005 | Slippage as decimal |
 | description | string | No | null | Strategy explanation (optional) |
-| script | string | Strategy-dependent | - | Required for `signal` and `cross_sectional` |
-| universe | string[] | Strategy-dependent | - | Required for `signal` and `cross_sectional` (e.g. `["BINANCE:BTC/USDT"]`) |
-| ticker | string | Strategy-dependent | - | Required for `dca`, `grid` |
-| fixed_amount | float | Strategy-dependent | - | Required for `dca` |
-| interval | string | Strategy-dependent | - | Required for `dca` |
-| pair_a | string | Strategy-dependent | - | Required for `pair_trading` |
-| pair_b | string | Strategy-dependent | - | Required for `pair_trading` |
-
-**Strategy-specific fields**
-
-- `signal`: optional `market_type` (auto-detected if omitted), `leverage` (1.0-100.0), `mode` (`isolated` or `cross`), `stop_loss`, `take_profit`
-- `cross_sectional`: required `script` + `universe` (at least 2), optional `exchange` (`binancefuturesusd` default), `target_weight`, `top_bottom_pct`, `rebalancing_interval`, `alpha_smoothing_method`, `alpha_smoothing_window`, `max_weight_per_asset`, `min_rebalance_weight_change`, `max_turnover_per_rebalance`, `leverage`
-- `dca`: optional `interval_day`, `condition_script`, `exit_target_pct`, `exit_script`, `execution_timing`, `leverage`
-- `grid`: optional `grid_range_pct`, `grid_count`, `grid_spacing`, `grid_type`, `reset_condition`, `reset_interval_days`, `leverage`
-- `pair_trading`: optional `lookback`, `entry_z`, `exit_z`, `stop_loss_z`, `hedge_ratio_method`, `beta_method`, `beta_lookback`, `cointegration_check_period`, `cointegration_pvalue_threshold`, `leverage`
+| script | string | Yes | - | Signal DSL script code |
+| universe | string[] | Yes | - | Tickers (e.g. `["BINANCE:BTC/USDT"]`) |
+| mode | string | No | `isolated` | `isolated` (per-ticker) or `cross` (multi-ticker, for pair trading) |
+| leverage | float | No | 1.0 | 1.0-100.0 (perpetual only) |
 
 **Key metrics returned:** `total_return_pct`, `max_drawdown`, `sharpe_ratio`, `sortino_ratio`, `calmar_ratio`, `win_rate`, `num_trades`, `profit_factor`. Results include `dashboard_url` linking to the interactive dashboard at `https://hey-traders.com/dashboard/backtest/detail/{id}`.
 
