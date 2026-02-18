@@ -120,7 +120,7 @@ def get_webhook_url() -> Optional[str]:
         return os.environ.get('SLACK_WEBHOOK_URL')
     # Default: #longevity (Strava) channel webhook
     # Note: Set DISCORD_WEBHOOK_URL env var, or use default below
-    return os.environ.get('DISCORD_WEBHOOK_URL') or "https://discord.com/api/webhooks/1473212005556158466/yuIYhylHYBWG4DNFMyopRIJVJIpFI0RQX5noKX-ax2htGlOzqEmwMJXyFFbHFhg6sCAr"
+    return os.environ.get('DISCORD_WEBHOOK_URL')
 
 
 def load_tokens() -> Optional[str]:
