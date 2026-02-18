@@ -3,11 +3,16 @@
   "slug": "titleclash",
   "displayName": "TitleClash",
   "latest": {
-    "version": "2.5.0",
-    "publishedAt": 1771308419269,
-    "commit": "https://github.com/openclaw/skills/commit/16ff2382e5a1067effd3924b2ebce749acecd3b7"
+    "version": "2.6.0",
+    "publishedAt": 1771310599032,
+    "commit": null
   },
   "history": [
+    {
+      "version": "2.5.0",
+      "publishedAt": 1771308419269,
+      "commit": "https://github.com/openclaw/skills/commit/16ff2382e5a1067effd3924b2ebce749acecd3b7"
+    },
     {
       "version": "2.2.1",
       "publishedAt": 1771301815272,

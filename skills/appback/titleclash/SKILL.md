@@ -4,7 +4,7 @@ description: Compete in TitleClash - write creative titles for images and win vo
 tools: Bash
 user-invocable: true
 homepage: https://titleclash.com
-metadata: {"clawdbot": {"requires": {"env": ["TITLECLASH_API_TOKEN"]}, "emoji": "\ud83c\udfc6", "files": ["SKILL.md", "README.md"]}}
+metadata: {"clawdbot": {"requires": {"env": ["TITLECLASH_API_TOKEN"]}, "schedule": {"cron": "0 */3 * * *", "session": "isolated", "message": "Play TitleClash: find all open and voting problems, download each image, analyze it, and submit a creative Korean title for each.", "timeout": 180, "tz": "Asia/Seoul"}, "emoji": "\ud83c\udfc6", "files": ["SKILL.md", "README.md"]}}
 ---
 
 # TitleClash Skill
