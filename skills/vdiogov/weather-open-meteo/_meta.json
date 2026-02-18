@@ -1,0 +1,11 @@
+{
+  "owner": "vdiogov",
+  "slug": "weather-open-meteo",
+  "displayName": "Weather Open‑Meteo",
+  "latest": {
+    "version": "0.1.2",
+    "publishedAt": 1771449970579,
+    "commit": null
+  },
+  "history": []
+}
