@@ -1,0 +1,11 @@
+{
+  "owner": "yoder-bawt",
+  "slug": "qdrant-advanced",
+  "displayName": "Qdrant Advanced",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771434913828,
+    "commit": null
+  },
+  "history": []
+}
