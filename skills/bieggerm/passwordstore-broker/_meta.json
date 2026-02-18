@@ -1,0 +1,11 @@
+{
+  "owner": "bieggerm",
+  "slug": "passwordstore-broker",
+  "displayName": "Passwordstore Broker",
+  "latest": {
+    "version": "1.0.3",
+    "publishedAt": 1771452741213,
+    "commit": null
+  },
+  "history": []
+}
