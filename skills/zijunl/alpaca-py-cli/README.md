@@ -1,14 +1,33 @@
-# Alpaca Trading (Python CLI)
+# Alpaca Trading (Python CLI) - OpenClaw Agent Skill
+
+> **🤖 AI Agent Skill for OpenClaw**  
+> Enable your AI agent to trade stocks and crypto via Alpaca Markets API using natural language commands.
 
 [![ClawHub](https://img.shields.io/badge/ClawHub-alpaca--py--cli-blue)](https://clawhub.ai/skills/alpaca-py-cli)
 [![GitHub](https://img.shields.io/badge/GitHub-zijunl%2Falpaca--py--cli-green)](https://github.com/zijunl/alpaca-py-cli)
-[![Version](https://img.shields.io/badge/version-1.1.0-orange)](https://clawhub.ai/skills/alpaca-py-cli)
+[![Version](https://img.shields.io/badge/version-1.2.0-orange)](https://clawhub.ai/skills/alpaca-py-cli)
 
-A Python-based command-line interface for trading stocks and crypto via Alpaca Markets API.
+## 🤖 What is this?
+
+This is an **OpenClaw Agent Skill** that gives your AI assistant the ability to:
+- Check stock prices and market status
+- Manage your trading portfolio
+- Execute buy/sell orders
+- View trading history and performance
+- All through natural language conversation!
+
+**Example conversation:**
+```
+You: "What's the current price of Apple stock?"
+Agent: *runs alpaca quote AAPL* "AAPL is trading at $250.32"
+
+You: "Buy 10 shares"
+Agent: *runs alpaca buy AAPL 10* "✓ Order placed for 10 shares of AAPL"
+```
 
 ## 🚀 Quick Install
 
-### Via ClawHub (Recommended)
+### Via ClawHub (Recommended for OpenClaw users)
 
 ```bash
 npm install -g clawhub
@@ -35,6 +54,7 @@ brew install python@3.11
 - ⏰ Market status checking
 - 🔐 Secure credential management
 - 📝 Paper trading support
+- 🤖 **Agent-friendly CLI interface**
 
 ## 🎯 Quick Start
 
@@ -71,10 +91,27 @@ alpaca buy/sell      # Execute trades
 alpaca cancel/close  # Cancel/close positions
 ```
 
+## 🤖 For AI Agents
+
+This skill is designed to be used by AI agents like OpenClaw. The agent can:
+1. Understand natural language requests about trading
+2. Translate them into appropriate CLI commands
+3. Execute the commands and interpret results
+4. Respond back in natural language
+
+**Agent Usage Pattern:**
+```python
+# User: "What's my portfolio worth?"
+# Agent executes:
+alpaca account
+# Agent reads output and responds: "Your portfolio is worth $105,234.56"
+```
+
 ## 🔗 Links
 
 - **ClawHub**: https://clawhub.ai/skills/alpaca-py-cli
 - **GitHub**: https://github.com/zijunl/alpaca-py-cli
+- **OpenClaw**: https://openclaw.ai
 - **Alpaca Markets**: https://alpaca.markets
 - **Python SDK Docs**: https://alpaca.markets/docs/python-sdk/
 
@@ -86,13 +123,14 @@ This is a lightweight Python implementation of the Alpaca Trading CLI, designed 
 - **Cross-platform**: Works on macOS, Linux, Windows
 - **Well-documented**: Clear examples and troubleshooting
 - **Safe**: Emphasizes paper trading and credential security
-- **Agent-friendly**: Designed for OpenClaw agent automation
+- **Agent-friendly**: Designed specifically for AI agent automation
+- **Natural language ready**: CLI output is easy for agents to parse
 
 ## 🆚 Differences from Other Alpaca Skills
 
 - **alpaca-trading** (ClawHub): Uses `apcacli` (Rust CLI, third-party tool)
 - **alpaca** (ClawHub): Uses Python scripts but different implementation
-- **alpaca-py-cli** (this skill): Custom Python CLI with Homebrew Python support
+- **alpaca-py-cli** (this skill): Custom Python CLI optimized for AI agents with Homebrew Python support
 
 ## 🔒 Safety & Security
 
@@ -101,6 +139,7 @@ This is a lightweight Python implementation of the Alpaca Trading CLI, designed 
 - Interactive `alpaca auth` hides secret key input
 - Market orders only (no complex order types to reduce risk)
 - Confirmation required for `close-all` command
+- Agent can't access your keys directly (uses environment variables)
 
 ## 📖 Documentation
 

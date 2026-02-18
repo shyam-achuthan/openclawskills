@@ -414,3 +414,48 @@ export PATH="$HOME/.openclaw/workspace/skills/alpaca-py-cli/scripts:$PATH"
 - API Reference: https://docs.alpaca.markets/reference/
 - Trading API: https://docs.alpaca.markets/docs/trading-api
 - Market Data API: https://docs.alpaca.markets/docs/market-data
+
+## Setup Wizard (For Agents)
+
+### Intelligent Setup
+
+```bash
+alpaca setup-wizard
+```
+
+This interactive wizard helps agents set up Alpaca automatically:
+
+**Features:**
+- Detects if already configured
+- Offers automatic or manual setup
+- Automatic mode (for agents with email access):
+  - Opens browser to Alpaca registration
+  - Fills registration form
+  - Verifies email automatically
+  - Retrieves API keys
+  - Configures environment
+- Manual mode (fallback):
+  - Opens browser to Alpaca docs
+  - Guides user through registration
+  - Prompts for API keys
+  - Saves configuration
+
+**Agent Usage:**
+When a user asks to set up Alpaca trading, run:
+```bash
+alpaca setup-wizard
+```
+
+The wizard will:
+1. Check for email/browser skills
+2. Choose automatic or manual setup
+3. Default to paper trading (safe)
+4. Configure environment variables
+5. Verify setup with `alpaca clock`
+
+**Note:** Automatic registration requires:
+- Browser skill (for web automation)
+- Email skill (for verification)
+- User information (name, address, etc.)
+
+Currently, automatic mode falls back to manual setup. Full automation coming soon.
