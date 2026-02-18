@@ -1,19 +1,14 @@
 ---
 name: ai-automation-workflows
-description: |
-  Build automated AI workflows combining multiple models and services.
-  Patterns: batch processing, scheduled tasks, event-driven pipelines, agent loops.
-  Tools: inference.sh CLI, bash scripting, Python SDK, webhook integration.
-  Use for: content automation, data processing, monitoring, scheduled generation.
-  Triggers: ai automation, workflow automation, batch processing, ai pipeline,
-  automated content, scheduled ai, ai cron, ai batch job, automated generation,
-  ai workflow, content at scale, automation script, ai orchestration
+description: "Build automated AI workflows combining multiple models and services. Patterns: batch processing, scheduled tasks, event-driven pipelines, agent loops. Tools: inference.sh CLI, bash scripting, Python SDK, webhook integration. Use for: content automation, data processing, monitoring, scheduled generation. Triggers: ai automation, workflow automation, batch processing, ai pipeline, automated content, scheduled ai, ai cron, ai batch job, automated generation, ai workflow, content at scale, automation script, ai orchestration"
 allowed-tools: Bash(infsh *)
 ---
 
 # AI Automation Workflows
 
 Build automated AI workflows via [inference.sh](https://inference.sh) CLI.
+
+![AI Automation Workflows](https://cloud.inference.sh/app/files/u/4mg21r6ta37mpaz6ktzwtt8krr/01kg0v0nz7wv0qwqjtq1cam52z.jpeg)
 
 ## Quick Start
 
@@ -25,6 +20,8 @@ infsh app run falai/flux-dev --input '{
   "prompt": "Inspirational quote background, minimalist design, date: '"$(date +%Y-%m-%d)"'"
 }'
 ```
+
+> **Install note:** The [install script](https://cli.inference.sh) only detects your OS/architecture, downloads the matching binary from `dist.inference.sh`, and verifies its SHA-256 checksum. No elevated permissions or background processes. [Manual install & verification](https://dist.inference.sh/cli/checksums.txt) available.
 
 ## Automation Patterns
 
@@ -392,16 +389,16 @@ done
 
 ```bash
 # Content pipelines
-npx skills add inference-sh/agent-skills@ai-content-pipeline
+npx skills add inference-sh/skills@ai-content-pipeline
 
 # RAG pipelines
-npx skills add inference-sh/agent-skills@ai-rag-pipeline
+npx skills add inference-sh/skills@ai-rag-pipeline
 
 # Social media automation
-npx skills add inference-sh/agent-skills@ai-social-media-content
+npx skills add inference-sh/skills@ai-social-media-content
 
 # Full platform skill
-npx skills add inference-sh/agent-skills@inference-sh
+npx skills add inference-sh/skills@inference-sh
 ```
 
 Browse all apps: `infsh app list`
