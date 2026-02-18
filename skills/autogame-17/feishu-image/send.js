@@ -3,12 +3,33 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { program } = require('commander');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), quiet: true });
 
 // Optimization: Remove SDK, use shared client + caching (Cycle #0063)
-const { getToken, fetchWithRetry } = require('../common/feishu-client.js');
+const { getToken, fetchWithRetry } = require('../feishu-common/index.js');
 
 const IMAGE_KEY_CACHE_FILE = path.resolve(__dirname, '../../memory/feishu_image_keys.json');
+
+const https = require('https');
+const http = require('http');
+
+async function downloadImage(url) {
+    const tempFile = path.resolve(__dirname, `../../temp/feishu-image-${Date.now()}.png`);
+    const file = fs.createWriteStream(tempFile);
+    const protocol = url.startsWith('https') ? https : http;
+
+    return new Promise((resolve, reject) => {
+        protocol.get(url, function(response) {
+            response.pipe(file);
+            file.on('finish', function() {
+                file.close(() => resolve(tempFile));
+            });
+        }).on('error', function(err) {
+            fs.unlink(tempFile, () => {}); 
+            reject(err);
+        });
+    });
+}
 
 async function uploadImage(token, filePath) {
     // 1. Check Cache
@@ -30,14 +51,22 @@ async function uploadImage(token, filePath) {
     // 2. Upload
     console.log(`Uploading image: ${path.basename(filePath)}...`);
     
+    // Fix: form-data/fetch compatibility
+    // Node.js 'fetch' uses a different FormData implementation than browser/axios
+    // To be robust, we construct the multipart body manually or use the standard FormData global if available in Node 18+
+    
     const formData = new FormData();
     formData.append('image_type', 'message');
-    const blob = new Blob([fileBuffer]);
+    
+    // In Node.js environment, File/Blob support in FormData might be limited or require specific types
+    // Using a Blob with type is the standard way
+    const blob = new Blob([fileBuffer], { type: 'application/octet-stream' });
     formData.append('image', blob, path.basename(filePath));
 
+    // IMPORTANT: Do NOT set Content-Type header manually for FormData, let fetch handle the boundary
     const res = await fetchWithRetry('https://open.feishu.cn/open-apis/im/v1/images', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }, // Content-Type is auto-set
         body: formData
     });
     
@@ -93,29 +122,48 @@ if (require.main === module) {
     program
       .option('--target <id>', 'Target Chat/User ID')
       .option('--image <path>', 'Image file path')
-      .option('--content <path>', 'Content (alias for --image)')
+      .option('--file <path>', 'File (alias for --image)')
+      .option('--url <url>', 'Image URL to download and send')
       .parse(process.argv);
 
     const options = program.opts();
 
     (async () => {
-        if (options.content && !options.image) options.image = options.content;
+        if (options.file && !options.image) options.image = options.file;
 
-        if (!options.target || !options.image) {
-            console.error('Usage: node send.js --target <id> --image <path>');
+        if (!options.target || (!options.image && !options.url)) {
+            console.error('Usage: node send.js --target <id> [--image <path> | --url <url>]');
             process.exit(1);
         }
-        
-        const filePath = path.resolve(options.image);
-        if (!fs.existsSync(filePath)) {
-            console.error('File not found:', filePath);
-            process.exit(1);
+
+        let filePath;
+        let tempFile;
+
+        if (options.url) {
+            try {
+                console.log(`Downloading image from ${options.url}...`);
+                tempFile = await downloadImage(options.url);
+                filePath = tempFile;
+            } catch (e) {
+                console.error('Error downloading image:', e.message);
+                process.exit(1);
+            }
+        } else {
+            filePath = path.resolve(options.image);
+            if (!fs.existsSync(filePath)) {
+                console.error('File not found:', filePath);
+                process.exit(1);
+            }
         }
 
         try {
             await sendImageMessage(options.target, filePath);
+            if (tempFile) {
+                fs.unlinkSync(tempFile);
+            }
         } catch (e) {
             console.error('Error:', e.message);
+            if (tempFile && fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
             process.exit(1);
         }
     })();
