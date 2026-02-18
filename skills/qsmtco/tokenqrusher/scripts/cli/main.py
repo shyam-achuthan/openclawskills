@@ -2,19 +2,11 @@
 """
 Unified CLI for tokenQrusher - Token optimization for OpenClaw.
 
-This CLI provides a single entry point for all tokenQrusher functionality:
-- Context optimization
-- Model routing
-- Usage tracking
-- Budget checking
-- Cron scheduling
-- Heartbeat optimization
-
-Design Principles:
-- Deterministic: Same input always produces same output
-- Exhaustive: Every error case handled
-- Static typing: Full type hints, mypy compatible
-- Pure functions: Easy to test
+SECURITY MANIFEST:
+  Environment variables accessed: None
+  External endpoints called: None
+  Local files read: None
+  Local files written: None
 """
 from __future__ import annotations
 
@@ -220,313 +212,6 @@ class ContextCommand(SubCommand):
 # MODEL COMMAND
 # =============================================================================
 
-class ModelCommand(SubCommand):
-    """Model routing - recommend model tier for a prompt."""
-    
-    @property
-    def name(self) -> str:
-        return "model"
-    
-    @property
-    def help(self) -> str:
-        return "Recommend model tier for a prompt"
-    
-    def add_args(self, parser: argparse.ArgumentParser) -> None:
-        parser.add_argument('prompt', nargs='?', default='hello', help='User prompt')
-        parser.add_argument('--tier', action='store_true', help='Show tier only')
-        parser.add_argument('--json', action='store_true', help='JSON output')
-    
-    def execute(self, args: argparse.Namespace) -> CliResult:
-        prompt = args.prompt
-        
-        import re
-        
-        # Determine tier
-        tier = ModelTier.STANDARD
-        confidence = 0.6
-        
-        # Quick patterns
-        quick_patterns = [
-            r'^(hi|hey|hello|yo|sup|howdy)$',
-            r'^(thanks|thank you|thx|ty)$',
-            r'^(ok|okay|sure|got it)$',
-            r'^(yes|no|yeah|nope)$',
-            r'^heartbeat$',
-            r'^check\s+(email|calendar|weather|status)',
-            r'^read\s+(file|log)',
-            r'^list\s+(files|dir)',
-        ]
-        
-        # Deep patterns
-        deep_patterns = [
-            r'^(design|architect)\s+\w+',
-            r'\barchitect(?:ure|ing)?\b',
-            r'\bcomprehensive\b',
-            r'\banalyze\s+deeply\b',
-            r'\boptimize\s+(performance|speed)',
-        ]
-        
-        for pattern in quick_patterns:
-            if re.match(pattern, prompt, re.IGNORECASE):
-                tier = ModelTier.QUICK
-                confidence = 0.90
-                break
-        
-        if tier == ModelTier.STANDARD:
-            for pattern in deep_patterns:
-                if re.search(pattern, prompt, re.IGNORECASE):
-                    tier = ModelTier.DEEP
-                    confidence = 0.90
-                    break
-        
-        # Model mappings
-        models = {
-            ModelTier.QUICK: 'openrouter/stepfun/step-3.5-flash:free',
-            ModelTier.STANDARD: 'anthropic/claude-haiku-4',
-            ModelTier.DEEP: 'openrouter/minimax/minimax-m2.5'
-        }
-        
-        costs = {
-            ModelTier.QUICK: '$0.00/MT',
-            ModelTier.STANDARD: '$0.25/MT',
-            ModelTier.DEEP: '$0.60+/MT'
-        }
-        
-        model = models[tier]
-        cost = costs[tier]
-        
-        data = {
-            'prompt': prompt,
-            'tier': tier.value,
-            'confidence': confidence,
-            'model': model,
-            'cost': cost
-        }
-        
-        if args.json:
-            return CliResult(ExitCode.SUCCESS, "OK", data)
-        
-        if args.tier:
-            return CliResult(ExitCode.SUCCESS, tier.value, data)
-        
-        message = f"Tier: {tier.value} (confidence: {confidence:.0%})\nModel: {model}\nCost: {cost}"
-        return CliResult(ExitCode.SUCCESS, message, data)
-
-
-# =============================================================================
-# BUDGET COMMAND
-# =============================================================================
-
-class BudgetCommand(SubCommand):
-    """Budget status - check spending against limits."""
-    
-    @property
-    def name(self) -> str:
-        return "budget"
-    
-    @property
-    def help(self) -> str:
-        return "Check budget status"
-    
-    def add_args(self, parser: argparse.ArgumentParser) -> None:
-        parser.add_argument('--period', choices=['daily', 'weekly', 'monthly'],
-                           default='daily', help='Budget period')
-        parser.add_argument('--json', action='store_true', help='JSON output')
-        parser.add_argument('--warn', type=float, help='Warning threshold (0-1)')
-    
-    def execute(self, args: argparse.Namespace) -> CliResult:
-        # Get budget from environment or defaults
-        budgets = {
-            'daily': float(os.environ.get('TOKENQRUSHER_BUDGET_DAILY', '5.0')),
-            'weekly': float(os.environ.get('TOKENQRUSHER_BUDGET_WEEKLY', '30.0')),
-            'monthly': float(os.environ.get('TOKENQRUSHER_BUDGET_MONTHLY', '100.0'))
-        }
-        
-        warning_threshold = args.warn or float(os.environ.get('TOKENQRUSHER_WARNING_THRESHOLD', '0.8'))
-        
-        # Try to get current usage from state
-        state_dir = Path.home() / '.openclaw/workspace/memory'
-        state_file = state_dir / 'usage-history.json'
-        
-        spent = 0.0
-        
-        if state_file.exists():
-            try:
-                with open(state_file, 'r') as f:
-                    data = json.load(f)
-                
-                # Sum today's costs
-                from datetime import datetime
-                today = datetime.now().isoformat().split('T')[0]
-                
-                if isinstance(data, list):
-                    for record in data:
-                        if record.get('timestamp', '').startswith(today):
-                            spent += record.get('cost', 0)
-            except (json.JSONDecodeError, IOError):
-                pass
-        
-        limit = budgets[args.period]
-        percent = spent / limit if limit > 0 else 0
-        
-        # Determine status
-        if percent >= 1.0:
-            status = 'EXCEEDED'
-            emoji = '🚨'
-        elif percent >= 0.95:
-            status = 'CRITICAL'
-            emoji = '🔴'
-        elif percent >= warning_threshold:
-            status = 'WARNING'
-            emoji = '🟡'
-        else:
-            status = 'HEALTHY'
-            emoji = '✅'
-        
-        remaining = max(0, limit - spent)
-        
-        data = {
-            'period': args.period,
-            'spent': spent,
-            'limit': limit,
-            'remaining': remaining,
-            'percent': percent,
-            'status': status
-        }
-        
-        if args.json:
-            return CliResult(ExitCode.SUCCESS, "OK", data)
-        
-        message = f"{emoji} Budget: {status}\nPeriod: {args.period}\nSpent: ${spent:.2f} / ${limit:.2f} ({percent:.0%})\nRemaining: ${remaining:.2f}"
-        
-        if percent >= warning_threshold:
-            return_code = ExitCode.GENERAL_ERROR
-        else:
-            return_code = ExitCode.SUCCESS
-        
-        return CliResult(return_code, message, data)
-
-
-# =============================================================================
-# USAGE COMMAND
-# =============================================================================
-
-class UsageCommand(SubCommand):
-    """Usage summary - show token usage statistics."""
-    
-    @property
-    def name(self) -> str:
-        return "usage"
-    
-    @property
-    def help(self) -> str:
-        return "Show usage summary"
-    
-    def add_args(self, parser: argparse.ArgumentParser) -> None:
-        parser.add_argument('--days', type=int, default=7, help='Days to show')
-        parser.add_argument('--json', action='store_true', help='JSON output')
-    
-    def execute(self, args: argparse.Namespace) -> CliResult:
-        state_dir = Path.home() / '.openclaw/workspace/memory'
-        state_file = state_dir / 'usage-history.json'
-        
-        if not state_file.exists():
-            return CliResult(ExitCode.NOT_FOUND, "No usage data found", {'records': 0})
-        
-        try:
-            with open(state_file, 'r') as f:
-                data = json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            return CliResult(ExitCode.CONFIG_ERROR, f"Failed to read: {e}")
-        
-        if not isinstance(data, list):
-            return CliResult(ExitCode.CONFIG_ERROR, "Invalid data format")
-        
-        # Filter to last N days
-        from datetime import datetime, timedelta
-        cutoff = datetime.now() - timedelta(days=args.days)
-        
-        records = []
-        total_cost = 0
-        total_input = 0
-        total_output = 0
-        
-        for record in data:
-            try:
-                ts = datetime.fromisoformat(record.get('timestamp', ''))
-                if ts >= cutoff:
-                    records.append(record)
-                    total_cost += record.get('cost', 0)
-                    total_input += record.get('input_tokens', 0)
-                    total_output += record.get('output_tokens', 0)
-            except ValueError:
-                pass
-        
-        data = {
-            'period_days': args.days,
-            'record_count': len(records),
-            'total_cost': total_cost,
-            'total_input_tokens': total_input,
-            'total_output_tokens': total_output
-        }
-        
-        if args.json:
-            return CliResult(ExitCode.SUCCESS, "OK", data)
-        
-        message = f"=== Usage ({args.days} days) ===\nRecords: {len(records)}\nCost: ${total_cost:.2f}\nInput: {total_input:,} tokens\nOutput: {total_output:,} tokens"
-        
-        return CliResult(ExitCode.SUCCESS, message, data)
-
-
-# =============================================================================
-# OPTIMIZE COMMAND
-# =============================================================================
-
-class OptimizeCommand(SubCommand):
-    """Run optimization."""
-    
-    @property
-    def name(self) -> str:
-        return "optimize"
-    
-    @property
-    def help(self) -> str:
-        return "Run optimization"
-    
-    def add_args(self, parser: argparse.ArgumentParser) -> None:
-        parser.add_argument('--dry-run', action='store_true', help='Show what would be done')
-        parser.add_argument('--json', action='store_true', help='JSON output')
-    
-    def execute(self, args: argparse.Namespace) -> CliResult:
-        # Import optimizer
-        sys.path.insert(0, str(Path(__file__).parent.parent / 'cron-optimizer'))
-        try:
-            from optimizer import CronOptimizer, TriggerReason, OptimizationResult
-            
-            optimizer = CronOptimizer()
-            result = optimizer.optimize(trigger=TriggerReason.MANUAL)
-            
-            data = {
-                'result': result.result.name,
-                'actions': len(result.actions_taken),
-                'duration_ms': result.duration_ms
-            }
-            
-            if args.json:
-                return CliResult(ExitCode.SUCCESS, "OK", data)
-            
-            message = f"Optimization: {result.result.name}\nActions: {len(result.actions_taken)}\nDuration: {result.duration_ms:.1f}ms"
-            
-            return CliResult(ExitCode.SUCCESS, message, data)
-            
-        except ImportError as e:
-            return CliResult(ExitCode.NOT_FOUND, f"Optimizer not available: {e}")
-
-
-# =============================================================================
-# STATUS COMMAND
-# =============================================================================
-
 class StatusCommand(SubCommand):
     """Full system status."""
     
@@ -545,8 +230,6 @@ class StatusCommand(SubCommand):
     def execute(self, args: argparse.Namespace) -> CliResult:
         import subprocess
         
-        status_data: Dict[str, Any] = {}
-        
         # Get hooks status
         try:
             result = subprocess.run(
@@ -555,69 +238,20 @@ class StatusCommand(SubCommand):
                 text=True,
                 timeout=10
             )
-            status_data['hooks'] = result.stdout if result.returncode == 0 else result.stderr
+            output = result.stdout if result.returncode == 0 else result.stderr
         except Exception as e:
-            status_data['hooks_error'] = str(e)
-        
-        # Try to get optimizer status
-        try:
-            sys.path.insert(0, str(Path(__file__).parent.parent / 'cron-optimizer'))
-            from optimizer import CronOptimizer
-            optimizer = CronOptimizer()
-            opt_status = optimizer.get_status()
-            status_data['optimizer'] = opt_status
-        except ImportError:
-            status_data['optimizer'] = 'not available'
-        
-        # Try to get heartbeat status
-        try:
-            sys.path.insert(0, str(Path(__file__).parent.parent / 'heartbeat-optimizer'))
-            from optimizer import HeartbeatOptimizer
-            hb = HeartbeatOptimizer()
-            status_data['heartbeat'] = hb.get_status()
-        except ImportError:
-            status_data['heartbeat'] = 'not available'
-        
-        # Budget status
-        budgets = {
-            'daily': float(os.environ.get('TOKENQRUSHER_BUDGET_DAILY', '5.0')),
-            'weekly': float(os.environ.get('TOKENQRUSHER_BUDGET_WEEKLY', '30.0')),
-            'monthly': float(os.environ.get('TOKENQRUSHER_BUDGET_MONTHLY', '100.0'))
-        }
-        status_data['budgets'] = budgets
+            output = f"Error: {e}"
         
         if args.json:
-            return CliResult(ExitCode.SUCCESS, "OK", status_data)
+            return CliResult(ExitCode.SUCCESS, "OK", {'hooks': output})
         
         # Format text output
         lines = ["=== tokenQrusher Status ===", ""]
-        
-        if 'hooks' in status_data:
-            lines.append("Hooks:")
-            lines.append(status_data['hooks'])
-        
-        if 'optimizer' in status_data and isinstance(status_data['optimizer'], dict):
-            lines.append("")
-            lines.append("Optimizer:")
-            opt = status_data['optimizer']
-            lines.append(f"  State: {opt.get('state', 'unknown')}")
-            lines.append(f"  Enabled: {opt.get('enabled', True)}")
-            lines.append(f"  Quiet hours: {opt.get('quiet_hours_active', False)}")
-        
-        if 'heartbeat' in status_data and isinstance(status_data['heartbeat'], dict):
-            lines.append("")
-            lines.append("Heartbeat:")
-            hb = status_data['heartbeat']
-            lines.append(f"  Checks due: {hb.get('total_checks_due', 0)}")
-        
-        lines.append("")
-        lines.append("Budgets:")
-        for period, limit in budgets.items():
-            lines.append(f"  {period}: ${limit}")
+        lines.append("Hooks:")
+        lines.append(output)
         
         message = "\n".join(lines)
-        
-        return CliResult(ExitCode.SUCCESS, message, status_data)
+        return CliResult(ExitCode.SUCCESS, message)
 
 
 # =============================================================================
@@ -667,7 +301,7 @@ class InstallCommand(SubCommand):
         
         if args.all or args.hooks:
             import subprocess
-            hooks = ['token-context', 'token-model', 'token-usage', 'token-cron', 'token-heartbeat']
+            hooks = ['token-context', 'token-heartbeat']
             for hook in hooks:
                 try:
                     subprocess.run(['openclaw', 'hooks', 'enable', hook],
@@ -696,10 +330,6 @@ class TokenQrusherCLI:
         """Initialize CLI."""
         self.commands: Dict[str, SubCommand] = {
             'context': ContextCommand(),
-            'model': ModelCommand(),
-            'budget': BudgetCommand(),
-            'usage': UsageCommand(),
-            'optimize': OptimizeCommand(),
             'status': StatusCommand(),
             'install': InstallCommand(),
         }

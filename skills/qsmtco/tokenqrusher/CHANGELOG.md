@@ -5,6 +5,24 @@ All notable changes to tokenQrusher will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-02-18
+
+### Removed
+
+- Model Router (`token-model`) – advisory only, non-functional
+- Usage Tracker (`token-usage`) – advisory only, non-functional
+- Cron Optimizer (`token-cron`) – reliant on usage data
+- Supporting scripts: `model_router.py`, `usage/`, `token_tracker.py`, `context_optimizer.py`, `cron-optimizer/`, `heartbeat-optimizer/`
+- All associated tests and specification docs
+- External pricing fetch requirement (`OPENROUTER_API_KEY` no longer needed)
+
+### Changed
+
+- Simplified CLI to core commands: `context`, `status`, `install`
+- Simplified `SKILL.md` and `README.md` to reflect actual working features
+- Removed `metadata.openclaw.requires.env` (no external env vars needed)
+- Updated hook installation to only enable `token-context` and `token-heartbeat`
+
 ## [2.0.5] - 2026-02-16
 
 ### Fixed

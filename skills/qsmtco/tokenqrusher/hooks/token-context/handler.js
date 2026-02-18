@@ -1,8 +1,11 @@
 /**
- * Token Context Hook - Refactored to use shared module
- * 
- * Uses: shared.isValidFileName, shared.classifyComplexity, shared.getAllowedFiles
- *       shared.extractUserMessage, shared.loadConfigCached
+ * Token Context Hook
+ *
+ * SECURITY MANIFEST:
+ *   Environment variables: none
+ *   External endpoints: none
+ *   Local files read: ~/.openclaw/hooks/token-context/config.json
+ *   Local files written: none
  */
 'use strict';
 

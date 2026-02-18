@@ -1,13 +1,11 @@
 /**
- * Token Heartbeat Hook - Optimized heartbeat execution
- * 
- * Listens to: agent:bootstrap (for heartbeat polls)
- * 
- * Implements the optimized heartbeat protocol:
- * - Check if checks should run via heartbeat_optimizer.py
- * - Return HEARTBEAT_OK when nothing to do
- * - Use quiet hours to skip checks
- * - Return alerts only when present
+ * Token Heartbeat Hook
+ *
+ * SECURITY MANIFEST:
+ *   Environment variables: none
+ *   External endpoints: none (simulated checks only)
+ *   Local files read: ~/.openclaw/hooks/token-heartbeat/config.json, ~/.openclaw/workspace/memory/heartbeat-state.json
+ *   Local files written: none (state not persisted in current implementation)
  */
 
 const { readFileSync, existsSync } = require('fs');

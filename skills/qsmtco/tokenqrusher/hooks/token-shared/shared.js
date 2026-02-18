@@ -1,13 +1,19 @@
 /**
  * Shared Hook Utilities - Deterministic, Pure Functions
- * 
+ *
+ * SECURITY MANIFEST:
+ *   Environment variables: none
+ *   External endpoints: none
+ *   Local files read: hook config.json (token-context or token-model, via loadConfigCached)
+ *   Local files written: none (config cache is in-memory)
+ *
  * Design Contract:
  * - All functions are PURE unless named with `mutate_` prefix
  * - No exceptions for control flow - use Either/Maybe patterns
  * - All numeric limits are compile-time constants
  * - Logging only at entry, exit, error
  * - Immutability preferred; mutation is last resort
- * 
+ *
  * Type Contract Notation:
  *   fn(input) -> Output | Error
  *   post: output satisfies predicate

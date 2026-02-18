@@ -1,6 +1,6 @@
-# tokenQrusher v2.0
+# tokenQrusher v2.1.0
 
-> Token optimization system for OpenClaw - reduces costs by 50-80% through intelligent context filtering, model routing, and automated scheduling.
+> Token optimization for OpenClaw – reduces costs 50–80% via context filtering and heartbeat optimization.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -10,28 +10,26 @@
 # Install from ClawHub
 clawhub install tokenQrusher
 
-# Check budget status
-tokenqrusher budget
-
-# Run optimization
-tokenqrusher optimize
-
-# View full status
-tokenqrusher status
+# Restart gateway to enable hooks
+openclaw gateway restart
 
 # Test context filter
 tokenqrusher context "hi"
+
+# View status
+tokenqrusher status
 ```
 
 ## What It Does
 
-tokenQrusher is a comprehensive token cost optimization system for OpenClaw. It reduces API costs through:
+tokenQrusher reduces API costs by:
 
-1. **Context Filtering** - Loads only necessary files (99% reduction for simple messages)
-2. **Model Routing** - Automatically selects cheapest model tier (up to 92% savings)
-3. **Usage Tracking** - Monitors spending in real-time with budget alerts
-4. **Cron Optimization** - Auto-tunes parameters based on usage patterns
-5. **Heartbeat Optimization** - Reduces heartbeat API calls by 75%
+1. **Context Filtering** – Loads only necessary workspace files (up to 99% token reduction for simple messages)
+2. **Heartbeat Optimization** – Reduces heartbeat API calls by 75%
+
+This is the simplified, production‑ready core. Non‑functional advisory components (model routing, usage tracking) have been removed.
+
+---
 
 ## Features
 
@@ -39,106 +37,13 @@ tokenQrusher is a comprehensive token cost optimization system for OpenClaw. It 
 
 Filters workspace files based on message complexity:
 
-| Complexity | Files Loaded | Savings vs Full |
-|------------|--------------|-----------------|
-| Simple | SOUL.md, IDENTITY.md | 99% |
-| Standard | +USER.md | 90% |
-| Complex | All 7 files | 0% (full context) |
+| Complexity | Files Loaded | Savings vs Full Context |
+|------------|--------------|------------------------|
+| Simple     | SOUL.md, IDENTITY.md | ~99% |
+| Standard   | + USER.md             | ~90% |
+| Complex    | All 7 files           | 0% (full) |
 
-### Model Router (`token-model`)
-
-Routes tasks to appropriate model tiers:
-
-| Tier | Model | Cost | When Used |
-|------|-------|------|-----------|
-| Quick | Step 3.5 Flash | Free | Greetings, simple tasks |
-| Standard | Claude Haiku | ~$0.25/MT | Code writing, regular work |
-| Deep | MiniMax | ~$0.60+/MT | Architecture, complex design |
-
-### Usage Integration (`token-usage`)
-
-Real-time budget monitoring with threshold alerts:
-
-- 🟢 Healthy: <80% budget
-- 🟡 Warning: 80-95%
-- 🔴 Critical: 95-100%
-- 🚨 Exceeded: >100%
-
-### Cron Optimizer (`token-cron`)
-
-Automated periodic optimization with pure functions:
-
-- Deterministic action computation
-- Thread-safe operation
-- Comprehensive logging
-
-### Heartbeat Optimizer (`token-heartbeat`)
-
-Optimized heartbeat schedule:
-
-| Check | Default | Optimized |
-|-------|---------|-----------|
-| Email | 60 min | 120 min |
-| Calendar | 60 min | 240 min |
-| Weather | 60 min | 240 min |
-| Monitoring | 30 min | 120 min |
-
-**Result:** 48 → 12 checks/day (75% reduction)
-
-## Installation
-
-### Automatic
-
-```bash
-# From ClawHub (recommended)
-clawhub install tokenQrusher
-
-# Hooks enabled automatically
-# Gateway restart required
-openclaw gateway restart
-```
-
-### Manual
-
-Clone this repository into your workspace:
-
-```bash
-cd ~/.openclaw/workspace/skills
-git clone <repository> tokenQrusher
-```
-
-Then enable hooks:
-
-```bash
-openclaw hooks enable token-context
-openclaw hooks enable token-model
-openclaw hooks enable token-usage
-openclaw hooks enable token-cron
-openclaw hooks enable token-heartbeat
-openclaw gateway restart
-```
-
-## Configuration
-
-### Environment Variables
-
-```bash
-# Budget limits
-export TOKENQRUSHER_BUDGET_DAILY=5.0      # Default: $5
-export TOKENQRUSHER_BUDGET_WEEKLY=30.0    # Default: $30
-export TOKENQRUSHER_BUDGET_MONTHLY=100.0  # Default: $100
-
-# Thresholds
-export TOKENQRUSHER_WARNING_THRESHOLD=0.8    # Default: 80%
-export TOKENQRUSHER_CRITICAL_THRESHOLD=0.95  # Default: 95%
-
-# State
-export TOKENQRUSHER_STATE_DIR=~/.openclaw/workspace/memory
-```
-
-### Hook Configuration
-
-Each hook has a `config.json` that can be customized:
+**Configuration:** `~/.openclaw/hooks/token-context/config.json`
 
 ```json
 {
@@ -153,264 +58,189 @@ Each hook has a `config.json` that can be customized:
 }
 ```
 
+### Heartbeat Optimizer (`token-heartbeat`)
+
+Optimizes heartbeat check schedule:
+
+| Check      | Default | Optimized | Reduction |
+|------------|---------|-----------|-----------|
+| Email      | 60 min  | 120 min   | 50%       |
+| Calendar   | 60 min  | 240 min   | 75%       |
+| Weather    | 60 min  | 240 min   | 75%       |
+| Monitoring | 30 min  | 120 min   | 75%       |
+
+**Result:** 48 checks/day → 12 checks/day (**75% fewer API calls**)
+
+**Configuration:** `~/.openclaw/hooks/token-heartbeat/config.json`
+
+```json
+{
+  "enabled": true,
+  "intervals": {
+    "email": 7200,
+    "calendar": 14400,
+    "weather": 14400,
+    "monitoring": 7200
+  },
+  "quietHours": { "start": 23, "end": 8 }
+}
+```
+
+---
+
 ## CLI Commands
 
 ### `tokenqrusher context <prompt>`
 
-Recommends context files for a given prompt.
+Recommends which context files should be loaded.
 
 ```bash
-$ tokenqrusher context "write a function"
-Complexity: standard (confidence: 60%)
-Files: SOUL.md, IDENTITY.md, USER.md
-Savings: 57%
-```
-
-### `tokenqrusher model <prompt>`
-
-Recommends model tier for a prompt.
-
-```bash
-$ tokenqrusher model "design system"
-Tier: deep (confidence: 90%)
-Model: openrouter/minimax/minimax-m2.5
-Cost: $0.60+/MT
-```
-
-### `tokenqrusher budget [--period daily|weekly|monthly]`
-
-Shows current budget status.
-
-```bash
-$ tokenqrusher budget
-✅ Budget: HEALTHY
-Period: daily
-Spent: $2.34 / $5.00 (47%)
-Remaining: $2.66
-```
-
-### `tokenqrusher usage [--days N]`
-
-Shows usage summary.
-
-```bash
-$ tokenqrusher usage --days 7
-=== Usage (7 days) ===
-Records: 47
-Cost: $12.45
-Input: 125,430 tokens
-Output: 89,210 tokens
-```
-
-### `tokenqrusher optimize [--dry-run]`
-
-Runs optimization analysis.
-
-```bash
-$ tokenqrusher optimize
-Optimization: SUCCESS
-Actions: 2
-Duration: 145.2ms
+$ tokenqrusher context "hi"
+Complexity: simple (confidence: 95%)
+Files: SOUL.md, IDENTITY.md
+Savings: 71%
 ```
 
 ### `tokenqrusher status [--verbose]`
 
-Shows full system status.
+Shows hook status.
 
 ```bash
-$ tokenqrusher status -v
+$ tokenqrusher status
 === tokenQrusher Status ===
 
 Hooks:
   ✓ token-context   (Filters context)
-  ✓ token-model     (Routes models)
-  ✓ token-usage     (Tracks budgets)
-  ✓ token-cron      (Runs optimization)
   ✓ token-heartbeat (Optimizes heartbeat)
 
 Optimizer:
   State: IDLE
   Enabled: True
-  Quiet hours: False
-
-Budgets:
-  daily: $5.0
-  weekly: $30.0
-  monthly: $100.0
 ```
 
-### `tokenqrusher install [--hooks|--cron|--all]`
+### `tokenqrusher install [--hooks] [--all]`
 
-Installs hooks and/or cron jobs.
+Enables hooks.
 
 ```bash
-$ tokenqrusher install --all
+$ tokenqrusher install --hooks
 ✓ Enabled: token-context
-✓ Enabled: token-model
-✓ Enabled: token-usage
-✓ Enabled: token-cron
 ✓ Enabled: token-heartbeat
 ```
 
-## Architecture
+---
 
-### Components
+## Installation
 
-```
-tokenQrusher/
-├── hooks/                    # OpenClaw hooks (JavaScript)
-│   ├── token-context/       # Context filtering
-│   ├── token-model/         # Model routing
-│   ├── token-usage/         # Budget monitoring
-│   ├── token-cron/          # Periodic optimization
-│   └── token-heartbeat/     # Heartbeat optimization
-├── scripts/
-│   ├── usage/               # Python usage tracker
-│   │   ├── config.py       # Configuration management
-│   │   ├── tracker.py      # Usage tracking
-│   │   └── budget.py       # Budget checking
-│   ├── cron-optimizer/     # Automated scheduler
-│   │   ├── optimizer.py    # Core engine
-│   │   └── scheduler.py    # Job scheduler
-│   ├── heartbeat-optimizer/ # Heartbeat logic
-│   └── cli/                # Unified CLI
-└── tests/                   # Comprehensive test suite
-```
-
-### Event Flow
-
-1. Agent boots → `agent:bootstrap` event fires
-2. Hooks execute in order:
-   - `token-context` → Filters `bootstrapFiles`
-   - `token-model` → Logs model recommendation
-   - `token-usage` → Reports budget status
-3. Gateway starts → `gateway:startup` fires
-4. `token-cron` → Runs initial optimization
-5. Heartbeat polls → `token-heartbeat` → Returns `HEARTBEAT_OK` or alerts
-
-### Data Flow
-
-```
-┌─────────────┐
-│   User      │
-│  Message    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────────┐
-│ agent:bootstrap     │
-│   (OpenClaw)        │
-└──────┬──────────────┘
-       │
-       ├─────────────┬──────────────┬──────────────┐
-       ▼             ▼              ▼              ▼
-┌─────────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-│ token-      │ │ token-   │ │ token-   │ │ (other)  │
-│ context     │ │ model    │ │ usage    │ │  hooks   │
-└──────┬──────┘ └────┬─────┘ └────┬─────┘ └──────────┘
-       │             │            │
-       ▼             ▼            ▼
-┌──────────────────────────────────────────────┐
-│  Optimized Session (filtered context)       │
-└──────────────────────────────────────────────┘
-```
-
-## Testing
-
-### Run Tests
+### From ClawHub (recommended)
 
 ```bash
-# Using pytest (if available)
-pytest tests/ -v --cov=scripts
-
-# Without pytest
-python3 tests/run.py
+clawhub install tokenQrusher
+openclaw gateway restart
 ```
 
-### Test Coverage
+Hooks are installed automatically. Verify with `openclaw hooks list` – both should show "✓ ready".
 
-| Component | Unit | Integration | Edge | Total |
-|-----------|------|-------------|------|-------|
-| Classifier | 45 tests | - | 15 tests | 60 |
-| Optimizer | 40 tests | 10 tests | 10 tests | 60 |
-| Heartbeat | 35 tests | 10 tests | 5 tests | 50 |
-| **Total** | **120** | **20** | **30** | **170** |
+### Manual
+
+Clone into `~/.openclaw/workspace/skills/tokenQrusher` and run:
+
+```bash
+openclaw hooks enable token-context
+openclaw hooks enable token-heartbeat
+openclaw gateway restart
+```
+
+---
+
+## How It Works
+
+Each hook runs automatically:
+
+- `token-context` → on every `agent:bootstrap` (i.e., each user message) → filters `bootstrapFiles` in the event context.
+- `token-heartbeat` → on heartbeat polls → returns `HEARTBEAT_OK` or specific alerts; respects quiet hours and intervals.
+
+No further action required.
+
+---
 
 ## Design Principles
 
-tokenQrusher is built on principled engineering:
+- Deterministic: same input → same output
+- Pure functions: no hidden side effects
+- Immutability: frozen/constant data
+- No exceptions for control flow
+- Thread‑safe
+- Minimal overhead (<1 ms per message)
 
-1. **Deterministic** - Same input always produces same output
-2. **Pure functions** - No side effects unless explicitly named
-3. **Immutability** - Data classes are frozen (Python) or const (JS)
-4. **No exceptions for control flow** - Use Either/Result types in Python, Maybe in JS
-5. **Thread-safe** - RLock protection for shared state
-6. **Exhaustive typing** - Full type hints, mypy compatible
-7. **Logging discipline** - Only at entry, exit, error
-8. **Compile-time constants** - All numeric limits defined as constants
-
-## Performance Characteristics
-
-| Metric | Target | Verified |
-|--------|--------|----------|
-| Context filter latency | <1ms | ✅ |
-| Model classification latency | <1ms | ✅ |
-| Budget check latency | <10ms | ✅ |
-| Memory overhead | <10MB | ✅ |
-| CPU overhead per message | <0.1% | ✅ |
-
-## Known Limitations
-
-1. **Hooks cannot directly change model** - OpenClaw architecture limitation; use fallback chains
-2. **State file corruption** - No automatic recovery; delete `usage-history.json` if corrupted
-3. **Config caching TTL** - 60 seconds; changes may take up to 1 minute to propagate
-4. **Duplicate detection** - O(n) linear scan; may need optimization for >1M records
+---
 
 ## Troubleshooting
 
-### Hooks not appearing
+**Hooks not appearing?**
 
 ```bash
-# Check if hooks directory exists
-ls ~/.openclaw/hooks/token-*
+openclaw hooks list
+# Should show token-context and token-heartbeat as ready
+```
 
-# Enable hooks
+If missing:
+
+```bash
 openclaw hooks enable token-context
-openclaw hooks enable token-model
-# ... repeat for others
-
-# Restart gateway
+openclaw hooks enable token-heartbeat
 openclaw gateway restart
 ```
 
-### Budget status always 0
+**Changes not applying?**
 
-Usage tracking requires records in `~/.openclaw/workspace/memory/usage-history.json`. Run the system for a while to accumulate data.
+Config cache TTL = 60 s. Restart gateway for immediate effect or wait.
 
-### High CPU usage by tokenqrusher
+---
 
-Check for runaway processes. Restart OpenClaw gateway:
+## Migration from v2.0.x
 
-```bash
-openclaw gateway restart
-```
+v2.1.0 removes non‑functional components. If upgrading:
 
-## Contributing
+1. Disable and delete old hooks:
+   ```bash
+   openclaw hooks disable token-model
+   openclaw hooks disable token-usage
+   openclaw hooks disable token-cron
+   rm -rf ~/.openclaw/hooks/token-model
+   rm -rf ~/.openclaw/hooks/token-usage
+   rm -rf ~/.openclaw/hooks/token-cron
+   ```
 
-Contributions welcome! Please:
+2. Update the skill:
+   ```bash
+   clawhub update tokenQrusher
+   ```
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit PR with clear description
+3. Install remaining hooks:
+   ```bash
+   tokenqrusher install --hooks
+   ```
+
+4. Restart gateway:
+   ```bash
+   openclaw gateway restart
+   ```
+
+**Removed commands:** `tokenqrusher model`, `budget`, `usage`, `optimize`.
+
+---
 
 ## License
 
-MIT License. See LICENSE file.
+MIT. See `LICENSE`.
+
+---
 
 ## Credits
 
-Created by Lieutenant Qrusher for Captain JAQ (SMTCo).
+- Design & Implementation: Lieutenant Qrusher (qsmtco)
+- Review: Captain JAQ (SMTCo)
+- Framework: OpenClaw Team
 
-Built with OpenClaw - the open-source AI agent framework.
+Built with [OpenClaw](https://github.com/openclaw/openclaw).
