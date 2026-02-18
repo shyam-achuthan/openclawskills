@@ -95,6 +95,7 @@ Search
 - `deleted` — Just-dropped domains, available now
 - `active` — Live sites and for-sale listings
 - `ns_reverse` — Domains on a specific nameserver
+- `unregistered_ai` — Unregistered short .ai domains (3-letter, CVCV patterns)
 
 Query
 - `available` — Availability check with pricing
@@ -114,18 +115,35 @@ Trends
 - `tld_rank` — Top TLDs by volume
 - `price` — Registration costs by TLD
 
-Workflows
-- `suggest` — Domain name brainstorming
-- `similar` — Alternatives when domain is taken
-- `plan_b` — Search deleted/expired/aged
-- `analyze` — Full domain audit
-- `brand_match` — Brand risk detection
-- `expired_analysis` — Expired domain evaluation
+Bulk
+- `bulk_tld` — Check keyword popularity across TLDs
+- `bulk_available` — Batch availability check with pricing
 
-Memory
-- `get_preferences` — Get saved preferences
-- `set_preferences` — Save preferences
-- `delete_preferences` — Delete all data
+Workflows
+- `analyze` — Comprehensive domain audit
+- `brand_match` — Brand conflict detection with trademark links
+- `plan_b` — Find alternatives when domain is taken
+- `domain_generator` — Generate creative domains with validation
+- `expired_analysis` — Due diligence for expired domains
+- `trend_hunter` — Spot trends and find related opportunities
+
+Preferences
+- `get_preferences` — Check memory status and retrieve preferences
+- `set_preferences` — Save preferences (TLDs, budget, style)
+- `delete_preferences` — Delete all data (GDPR Article 17)
+
+Monitor (requires memory)
+- `set_monitor` — Create domain monitoring task
+- `get_monitors` — Retrieve pending monitor checks
+- `update_monitor` — Save monitor results
+- `delete_monitor` — Remove monitoring task
+
+Strategy (requires memory)
+- `set_strategy` — Create automated opportunity discovery
+- `get_strategies` — Retrieve pending strategies
+- `update_strategy` — Save strategy results
+- `delete_strategy` — Remove strategy
+
 
 ## Instructions
 

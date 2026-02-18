@@ -3,11 +3,16 @@
   "slug": "domain",
   "displayName": "DomainKits",
   "latest": {
-    "version": "1.0.9",
-    "publishedAt": 1771121401690,
-    "commit": "https://github.com/openclaw/skills/commit/3548c71ac1b8114133c34e698a14bdb55dc77dd9"
+    "version": "1.0.10",
+    "publishedAt": 1771335348215,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.9",
+      "publishedAt": 1771121401690,
+      "commit": "https://github.com/openclaw/skills/commit/3548c71ac1b8114133c34e698a14bdb55dc77dd9"
+    },
     {
       "version": "1.0.8",
       "publishedAt": 1771066258757,
