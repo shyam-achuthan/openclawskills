@@ -1,6 +1,6 @@
 ---
 name: promptlayer
-description: Manage prompts, log LLM requests, run evaluations, and track scores via the PromptLayer API. Use when working with prompt versioning, A/B testing prompts, LLM observability/logging, prompt evaluation pipelines, datasets, or PromptLayer agents.
+description: Manage prompts, log LLM requests, run evaluations, and track scores via the PromptLayer API. Use when working with prompt versioning, A/B testing prompts, LLM observability/logging, prompt evaluation pipelines, datasets, or PromptLayer agents/workflows.
 ---
 
 # PromptLayer
@@ -9,40 +9,41 @@ Interact with PromptLayer's REST API for prompt management, logging, evals, and 
 
 ## Setup
 
-Requires `PROMPTLAYER_API_KEY` env var. Run `scripts/setup.sh` to configure.
+Set `PROMPTLAYER_API_KEY` env var. Run `scripts/setup.sh` to configure, or add to `~/.openclaw/.env`.
 
-## CLI Usage
-
-All commands via `scripts/pl.sh`:
+## CLI — `scripts/pl.sh`
 
 ```bash
 # Prompt Templates
-pl.sh templates list
-pl.sh templates get <name> [--label <release-label>]
-pl.sh templates publish <name> --commit "message"
+pl.sh templates list [--name <filter>] [--label <label>]
+pl.sh templates get <name|id> [--label prod] [--version 3]
+pl.sh templates publish              # JSON on stdin
+pl.sh templates labels               # List release labels
 
-# Logging & Tracking
-echo '<json>' | pl.sh log
-pl.sh track-score <request_id> <score_name> <value>
-pl.sh track-metadata <request_id> --json '{"key": "value"}'
-pl.sh track-group <request_id> <group_id>
+# Log an LLM request (JSON on stdin)
+echo '{"provider":"openai","model":"gpt-4o",...}' | pl.sh log
 
-# Datasets
-pl.sh datasets list
+# Tracking
+pl.sh track-prompt <req_id> <prompt_name> [--version 1] [--vars '{}']
+pl.sh track-score <req_id> <score_0_100> [--name accuracy]
+pl.sh track-metadata <req_id> --json '{"user_id":"abc"}'
+pl.sh track-group <req_id> <group_id>
 
-# Evaluations
-pl.sh evals list
-pl.sh evals run <pipeline_id>
-pl.sh evals get <pipeline_id>
+# Datasets & Evaluations
+pl.sh datasets list [--name <filter>]
+pl.sh evals list [--name <filter>]
+pl.sh evals run <eval_id>
+pl.sh evals get <eval_id>
 
 # Agents
 pl.sh agents list
-pl.sh agents run <agent_id> --input '{"var": "value"}'
+pl.sh agents run <agent_id> --input '{"key":"val"}'
 ```
 
-## Direct API
+## API Path Groups
 
-Base URL: `https://api.promptlayer.com`
-Auth header: `Authorization: Bearer $PROMPTLAYER_API_KEY`
+- `/prompt-templates` — registry (list, get)
+- `/rest/` — tracking, logging, publishing
+- `/api/public/v2/` — datasets, evaluations
 
-For full endpoint reference, see `references/api.md`.
+Full reference: `references/api.md`

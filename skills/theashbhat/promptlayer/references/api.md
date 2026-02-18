@@ -1,121 +1,104 @@
 # PromptLayer API Reference
 
 Base URL: `https://api.promptlayer.com`
-Auth: `Authorization: Bearer <PROMPTLAYER_API_KEY>`
+Auth: `X-API-KEY: <PROMPTLAYER_API_KEY>` header on all requests
+
+## Path Prefixes
+
+PromptLayer uses three API path groups:
+- `/prompt-templates` — template registry (list, get)
+- `/rest/` — tracking, logging, publishing
+- `/api/public/v2/` — datasets, evaluations
 
 ## Prompt Templates
 
-### Get Template
-`POST /prompt-templates`
-```json
-{"prompt_name": "my-prompt", "label": "prod"}
-```
-Returns the prompt template with messages, model config, and metadata.
-
 ### List Templates
 `GET /prompt-templates`
+Query params: `page`, `per_page`, `name` (partial match), `label`, `status` (active|deleted|all)
+
+### Get Template
+`POST /prompt-templates/{identifier}`
+Identifier is prompt name (URL-encoded) or prompt ID.
+```json
+{"label": "prod", "version": 3, "provider": "openai", "input_variables": {"key": "val"}}
+```
+All body fields optional. Returns `prompt_name`, `version`, `prompt_template`, `metadata`, `llm_kwargs`.
 
 ### Publish Template
-`POST /prompt-templates/publish`
+`POST /rest/prompt-templates`
 ```json
-{"prompt_name": "my-prompt", "commit_message": "updated tone"}
+{"prompt_name": "my-prompt", "prompt_template": {"messages": [...]}, "commit_message": "update", "metadata": {"model": {"provider": "openai", "name": "gpt-4o"}}}
 ```
 
-### Template Labels
-- `GET /prompt-templates/labels` — list labels
-- `POST /prompt-templates/labels` — create label
-- `PATCH /prompt-templates/labels` — move label to version
-- `DELETE /prompt-templates/labels` — delete label
+### List Labels
+`GET /prompt-templates/labels`
 
-## Logging & Tracking
+## Logging
 
 ### Log Request
-`POST /log-request`
+`POST /rest/log-request`
 ```json
 {
-  "function_name": "openai.chat.completions.create",
-  "kwargs": {"model": "gpt-4", "messages": [...]},
-  "request_response": {"choices": [...]},
-  "request_start_time": 1234567890,
-  "request_end_time": 1234567891
+  "provider": "openai",
+  "model": "gpt-4o",
+  "input": {"type": "chat", "messages": [{"role": "user", "content": [{"type": "text", "text": "Hello"}]}]},
+  "output": {"type": "chat", "messages": [{"role": "assistant", "content": [{"type": "text", "text": "Hi!"}]}]},
+  "request_start_time": "2026-01-01T00:00:00Z",
+  "request_end_time": "2026-01-01T00:00:01Z"
 }
 ```
-Returns `{"request_id": 123}`
+Returns `{"success": true, "request_id": 123}`
 
-### Track Score
-`POST /track-score`
+## Tracking
+
+### Track Prompt
+`POST /rest/track-prompt`
 ```json
-{"request_id": 123, "score_name": "accuracy", "value": 0.95}
+{"request_id": 123, "prompt_name": "my-prompt", "prompt_input_variables": {"key": "val"}, "version": 1}
 ```
 
-### Track Metadata
-`POST /track-metadata`
+### Track Score
+`POST /rest/track-score`
 ```json
-{"request_id": 123, "metadata": {"user_id": "abc", "session": "xyz"}}
+{"request_id": 123, "score": 95, "name": "accuracy"}
+```
+Score: 0-100. Name optional (defaults to "default").
+
+### Track Metadata
+`POST /rest/track-metadata`
+```json
+{"request_id": 123, "metadata": {"session_id": "abc", "user_id": "u1"}}
 ```
 
 ### Track Group
-`POST /track-group`
+`POST /rest/track-group`
 ```json
 {"request_id": 123, "group_id": 456}
-```
-
-### Track Prompt
-`POST /track-prompt`
-```json
-{"request_id": 123, "prompt_name": "my-prompt", "prompt_input_variables": {"cake_type": "chocolate"}}
-```
-
-### Bulk Spans
-`POST /spans-bulk`
-```json
-{"spans": [...]}
 ```
 
 ## Datasets
 
 ### List Datasets
-`GET /datasets`
-
-### Create Dataset Group
-`POST /datasets`
-
-### Create Version from File
-`POST /datasets/{group_id}/versions/file`
-
-### Create Version from Filter
-`POST /datasets/{group_id}/versions/filter`
+`GET /api/public/v2/datasets`
+Query params: `page`, `per_page`, `name`, `status` (active|deleted|all)
 
 ## Evaluations
 
-### List Pipelines
-`GET /report`
+### List Evaluations
+`GET /api/public/v2/evaluations`
+Query params: `page`, `per_page`, `name`, `status`
 
-### Create Pipeline
-`POST /report`
+### Run Evaluation
+`POST /api/public/v2/evaluations/{eval_id}/run`
 
-### Run Pipeline
-`POST /report/{pipeline_id}/run`
+### Get Evaluation
+`GET /api/public/v2/evaluations/{eval_id}`
 
-### Get Report
-`GET /report/{pipeline_id}`
-
-### Get Report Score
-`GET /report/{pipeline_id}/score`
-
-### Add Columns
-`POST /report/{pipeline_id}/columns`
-
-## Agents
+## Agents (Workflows)
 
 ### List Agents
 `GET /workflows`
-
-### Create Agent
-`POST /workflows`
-
-### Update Agent
-`PATCH /workflows/{agent_id}`
+Query params: `page`, `per_page`
 
 ### Run Agent
 `POST /workflows/{agent_id}/run`
@@ -123,11 +106,6 @@ Returns `{"request_id": 123}`
 {"input_variables": {"key": "value"}}
 ```
 
-### Get Execution Results
-`GET /workflows/{agent_id}/versions/{version_id}/executions`
-
 ## Docs
-- Full docs: https://docs.promptlayer.com
-- Python SDK: https://docs.promptlayer.com/languages/python
-- JS SDK: https://docs.promptlayer.com/languages/javascript
-- MCP: https://docs.promptlayer.com/languages/mcp
+- https://docs.promptlayer.com
+- https://docs.promptlayer.com/reference/rest-api-reference
