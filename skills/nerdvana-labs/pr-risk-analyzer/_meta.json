@@ -1,0 +1,11 @@
+{
+  "owner": "nerdvana-labs",
+  "slug": "pr-risk-analyzer",
+  "displayName": "Github MergeGuard AI",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771343269295,
+    "commit": null
+  },
+  "history": []
+}
