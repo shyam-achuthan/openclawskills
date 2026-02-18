@@ -1,11 +1,17 @@
 {
   "owner": "user0856",
   "slug": "snaprender",
-  "displayName": "SnapRender",
+  "displayName": "Snaprender",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1771369144260,
-    "commit": "https://github.com/openclaw/skills/commit/a439a7ec788228c55c90d2926ba73261bb40cbb0"
+    "version": "1.2.1",
+    "publishedAt": 1771406823178,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1771369144260,
+      "commit": "https://github.com/openclaw/skills/commit/a439a7ec788228c55c90d2926ba73261bb40cbb0"
+    }
+  ]
 }

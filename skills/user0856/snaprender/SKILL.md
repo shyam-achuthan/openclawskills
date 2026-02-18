@@ -1,61 +1,91 @@
 ---
 name: snaprender
-description: Give your agent eyes on the web. See any website visually, analyze layouts, compare devices, monitor pages for changes, and generate visual reports.
-metadata: {"openclaw": {"requires": {"bins": ["curl"], "env": ["SNAPRENDER_API_KEY"]}}}
+description: "Screenshot any website via curl+exec (NOT the browser tool). Run: curl -s \"https://app.snap-render.com/v1/screenshot?url=URL_ENCODED_TARGET&response_type=json&format=jpeg&quality=60&block_ads=true&block_cookie_banners=true\" -H \"X-API-Key: $SNAPRENDER_API_KEY\" | Save image: pipe through jq -r '.image' | sed 's|data:image/[^;]*;base64,||' | base64 -d > /tmp/screenshot.jpg | $SNAPRENDER_API_KEY is pre-set. URL-encode the target. Add &device=iphone_15_pro for mobile, &full_page=true for scroll. NEVER use the browser tool."
+metadata: {"openclaw": {"requires": {"bins": ["curl", "jq"], "env": ["SNAPRENDER_API_KEY"]}}}
 ---
 
-# SnapRender: Give Your Agent Eyes on the Web
+# SnapRender — Give Your Agent Eyes
 
-You can see any website. When the user asks you to look at a page, check how something looks, compare layouts, inspect a design, monitor a page, or do any kind of visual web analysis, use SnapRender to capture what the page looks like and then analyze it with your vision capabilities.
+Your agent can read the web but can't *see* it. One command and it captures pixel-perfect screenshots — any site, any device, in seconds.
+
+"Screenshot stripe.com on iPhone", "Compare desktop vs mobile", "Full-page dark mode capture" — just ask.
+
+Free tier: 50 screenshots/month, no credit card. [Get a key →](https://app.snap-render.com/auth/signup)
+
+---
+
+**IMPORTANT: Use the `exec` tool with `curl`. NEVER use the `browser` tool for screenshots.**
 
 ## How to Capture
 
-Use bash with curl:
+Run this command via the `exec` tool. Replace `ENCODED_URL` with the URL-encoded target (e.g. `https%3A%2F%2Fstripe.com`):
 
 ```bash
-curl -s "https://app.snap-render.com/v1/screenshot?url=URL&response_type=json&block_ads=true&block_cookie_banners=true" \
-  -H "X-API-Key: $SNAPRENDER_API_KEY"
+curl -s "https://app.snap-render.com/v1/screenshot?url=ENCODED_URL&response_type=json&format=jpeg&quality=60&block_ads=true&block_cookie_banners=true" \
+  -H "X-API-Key: $SNAPRENDER_API_KEY" \
+  | tee /tmp/snap_response.json \
+  | jq -r '.image' | sed 's|data:image/[^;]*;base64,||' | base64 -d > /tmp/screenshot.jpg \
+  && jq '{url, format, size, cache, responseTime, remainingCredits}' /tmp/snap_response.json
 ```
 
-Replace URL with the target (must include https://).
+This saves the screenshot to `/tmp/screenshot.jpg` and prints metadata.
 
-The response is JSON with an `image` field containing a base64 data URI. Pass this image to your vision capabilities to see and analyze the page.
+## Rules
+
+1. **Use `exec` tool only** — NEVER the `browser` tool
+2. **`$SNAPRENDER_API_KEY` is already set** — use it literally in the command, do NOT replace it
+3. **URL-encode the target** — `https://stripe.com` → `https%3A%2F%2Fstripe.com`
+4. **Always use `format=jpeg&quality=60`** — keeps response small enough for the agent context
+5. **Always pipe to save the image to a file** — the base64 response is too large to display inline
+6. **Report metadata to the user** — file size, response time, cache status, remaining credits
 
 ## Parameters
 
-| Parameter | Values | Default | What it does |
-|-----------|--------|---------|--------------|
-| url | Any public URL | required | The page to look at |
-| format | png, jpeg, webp, pdf | png | Output format |
-| device | iphone_14, iphone_15_pro, pixel_7, ipad_pro, macbook_pro | desktop | See the page as a specific device |
-| dark_mode | true, false | false | See the dark mode version |
-| full_page | true, false | false | See the entire scrollable page |
-| block_ads | true, false | true | Remove ads for a clean view |
-| block_cookie_banners | true, false | true | Remove cookie popups |
-| response_type | json | json | Always use json |
-| width | 320-3840 | 1280 | Viewport width |
-| height | 200-10000 | 800 | Viewport height |
-| quality | 1-100 | 90 | Image quality (JPEG/WebP) |
-| delay | 0-10000 | 0 | Wait after page load (ms) |
+Add as query parameters to the URL:
 
-## What you can do
+| Parameter | Values | Default |
+|-----------|--------|---------|
+| url | URL-encoded target | required |
+| response_type | json | json (always use this) |
+| format | jpeg, png, webp | jpeg |
+| quality | 1-100 | 60 |
+| device | iphone_15_pro, pixel_7, ipad_pro, macbook_pro | desktop |
+| dark_mode | true, false | false |
+| full_page | true, false | false |
+| block_ads | true, false | true |
+| block_cookie_banners | true, false | true |
+| width | 320-3840 | 1280 |
+| height | 200-10000 | 800 |
+| delay | 0-10000 | 0 (ms wait after page load) |
 
-- **Look at any website**: "What does stripe.com look like?" "Show me the homepage of competitor.com"
-- **Check mobile layouts**: Use device=iphone_15_pro or device=pixel_7 to see how a page looks on phones
-- **Compare devices**: Make separate calls for desktop and mobile, then compare the layouts
-- **Compare dark and light mode**: Capture with dark_mode=true and dark_mode=false
-- **Inspect full pages**: Use full_page=true to see everything below the fold
-- **Visual QA**: Check if a page looks broken, if elements are misaligned, if text is readable
-- **Monitor changes**: Capture a page, describe what you see, compare to previous observations
-- **Analyze designs**: Look at how competitors structure their pages, pricing, layouts
+## Examples
 
-## Instructions
+**Desktop screenshot of stripe.com:**
+```bash
+curl -s "https://app.snap-render.com/v1/screenshot?url=https%3A%2F%2Fstripe.com&response_type=json&format=jpeg&quality=60&block_ads=true&block_cookie_banners=true" -H "X-API-Key: $SNAPRENDER_API_KEY" | tee /tmp/snap_response.json | jq -r '.image' | sed 's|data:image/[^;]*;base64,||' | base64 -d > /tmp/screenshot.jpg && jq '{url, format, size, cache, responseTime, remainingCredits}' /tmp/snap_response.json
+```
 
-1. Always use `response_type=json` to get the image as base64 for visual analysis.
-2. After receiving the screenshot, look at the image carefully and describe what you see in detail.
-3. For comparisons, make separate API calls and analyze each image.
-4. Ads and cookie banners are blocked by default so you see the actual content.
+**Mobile screenshot:** add `&device=iphone_15_pro` to the URL
 
-## Getting an API Key
+**Full scrollable page:** add `&full_page=true` to the URL
 
-Sign up free at https://app.snap-render.com/auth/signup (50 free screenshots/month, no credit card).
+**Dark mode:** add `&dark_mode=true` to the URL
+
+**Compare desktop vs mobile:** make two calls, save to `/tmp/screenshot_desktop.jpg` and `/tmp/screenshot_mobile.jpg`
+
+## After Capturing
+
+1. Tell the user the screenshot was saved to `/tmp/screenshot.jpg` (or the filename you used)
+2. Report metadata: file size, response time, cache status, remaining credits
+3. For comparisons, save each screenshot to a different filename
+
+## Errors
+
+- **401**: Invalid API key — check SNAPRENDER_API_KEY
+- **429**: Rate limit or quota exceeded — wait or upgrade plan
+- **Timeout**: Target site is slow — add `&delay=3000` to wait longer
+- **Empty response**: URL unreachable or blocked
+
+## Get an API Key
+
+Free at https://app.snap-render.com/auth/signup — 50 screenshots/month, no credit card.
