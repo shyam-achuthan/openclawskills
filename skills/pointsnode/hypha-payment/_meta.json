@@ -1,0 +1,11 @@
+{
+  "owner": "pointsnode",
+  "slug": "hypha-payment",
+  "displayName": "Hypha Payment",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1771372810079,
+    "commit": null
+  },
+  "history": []
+}
