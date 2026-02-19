@@ -1,8 +1,8 @@
 # Meegle API Skill
 
-> Cursor AI skills for Meegle (Feishu Project / Lark Project) Open API
+> OpenClaw skills for Meegle (Feishu Project / Lark Project) Open API
 
-This repository provides a collection of Cursor Agent Skills that help AI assistants understand and correctly call Meegle Open API for space, work items, comments, views, and related operations.
+This repository provides a collection of OpenClaw skills that help agents understand and correctly call Meegle Open API for space, work items, comments, views, and related operations.
 
 ## Overview
 
@@ -51,6 +51,7 @@ Optional: `authorization_code` and `refresh_token` for obtaining `user_access_to
 1. Reference this repository as a Cursor skill, or copy the relevant `SKILL.md` files into your Cursor skills directory.
 2. When working on Meegle-related tasks in Cursor, have the AI use the `Read` tool to load the corresponding `SKILL.md` for the needed API area.
 3. Before any Meegle API call, have the AI read **meegle-api-credentials** to obtain domain, token, request headers, and context.
+4. If you are using **OpenClaw**, you can search for this skill pack on **Clawhub** by name `meegle-api-skill` and install it directly via the Clawhub CLI
 
 ## API Regions
 
