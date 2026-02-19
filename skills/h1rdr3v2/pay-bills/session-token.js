@@ -75,6 +75,6 @@ switch (command) {
 		clearToken()
 		break
 	default:
-		process.stderr.write("Commands: save <token> | load | check | clear\n")
+		process.stderr.write("Commands: save <token> | load i | check | clear\n")
 		process.exit(1)
 }

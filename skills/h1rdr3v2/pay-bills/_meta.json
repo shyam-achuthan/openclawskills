@@ -3,9 +3,15 @@
   "slug": "pay-bills",
   "displayName": "Pay Bills",
   "latest": {
-    "version": "0.0.2",
-    "publishedAt": 1771316871088,
-    "commit": "https://github.com/openclaw/skills/commit/f68dacb6919f72f7c0b41d15b38a81b431756493"
+    "version": "0.0.3",
+    "publishedAt": 1771420159764,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.0.2",
+      "publishedAt": 1771316871088,
+      "commit": "https://github.com/openclaw/skills/commit/f68dacb6919f72f7c0b41d15b38a81b431756493"
+    }
+  ]
 }

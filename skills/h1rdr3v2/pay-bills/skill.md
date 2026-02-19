@@ -127,8 +127,33 @@ GET  /user/profile                → { id, balance, fullName, email, phone }
 GET  /user/deposit-account        → { account: { AccountNumber, AccountName, BankName } | null }
 GET  /transactions?page=&limit=&type=&status=&fromDate=&toDate=  → { transactions[], total, page, totalPages }
 GET  /transactions/recent-phones  → { recentlyUsedPhones: [{ phone_number, network_id, network_name }] }
-POST /payment/deposit [auth]      { amount (min 100), paymentMethod:"monnify"|"flutterwave" } → { paymentLink }
+POST /payment/deposit [auth]      { amount (min 100), paymentMethod:"flutterwave"|"monnify" } → { paymentLink }
 ```
+
+## Saved Contacts (all [auth])
+
+Users can save phone numbers with names for quick reference. When a user says "buy data for Mum" or "send airtime to John", search their saved contacts first.
+
+```
+GET    /contacts?page=&limit=&search=    → { contacts[], total, page, totalPages }
+POST   /contacts                          { "name":"Mum", "phoneNumber":"09012345678" } → { ok, contact }
+PATCH  /contacts/:id                      { "name":"Mother" } or { "phoneNumber":"..." } or both → { ok, contact }
+DELETE /contacts/:id                      → { ok, message:"Contact deleted" }
+GET    /contacts/search?name=mum          → { ok, contacts: [{ id, name, phoneNumber }] }  (max 5 results)
+```
+
+- A phone number can only be saved once per user (409 Conflict on duplicate)
+- `search` param on `GET /contacts` matches name or phone (partial)
+- `GET /contacts/search?name=` is a quick lookup — use it to resolve a name to a phone number
+
+### Contact Behaviors
+
+- **After a successful purchase:** if the phone number isn't already saved, suggest saving it: _"Would you like to save 0803 123 4567 with a name so you can quickly buy for them next time?"_
+- **When user refers to a name:** search contacts via `GET /contacts/search?name=...`
+  - 1 match → use that phone number (confirm with user)
+  - Multiple matches → show options, ask which one
+  - No match → ask user for the phone number
+- **"Buy for Mum"** flow: search contacts → find phone → normalize → predict network → fetch plans → confirm → order
 
 ## Product Discovery (no auth)
 
@@ -151,11 +176,13 @@ GET /product/education
 - **Plan status must be `active`** — skip disabled plans
 - **payment_method `wallet`** is preferred for agent purchases (instant, no redirect)
 - Use `GET /transactions/recent-phones` for quick re-orders ("buy same as last time")
+- Use `GET /contacts/search?name=` when user refers to someone by name ("buy for Mum")
+- **After a successful purchase, suggest saving the number** if it's not already in contacts
 - User's own phone is in `GET /user/profile` → `phone` field
 
 ## Enums
 
 - **type:** `data`, `airtime`
-- **payment_method:** `wallet`, `monnify`, `flutterwave`
+- **payment_method:** `wallet`, `flutterwave`, `monnify`
 - **transaction type:** `deposit`, `purchase_data`, `purchase_airtime`, `giveaway_funding`, `giveaway_claim`
 - **plan category:** `daily`, `weekly`, `monthly`, `yearly`
