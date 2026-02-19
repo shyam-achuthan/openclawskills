@@ -1,19 +1,14 @@
 ---
 name: ai-image-generation
-description: |
-  Generate AI images with FLUX, Gemini, Grok, Seedream, Reve and 50+ models via inference.sh CLI.
-  Models: FLUX Dev LoRA, FLUX.2 Klein LoRA, Gemini 3 Pro Image, Grok Imagine, Seedream 4.5, Reve, ImagineArt.
-  Capabilities: text-to-image, image-to-image, inpainting, LoRA, image editing, upscaling, text rendering.
-  Use for: AI art, product mockups, concept art, social media graphics, marketing visuals, illustrations.
-  Triggers: flux, image generation, ai image, text to image, stable diffusion, generate image,
-  ai art, midjourney alternative, dall-e alternative, text2img, t2i, image generator, ai picture,
-  create image with ai, generative ai, ai illustration, grok image, gemini image
+description: "Generate AI images with FLUX, Gemini, Grok, Seedream, Reve and 50+ models via inference.sh CLI. Models: FLUX Dev LoRA, FLUX.2 Klein LoRA, Gemini 3 Pro Image, Grok Imagine, Seedream 4.5, Reve, ImagineArt. Capabilities: text-to-image, image-to-image, inpainting, LoRA, image editing, upscaling, text rendering. Use for: AI art, product mockups, concept art, social media graphics, marketing visuals, illustrations. Triggers: flux, image generation, ai image, text to image, stable diffusion, generate image, ai art, midjourney alternative, dall-e alternative, text2img, t2i, image generator, ai picture, create image with ai, generative ai, ai illustration, grok image, gemini image"
 allowed-tools: Bash(infsh *)
 ---
 
 # AI Image Generation
 
 Generate images with 50+ AI models via [inference.sh](https://inference.sh) CLI.
+
+![AI Image Generation](https://cloud.inference.sh/app/files/u/4mg21r6ta37mpaz6ktzwtt8krr/01kg0v0nz7wv0qwqjtq1cam52z.jpeg)
 
 ## Quick Start
 
@@ -24,6 +19,8 @@ curl -fsSL https://cli.inference.sh | sh && infsh login
 # Generate an image with FLUX
 infsh app run falai/flux-dev-lora --input '{"prompt": "a cat astronaut in space"}'
 ```
+
+> **Install note:** The [install script](https://cli.inference.sh) only detects your OS/architecture, downloads the matching binary from `dist.inference.sh`, and verifies its SHA-256 checksum. No elevated permissions or background processes. [Manual install & verification](https://dist.inference.sh/cli/checksums.txt) available.
 
 ## Available Models
 
@@ -115,22 +112,22 @@ infsh app run infsh/stitch-images --input '{
 
 ```bash
 # Full platform skill (all 150+ apps)
-npx skills add inference-sh/agent-skills@inference-sh
+npx skills add inference-sh/skills@inference-sh
 
 # FLUX-specific skill
-npx skills add inference-sh/agent-skills@flux-image
+npx skills add inference-sh/skills@flux-image
 
 # Upscaling & enhancement
-npx skills add inference-sh/agent-skills@image-upscaling
+npx skills add inference-sh/skills@image-upscaling
 
 # Background removal
-npx skills add inference-sh/agent-skills@background-removal
+npx skills add inference-sh/skills@background-removal
 
 # Video generation
-npx skills add inference-sh/agent-skills@ai-video-generation
+npx skills add inference-sh/skills@ai-video-generation
 
 # AI avatars from images
-npx skills add inference-sh/agent-skills@ai-avatar-video
+npx skills add inference-sh/skills@ai-avatar-video
 ```
 
 Browse all apps: `infsh app list`
