@@ -1,0 +1,11 @@
+{
+  "owner": "0xmythril",
+  "slug": "tweet-cli",
+  "displayName": "Tweet Cli",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771180592288,
+    "commit": null
+  },
+  "history": []
+}
