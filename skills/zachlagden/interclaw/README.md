@@ -53,8 +53,8 @@ Agent Donna                              Agent Harvey
 ### 1. Clone
 
 ```bash
-git clone https://github.com/zachlagden/openclaw-interclaw.git
-cd openclaw-interclaw
+git clone https://github.com/zachlagden/interclaw.git
+cd interclaw
 ```
 
 ### 2. Bootstrap (installs gpg, himalaya, symlinks scripts)
@@ -242,8 +242,8 @@ Full spec: [docs/protocol-v3.md](docs/protocol-v3.md)
 ### From source
 
 ```bash
-git clone https://github.com/zachlagden/openclaw-interclaw.git
-cd openclaw-interclaw
+git clone https://github.com/zachlagden/interclaw.git
+cd interclaw
 
 # One-command setup: installs deps + symlinks scripts to ~/.local/bin
 ./scripts/interclaw-bootstrap
