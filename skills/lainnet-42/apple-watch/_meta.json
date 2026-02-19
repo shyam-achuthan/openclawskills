@@ -1,0 +1,11 @@
+{
+  "owner": "lainnet-42",
+  "slug": "apple-watch",
+  "displayName": "Apple Watch Health Sync",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771475186543,
+    "commit": null
+  },
+  "history": []
+}
