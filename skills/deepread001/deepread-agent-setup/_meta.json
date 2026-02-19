@@ -1,0 +1,11 @@
+{
+  "owner": "deepread001",
+  "slug": "deepread-agent-setup",
+  "displayName": "DeepRead OCR — Agent Self-Signup",
+  "latest": {
+    "version": "1.0.5",
+    "publishedAt": 1771501552547,
+    "commit": null
+  },
+  "history": []
+}
