@@ -1,56 +1,76 @@
 ---
 name: context-scope-tags
-description: "Context-scoping protocol using explicit tags to prevent context bleed in chat (especially Telegram). Use when the user asks to isolate a topic, scope the assistant to a specific project/topic, request a /ctx or /context_def cheat sheet, or mentions tags like [Isolated Context], [ISO], [SCOPE], [GLOBAL], [NOMEM], [REM]."
+slug: context-scope-tags
+version: 0.1.1
+license: MIT
+description: |
+  Use when: you need strict context boundaries in chat (Telegram/Discord/Slack/etc.) and want to prevent topic bleed using explicit tags like [ISO], [SCOPE], [GLOBAL], [NOMEM], [REM].
+  Don’t use when: you want normal free-form conversation with automatic carry-over.
+  Output: a copy/paste tag cheat sheet + routing rules.
+metadata:
+  openclaw:
+    emoji: "🏷️"
 ---
 
 # Context Scope Tags (Chat Protocol)
 
+A lightweight, portable convention for **explicit context boundaries** in chat.
+
+## Quick start
+
+Put one or more tags at the **very start** of your message, then write normally.
+
+Examples:
+- `[ISO: FinLife] Debug the Windows run instructions. Don’t use any other repo context.`
+- `[SCOPE: openclaw-mem] Implement the next benchmark step. Keep the answer scoped.`
+- `[GLOBAL][REM] Remember: use UTC for cron schedules unless I say otherwise.`
+- `[ISO: marketing][NOMEM] Draft 5 ad angles; do not store any long-term memory.`
+
 ## Tag parsing rules
 
-- Tags must appear **at the start** of the user's message (one per line or chained).
-- Prefer short tags, but accept long-form equivalents.
-- Tags **do not override** safety policies, tool policies, or access controls.
+- Tags must appear **at the start** of the user’s message.
+- You may place multiple tags (recommended order: scope → memory intent).
+- Tags **do not override** safety policies, tool policies, access controls, or approvals.
 
 ## Supported tags
 
 ### Isolation / scope
 
-- `\[ISO: <topic>\]` or `\[Isolated Context: <topic>\]`
+- `[ISO: <topic>]` / `[Isolated Context: <topic>]`
   - Treat as a **fresh topic**.
   - Do **not** pull in other conversation/project context unless the user explicitly re-provides it.
-  - Allowed implicit carry-over: universal safety rules + a few stable user prefs (timezone, “don’t overwrite configs”, etc.).
+  - Allowed implicit carry-over: universal safety rules + a few stable user prefs (timezone, “don’t apply config changes without approval”, etc.).
 
-- `\[SCOPE: <topic>\]` or `\[Scoped Context: <topic>\]`
+- `[SCOPE: <topic>]` / `[Scoped Context: <topic>]`
   - Restrict reasoning to the named scope.
   - If missing details inside the scope, ask clarifying questions.
 
-- `\[GLOBAL\]` or `\[Global Context OK\]`
+- `[GLOBAL]` / `[Global Context OK]`
   - Cross-topic reuse is allowed.
-  - When reusing prior context, **call out what you reused**.
+  - When reusing prior context, call out what was reused.
 
 ### Memory intent
 
-- `\[NOMEM\]` or `\[No Memory\]`
+- `[NOMEM]` / `[No Memory]`
   - Do not store durable/long-term memories from this exchange.
 
-- `\[REM\]` or `\[Remember\]`
+- `[REM]` / `[Remember]`
   - If the message contains a preference/decision/setting, store it as a short durable memory.
 
 ## Default behavior (no tags)
 
 - Be conservative about cross-topic mixing.
-- If the user complains about context mixing, suggest using the tags above.
+- If the user complains about topic bleed, suggest using the tags above.
 
 ## Command-style cheat sheet responses
 
-When the user sends `/ctx` or `/context_def`, respond with a short, copy/pasteable cheat sheet:
+If the user sends `/ctx` or `/context_def`, respond with a short copy/pasteable cheat sheet:
+- tags + one-line meaning
+- two examples
 
-- Tags + one-line meaning
-- 2 examples:
-  - `\[ISO: token-currency\]\[NOMEM\] write a manifesto`
-  - `\[SCOPE: openclaw-mem\] implement feature flag wiring`
+## Cross-platform / chat-surface notes
 
-## Telegram note (optional)
-
-Telegram slash commands cannot contain dashes.
-Use `/context_def` (underscore), not `/context-def`.
+- Telegram slash commands cannot contain dashes.
+  - Use `/context_def` (underscore), not `/context-def`.
+- The tags themselves are just text; they work the same on Telegram/Discord/Slack/WhatsApp.
+- If a surface auto-formats brackets, it’s fine—just keep the tags at the very beginning.
