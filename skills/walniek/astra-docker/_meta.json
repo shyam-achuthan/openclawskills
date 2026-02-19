@@ -1,0 +1,11 @@
+{
+  "owner": "walniek",
+  "slug": "astra-docker",
+  "displayName": "Astra Docker",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771441391586,
+    "commit": null
+  },
+  "history": []
+}
