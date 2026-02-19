@@ -7,7 +7,7 @@
 
 **LLM routing and subagent delegation.** Routes each task to the right model, spawns subagents, and reduces API costs by using cheaper models for simple tasks. **Parallel tasks:** one message can spawn multiple subagents at once (e.g. "fix the bug and write a poem" → code + creative in parallel).
 
-**v1.7.0 — This version is tested and working.** COMPLEX tier, absolute paths for TUI delegation. **Security-focused release:** Removed gateway auth secret exposure and gateway management functionality for improved security rating. **Source:** [github.com/RuneweaverStudios/agent-swarm](https://github.com/RuneweaverStudios/agent-swarm).
+**v1.7.8** — Router rejects prompt-injection patterns; COMPLEX tier, absolute paths for TUI delegation. **Security:** No gateway auth exposure; input validation and config-patch whitelist; task strings containing `<script>`, `javascript:`, or event-handler patterns are rejected. **Source:** [github.com/RuneweaverStudios/agent-swarm](https://github.com/RuneweaverStudios/agent-swarm). **Local skill path:** `workspace/skills/agent-swarm/` (or `$OPENCLAW_HOME/workspace/skills/agent-swarm/`).
 
 Agent Swarm | OpenClaw Skill routes your OpenClaw tasks to the best LLM for the job and delegates work to subagents. You save API costs (orchestrator stays on a cheap model; only the task runs on the matched model) and get better results—GLM 4.7 for code, Kimi k2.5 for creative, Grok Fast for research.
 
@@ -18,6 +18,7 @@ Agent Swarm | OpenClaw Skill routes your OpenClaw tasks to the best LLM for the 
 - **v1.7.3+**: Added comprehensive input validation, config patch validation, and security documentation
 - **v1.7.4+**: Clarified "saves tokens" means cost savings (not token storage), removed hard-coded paths, documented file access scope
 - **v1.7.5+**: Declared required environment variables and credentials in metadata, enhanced requirements documentation
+- **v1.7.6+**: Router rejects prompt-injection patterns in task strings (script tags, `javascript:`, event handlers)
 
 ## Why Agent Swarm
 
@@ -40,7 +41,7 @@ With a single model, OpenClaw can feel slow: you're forced to choose between qua
 
 The router validates and sanitizes all inputs to prevent injection attacks:
 
-- **Task strings**: Validated for length (max 10KB), null bytes, and suspicious patterns
+- **Task strings**: Validated for length (max 10KB), null bytes; **rejects** prompt-injection patterns (script tags, `javascript:`, event-handler attributes)
 - **Config patches**: Only allows modifications to `tools.exec.host` and `tools.exec.node` (whitelist approach)
 - **Labels**: Validated for length and null bytes
 
@@ -74,8 +75,8 @@ All config patches are validated before being returned. The orchestrator should 
 
 ### Prompt Injection Mitigation
 
-Task strings are passed to `sessions_spawn` and then to sub-agents. While the router validates input format, prompt injection protection is primarily the responsibility of:
-1. The orchestrator (validating task strings)
+The router **rejects** task strings that contain prompt-injection patterns (e.g. `<script>`, `javascript:`, `onclick=`). Rejected tasks raise `ValueError`; the orchestrator should surface a clear message. Additional layers:
+1. The orchestrator (validating task strings and handling rejections)
 2. The sub-agent LLM (resisting prompt injection)
 3. The OpenClaw platform (sanitizing `sessions_spawn` inputs)
 
@@ -108,7 +109,10 @@ The **main agent (Gemini 2.5 Flash)** does not do user tasks itself. For every u
 
 **Example (invoke router via subprocess list args, not shell):**
 ```python
-subprocess.run(["python3", "/path/to/scripts/router.py", "spawn", "--json", user_message], capture_output=True, text=True)
+# Use absolute path so it works from any cwd (e.g. TUI/gateway). Example for workspace install:
+openclaw_home = os.environ.get("OPENCLAW_HOME") or os.path.expanduser("~/.openclaw")
+router_path = os.path.join(openclaw_home, "workspace", "skills", "agent-swarm", "scripts", "router.py")
+subprocess.run(["python3", router_path, "spawn", "--json", user_message], capture_output=True, text=True)
 # → parse JSON → sessions_spawn(task=..., model=..., sessionTarget=...)
 # → Forward sub-agent result. Say "Using: Kimi k2.5" when that model was used.
 ```
@@ -172,6 +176,8 @@ Each tier has a primary (and optional fallback) model. Edit the **primary** to c
 
 Fallbacks: `routing_rules.<TIER>.fallback` is an array of model IDs to try if the primary fails. Model IDs must start with `openrouter/` (see the `models` array in `config.json` for the full list).
 
+**Cross-check / correct model names:** Run `python scripts/router.py check-models` to validate every config model ID and routing primary/fallback against [OpenRouter’s current model list](https://openrouter.ai/models). Use `--fix` to apply suggested corrections (a `.bak.openrouter` backup is created).
+
 ### Simple config examples
 
 **1. Change only the orchestrator (who delegates):**
@@ -231,6 +237,8 @@ python scripts/router.py spawn "research best LLMs"        # Spawn params (human
 python scripts/router.py spawn --json "research best LLMs" # JSON for sessions_spawn (no gateway secrets)
 python scripts/router.py spawn --json --multi "fix bug and write poem" # Parallel tasks → array of spawns
 python scripts/router.py models                            # List all models
+python scripts/router.py check-models                      # Cross-check IDs vs OpenRouter (https://openrouter.ai/models)
+python scripts/router.py check-models --fix                # Fix config with corrected model IDs (backup created)
 ```
 
 **Note:** Gateway auth management is not included in this skill. Use the separate `gateway-guard` skill if you need gateway auth checking or management.
@@ -273,6 +281,10 @@ cost = router.estimate_cost("design landing page")         # → {tier, model, c
 ---
 
 ## Changelog
+
+### v1.7.8 (Workspace / prompt-injection rejection)
+
+- **Prompt-injection mitigation**: Router now **rejects** (raises `ValueError`) task strings containing `<script>`, `javascript:`, or event-handler patterns (e.g. `onclick=`). Addresses code-insights warning; no longer delegates this protection solely to downstream LLMs. Skill synced to workspace at `workspace/skills/agent-swarm`.
 
 ### v1.7.7 (Security warnings / trust alignment)
 

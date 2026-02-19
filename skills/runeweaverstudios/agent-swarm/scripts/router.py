@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """
 Agent Swarm | OpenClaw Skill — Task-to-LLM routing for OpenClaw
-Version 1.7.5
+Version 1.7.6
+
+Orchestrator/router logic aligned with working friday-router backup:
+  ~/Desktop/backup .openclaw/workspace/skills/friday-router
+- Classification: same keyword sets, vision override, agentic bump, website→CREATIVE,
+  COMPLEX→CODE/QUALITY, COMPLEX+FAST handling. CREATIVE tier canonicalized to
+  openrouter/moonshotai/kimi-k2.5 (Kimi = Moonshot AI; never Minimax).
 
 Security improvements (v1.7.3+):
-- Input validation for task strings (length limits, null bytes, suspicious patterns)
+- Input validation for task strings (length limits, null bytes; reject prompt-injection patterns)
 - Config patch validation (whitelist approach - only tools.exec.host/node)
 - Label validation
 - Comprehensive security documentation
@@ -32,6 +38,7 @@ import math
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 # OpenClaw imports (if available)
@@ -72,20 +79,20 @@ def validate_task_string(task):
     if '\x00' in task:
         raise ValueError("Task string contains null bytes")
     
-    # Task strings are user input that will be passed to LLMs - allow most characters
-    # but log warnings for suspicious patterns
+    # Reject prompt-injection patterns (script tags, protocols, event handlers)
+    # so malicious task strings are not passed to sub-agent LLMs.
     suspicious_patterns = [
-        r'<script[^>]*>',  # Script tags
-        r'javascript:',     # JavaScript protocol
-        r'on\w+\s*=',       # Event handlers
+        (r'<script[^>]*>', "script tags"),
+        (r'javascript:', "javascript: protocol"),
+        (r'on\w+\s*=', "event-handler attributes (e.g. onclick=)"),
     ]
-    
-    for pattern in suspicious_patterns:
+    for pattern, name in suspicious_patterns:
         if re.search(pattern, task, re.IGNORECASE):
-            # Log warning but allow (LLM should handle this safely)
-            # In production, you might want stricter validation
-            pass
-    
+            raise ValueError(
+                f"Task string contains disallowed pattern ({name}). "
+                "Rephrase the task without executable or markup-injection patterns."
+            )
+
     return task.strip()
 
 
@@ -143,6 +150,116 @@ def validate_config_patch(patch_json_str):
     return patch
 
 
+def _log_delegation_audit(task: str, tier: str, model_id: str, recommendation: dict):
+    """Append one JSONL line to OPENCLAW_HOME/logs/agent-swarm-delegations.jsonl for audit."""
+    openclaw_home = os.environ.get("OPENCLAW_HOME") or os.path.expanduser("~/.openclaw")
+    log_dir = Path(openclaw_home) / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "agent-swarm-delegations.jsonl"
+    try:
+        entry = {
+            "ts": time.time(),
+            "task": task[:500] if task else "",
+            "tier": tier,
+            "model": model_id,
+            "reasoning": (recommendation or {}).get("reasoning", ""),
+        }
+        with open(log_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+
+
+# OpenRouter models API: https://openrouter.ai/docs/api-reference/list-available-models
+OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
+
+
+def fetch_openrouter_models():
+    """
+    Fetch current model list from OpenRouter. Returns list of dicts with id, name, canonical_slug.
+    Uses no auth (public list). On failure returns empty list and does not raise.
+    """
+    try:
+        import urllib.request
+        req = urllib.request.Request(OPENROUTER_MODELS_URL, headers={"User-Agent": "OpenClaw-Agent-Swarm/1.0"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode())
+    except Exception:
+        return []
+    items = data.get("data") if isinstance(data, dict) else []
+    if not isinstance(items, list):
+        return []
+    return [
+        {"id": m.get("id", ""), "name": m.get("name", ""), "canonical_slug": m.get("canonical_slug", "")}
+        for m in items if isinstance(m, dict) and m.get("id")
+    ]
+
+
+def check_config_models_against_openrouter(config, openrouter_models=None):
+    """
+    Cross-check config model IDs and routing_rules primaries/fallbacks against OpenRouter.
+    Config IDs are expected as openrouter/ provider/model (e.g. openrouter/z-ai/glm-4.7-flash).
+    OpenRouter API returns id as provider/model (no openrouter/ prefix).
+    Returns: {
+      "ok": bool,
+      "valid_ids": set of openrouter-prefixed ids that exist on OpenRouter,
+      "invalid": [ {"id": "...", "where": "models[]|routing_rules...", "suggested": "openrouter/..." or null }, ... ],
+      "openrouter_count": int,
+    }
+    """
+    if openrouter_models is None:
+        openrouter_models = fetch_openrouter_models()
+    # Valid API ids (provider/model)
+    api_ids = {m["id"] for m in openrouter_models}
+    # Valid in our format (openrouter/provider/model)
+    valid_prefixed = {"openrouter/" + mid for mid in api_ids}
+    valid_prefixed.add("openrouter/openrouter/aurora-alpha")  # special case if needed
+    invalid = []
+    seen = set()
+
+    def check_id(model_id, where):
+        if not model_id or model_id in seen:
+            return
+        seen.add(model_id)
+        if model_id in valid_prefixed:
+            return
+        # Strip prefix and check
+        bare = model_id[11:] if model_id.startswith("openrouter/") else model_id
+        if bare in api_ids:
+            return  # Valid (openrouter/bare or bare both resolve)
+        # Find best suggestion: same provider (first path segment)
+        suggested = None
+        provider = bare.split("/")[0] if "/" in bare else bare
+        for m in openrouter_models:
+            if m["id"].startswith(provider + "/"):
+                suggested = "openrouter/" + m["id"]
+                break
+        invalid.append({"id": model_id, "where": where, "suggested": suggested})
+
+    for m in config.get("models", []):
+        check_id(m.get("id"), "models[]")
+    rr = config.get("routing_rules", {})
+    for tier, rules in rr.items():
+        if not isinstance(rules, dict):
+            continue
+        for key in ("primary", "fallback"):
+            val = rules.get(key)
+            if key == "fallback" and isinstance(val, list):
+                for v in val:
+                    check_id(v, f"routing_rules.{tier}.fallback[]")
+            else:
+                check_id(val, f"routing_rules.{tier}.{key}")
+    default_id = config.get("default_model")
+    check_id(default_id, "default_model")
+
+    return {
+        "ok": len(invalid) == 0,
+        "valid_ids": valid_prefixed,
+        "invalid": invalid,
+        "openrouter_count": len(openrouter_models),
+    }
+
+
 def get_current_openclaw_config():
     """Read tools.exec.host and tools.exec.node from openclaw.json (no gateway auth)."""
     openclaw_home = os.environ.get("OPENCLAW_HOME") or os.path.expanduser("~/.openclaw")
@@ -159,6 +276,15 @@ def get_current_openclaw_config():
         "tools_exec_host": exec_config.get("host", "sandbox"),
         "tools_exec_node": exec_config.get("node"),
     }
+
+
+# Canonical model IDs per tier (fixes legacy friday-router wrong id: CREATIVE must be Moonshot Kimi, not Minimax)
+# If config or any path returns e.g. openrouter/minimax/kimi-k2.5 for CREATIVE, we override to this.
+TIER_CANONICAL_MODEL_ID = {
+    "CREATIVE": "openrouter/moonshotai/kimi-k2.5",   # Kimi is Moonshot AI; never use minimax for Kimi
+    "RESEARCH": "openrouter/x-ai/grok-4.1-fast",
+    "VISION": "openrouter/openai/gpt-4o",
+}
 
 
 class FridayRouter:
@@ -361,8 +487,12 @@ class FridayRouter:
         routing_rules = self.config.get('routing_rules', {})
         tier_rules = routing_rules.get(tier, {})
         
-        # Get primary model
+        # Get primary model id; enforce canonical id for critical tiers (e.g. CREATIVE = Moonshot Kimi, not Minimax)
         primary_id = tier_rules.get('primary')
+        if tier in TIER_CANONICAL_MODEL_ID:
+            canonical_id = TIER_CANONICAL_MODEL_ID[tier]
+            if primary_id != canonical_id:
+                primary_id = canonical_id
         
         # Find model in config
         model = None
@@ -589,6 +719,11 @@ def main():
     p_models = sub.add_parser("models", help="List all models")
     p_models.add_argument("--json", action="store_true", help="Output JSON report")
 
+    # Check-models: cross-check config against OpenRouter (https://openrouter.ai/models)
+    p_check = sub.add_parser("check-models", help="Cross-check/correct model names against OpenRouter")
+    p_check.add_argument("--json", action="store_true", help="Output JSON report")
+    p_check.add_argument("--fix", action="store_true", help="Update config.json with corrected IDs (backup created)")
+
     # Spawn command (always exit 0; with --json always one JSON object; needs_config_patch does not exit(1))
     p_spawn = sub.add_parser("spawn", help="Show spawn params for OpenClaw (sessions_spawn)")
     p_spawn.add_argument("task", type=str, nargs='+', help="The task string for the sub-agent")
@@ -679,6 +814,57 @@ def main():
                 print(f"  {model['alias']:20} [{model['tier']:8}] {model['id']}")
                 print(f"                         ${model['input_cost_per_m']}/${model['output_cost_per_m']}/M")
 
+    elif args.command == 'check-models':
+        report = check_config_models_against_openrouter(router.config)
+        if args.json:
+            out = {
+                "ok": report["ok"],
+                "openrouter_models_count": report["openrouter_count"],
+                "invalid": report["invalid"],
+            }
+            print(json.dumps(out, indent=2))
+        else:
+            print("🔗 OpenRouter model check (https://openrouter.ai/models)\n")
+            print(f"   Fetched {report['openrouter_count']} models from OpenRouter.")
+            if report["ok"]:
+                print("   ✅ All config model IDs match OpenRouter.")
+            else:
+                print(f"   ⚠️  {len(report['invalid'])} ID(s) not found or need correction:\n")
+                for inv in report["invalid"]:
+                    sug = f" → use {inv['suggested']}" if inv.get("suggested") else " (no suggestion)"
+                    print(f"      {inv['id']}  [{inv['where']}]{sug}")
+                if getattr(args, "fix", False):
+                    replacements = {e["id"]: e["suggested"] for e in report["invalid"] if e.get("suggested")}
+                    if not replacements:
+                        print("\n   No auto-fix available (no suggestions).")
+                    else:
+                        backup = router.config_path.with_suffix(router.config_path.suffix + ".bak.openrouter")
+                        with open(router.config_path, "r", encoding="utf-8") as f:
+                            config_data = json.load(f)
+                        with open(backup, "w", encoding="utf-8") as f:
+                            json.dump(config_data, f, indent=2)
+                        def replace_ids(obj):
+                            if isinstance(obj, dict):
+                                for k, v in list(obj.items()):
+                                    if isinstance(v, str) and v in replacements:
+                                        obj[k] = replacements[v]
+                                    else:
+                                        replace_ids(v)
+                            elif isinstance(obj, list):
+                                for i, v in enumerate(obj):
+                                    if isinstance(v, str) and v in replacements:
+                                        obj[i] = replacements[v]
+                                    else:
+                                        replace_ids(v)
+                        replace_ids(config_data)
+                        with open(router.config_path, "w", encoding="utf-8") as f:
+                            json.dump(config_data, f, indent=2)
+                        print(f"\n   ✅ Applied {len(replacements)} correction(s). Backup: {backup}")
+                else:
+                    print("\n   Run with --fix to update config.json (backup created).")
+        if not report["ok"] and not getattr(args, "fix", False):
+            sys.exit(1)
+
     elif args.command == 'spawn':
         if not task_str:
             print("❌ Error: spawn requires a task string", file=sys.stderr)
@@ -750,6 +936,13 @@ def main():
                     print(f"   {config_patch_result['message']}\n")
                     print(f"   Recommended patch: {config_patch_result['recommended_config_patch']}")
             elif args.json:
+                for r in results:
+                    _log_delegation_audit(
+                        task=r.get("task", ""),
+                        tier="",
+                        model_id=r.get("model", ""),
+                        recommendation={"reasoning": "parallel"},
+                    )
                 print(json.dumps({
                     "parallel": True,
                     "spawns": results,
@@ -806,6 +999,14 @@ def main():
                     print(f"   Recommended patch: {spawn_result['recommended_config_patch']}")
                     print("   Then retry spawn after gateway restarts if needed.")
             else:
+                rec = spawn_result.get("recommendation", {})
+                if args.json:
+                    _log_delegation_audit(
+                        task=task_str,
+                        tier=rec.get("tier", ""),
+                        model_id=spawn_result["params"].get("model", ""),
+                        recommendation=rec,
+                    )
                 if args.json:
                     out = {k: v for k, v in spawn_result["params"].items()}
                     out["recommendation"] = spawn_result["recommendation"]

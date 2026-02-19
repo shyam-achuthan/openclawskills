@@ -1,8 +1,8 @@
 ---
 name: agent-swarm
 displayName: Agent Swarm | OpenClaw Skill
-description: IMPORTANT: OpenRouter is required. Routes tasks to the right model and always delegates work through sessions_spawn.
-version: 1.7.7
+description: IMPORTANT: OpenRouter is required. Routes tasks to the right model and always delegates work through sessions_spawn. Rejects prompt-injection patterns in task strings (v1.7.6+).
+version: 1.7.8
 ---
 
 # Agent Swarm | OpenClaw Skill
@@ -167,7 +167,7 @@ Only include tiers you want to override; the rest are read from the full `config
 
 The router validates and sanitizes all inputs to prevent injection attacks:
 
-- **Task strings**: Validated for length (max 10KB), null bytes, and suspicious patterns
+- **Task strings**: Validated for length (max 10KB), null bytes; **rejects** prompt-injection patterns (script tags, `javascript:` protocol, event-handler attributes). Invalid tasks raise `ValueError` with a clear message.
 - **Config patches**: Only allows modifications to `tools.exec.host` and `tools.exec.node` (whitelist approach)
 - **Labels**: Validated for length and null bytes
 
@@ -201,8 +201,8 @@ All config patches are validated before being returned. The orchestrator should 
 
 ### Prompt Injection Mitigation
 
-Task strings are passed to `sessions_spawn` and then to sub-agents. While the router validates input format, prompt injection protection is primarily the responsibility of:
-1. The orchestrator (validating task strings)
+The router **rejects** task strings that contain prompt-injection patterns (e.g. `<script>`, `javascript:`, `onclick=`). Rejected tasks raise `ValueError`; the orchestrator should surface a clear message and not pass the task to sub-agents. Additional layers:
+1. The orchestrator (validating task strings and handling rejections)
 2. The sub-agent LLM (resisting prompt injection)
 3. The OpenClaw platform (sanitizing `sessions_spawn` inputs)
 
