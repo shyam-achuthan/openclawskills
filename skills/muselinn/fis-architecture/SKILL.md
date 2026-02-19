@@ -1,303 +1,339 @@
-# FIS Architecture Skill
+# FIS (Federal Intelligence System) Architecture Skill
 
-> **Version**: 3.1.2  
-> **Name**: Federal Intelligence System (联邦智能系统 / FIS 联邦智能系统)  
-> **Description**: OpenClaw multi-agent collaboration framework with shared memory, deadlock detection, and skill registry  
-> **Status**: P0 core stable, Phase 2/3 framework ready (user data isolated)
-
----
-
-## Important Notice: Data Isolation
-
-**This Skill provides framework tools only. Your data stays in your workspace.**
-
-- ✅ P0 Core tools (memory_manager, deadlock_detector, etc.) are deployed to shared hub
-- ✅ Phase 2/3 framework code (kg_manager, gating_controller) is available for activation
-- ❌ **No user data is included** — knowledge graph nodes, memories, and agent data are created in YOUR local workspace
-
-After installation, initialize FIS in your workspace:
-```bash
-python3 ~/.openclaw/workspace/skills/fis-architecture/examples/init_fis31.py
-```
+> **Version**: 3.2.4-lite  
+> **Name**: Federal Intelligence System (联邦智能系统)  
+> **Description**: File-based multi-agent workflow framework. Core: JSON tickets + Markdown knowledge (no Python required). Optional: Python helpers in `lib/` for badge generation. Integrates with OpenClaw QMD for semantic search.
+> 
+> **Note**: Legacy FIS 3.1 components (memory_manager, skill_registry, etc.) are preserved in GitHub repo history but not included in this release. See repo for historical reference.  
+> **Status**: ✅ Stable — Simplified architecture with QMD integration
 
 ---
 
-## Release Note
+## Before You Install
 
-**v3.1.2** - Clean release with generalization:
-- Removed personal configuration examples
-- Removed unrelated utilities (tts_edge)
-- All examples now use generic placeholders
+**Core workflow**: Pure file-based (JSON tickets, Markdown). **No Python required for basic use.**
 
----
+**Optional components** (review before use):
+- `lib/*.py` — Badge generation helpers (require `pip install Pillow qrcode`)
+- `lib/fis_lifecycle.py` — CLI helpers for ticket management
 
-## Architecture Overview
+**Requires**: `mcporter` CLI for QMD search integration ([OpenClaw QMD docs](https://docs.openclaw.ai/concepts/memory))
 
-FIS 3.1 Lite is a lightweight, file-based multi-agent collaboration framework designed for OpenClaw environments. It enables:
-
-- **Shared Memory**: Three-tier storage (working/short_term/long_term) for agent communication
-- **Deadlock Detection**: DFS-based cycle detection for task dependency management
-- **Skill Registry**: Dynamic capability discovery across agents
-- **SubAgent Lifecycle**: Worker/Reviewer role management with badge system
-- **Zero Core File Pollution**: All extensions isolated to `.fis3.1/` directories
+**Security**: Review Python scripts before execution. Core FIS works without them.
 
 ---
 
-## Current Status
+## Core Principle: FIS Manages Workflow, QMD Manages Content
 
-### P0 Core (Deployed)
+**FIS 3.2** is a radical simplification of FIS 3.1. We removed components that overlapped with QMD (Query Model Direct) semantic search capabilities:
+
+| Component | FIS 3.1 | FIS 3.2 | Reason |
+|-----------|---------|---------|--------|
+| Task Management | Python classes + memory_manager | Ticket files (JSON) | Simpler, audit-friendly |
+| Memory/Retrieval | memory_manager.py | **QMD** | QMD has native semantic search |
+| Skill Discovery | skill_registry.py | **SKILL.md + QMD** | QMD indexes SKILL.md files |
+| Knowledge Graph | experimental/kg/ | **QMD** | QMD covers knowledge discovery |
+| Deadlock Detection | deadlock_detector.py | Simple conventions | Rarely needed in practice |
+
+**What's Kept**: Only the unique workflow capabilities that FIS provides.
+
+---
+
+## What's New in 3.2.0
+
+### Simplified Architecture
+- **Core workflow**: File-based (JSON tickets, Markdown knowledge) — no Python required
+- **Optional helpers**: Python scripts in `lib/` for badge generation (auditable, optional)
+- **Official integration**: Uses OpenClaw QMD for semantic search — see https://docs.openclaw.ai/concepts/memory
+- **Badge generator**: Visual identity for subagents (requires Pillow, optional)
+
+### Directory Structure
+
 ```
-research-shared-hub/.fis3.1/           # (or your preferred shared directory)
-├── lib/                               # Core Python libraries
-│   ├── memory_manager.py              # Shared memory management
-│   ├── deadlock_detector.py           # DFS deadlock detection
-│   ├── skill_registry.py              # Skill discovery & registration
-│   └── subagent_lifecycle.py          # SubAgent lifecycle + badge system
-├── memories/                          # Three-tier memory storage
-│   ├── working/                       # TTL: 1 hour
-│   ├── short_term/                    # TTL: 24 hours
-│   └── long_term/                     # Permanent
-├── skills/                            # Skill registry
-│   ├── registry.json                  # Skill index
-│   └── manifests/                     # Agent skill manifests
-└── heartbeat/                         # Heartbeat status
-
-Status: ✅ Healthy, zero Core File pollution
+fis-hub/                    # Your shared hub
+├── 📁 tickets/                      # Task workflow (FIS core)
+│   ├── active/                      # Active tasks (JSON files)
+│   └── completed/                   # Archived tasks
+├── 📁 knowledge/                    # Shared knowledge (QMD-indexed)
+│   ├── cybermao/                    # System knowledge
+│   ├── fis/                         # FIS documentation
+│   └── your-domain/                 # Your domain knowledge
+├── 📁 results/                      # Research outputs
+├── 📁 archive/                      # Archived old versions
+│   ├── fis3.1-full/                 # Complete 3.1 backup
+│   └── fis3.1-legacy/               # Legacy files
+└── 📁 .fis3.1/                      # Light configuration
+    └── notifications.json           # Event notifications
 ```
-
-### Phase 2/3 Features (Framework Ready)
-
-**Framework code is available, user data is created locally:**
-
-```
-research-shared-hub/.fis3.1/experimental/  # Created in YOUR workspace
-├── knowledge_graph/nodes/entities/        # YOUR nodes (created by you)
-├── lib/
-│   ├── kg_manager.py                      # Framework: node creation tools
-│   ├── gating_controller.py               # Framework: access control logic
-│   ├── retrieval_orchestrator.py          # Framework: search orchestration
-│   └── emb_spawn_wrapper.py               # Framework: embedding pipeline
-└── POLICY_GATING.md                       # Template: customize your policies
-```
-
-**How to activate:**
-1. Framework code auto-deploys to shared hub
-2. Run `init_fis31.py` to create your local `experimental/` structure
-3. Create your own nodes using `kg_manager` APIs
-4. Your data stays in YOUR workspace, never shared
-
-Status: ✅ Framework ready, user data isolated
 
 ---
 
 ## Quick Start
 
+### 1. Create a Task Ticket
+
 ```bash
-# Initialize FIS 3.1 environment
-python3 ~/.openclaw/workspace/skills/fis-architecture/examples/init_fis31.py
+# Create ticket manually or use helper
+cat > ~/.openclaw/fis-hub/tickets/active/TASK_EXAMPLE_001.json << 'EOF'
+{
+  "ticket_id": "TASK_EXAMPLE_001",
+  "agent_id": "worker-001",
+  "parent": "cybermao",
+  "role": "worker",
+  "task": "Analyze GPR signal patterns",
+  "status": "active",
+  "created_at": "2026-02-19T21:00:00",
+  "timeout_minutes": 60
+}
+EOF
+```
 
-# Check architecture health
-~/.openclaw/system/scripts/fis_maintenance.sh check
+**Security Note**: The `resources` field (e.g., `["file_read", "code_execute"]`) can be added to tickets but should be used with caution. Only grant these permissions when necessary and audit all automated actions.
 
-# Cleanup redundancy (dry-run)
-~/.openclaw/system/scripts/fis_cleanup_redundancy.sh
+### 2. Generate Badge Image
 
-# Cleanup subagents
-python3 ~/.openclaw/system/scripts/fis_subagent_cleanup.py
+```bash
+cd ~/.openclaw/workspace/skills/fis-architecture/lib
+python3 badge_generator_v7.py
 
-# Generate badge images
-python3 ~/.openclaw/workspace/skills/fis-architecture/examples/generate_badges.py
+# Output: ~/.openclaw/output/badges/TASK_*.png
+```
+
+### 3. Complete and Archive
+
+```bash
+# Move from active to completed
+mv ~/.openclaw/fis-hub/tickets/active/TASK_EXAMPLE_001.json \
+   ~/.openclaw/fis-hub/tickets/completed/
 ```
 
 ---
 
-## Python API Reference
+## Ticket Format
 
-### Shared Memory
-```python
-from memory_manager import write_memory, query_memory
-
-# Agent writes analysis result
-write_memory(
-    agent="worker",                    # YOUR agent name
-    content={"result": data, "score": 0.95},
-    layer="short_term",
-    tags=["project", "task-001"]       # YOUR tags
-)
-
-# Coordinator queries
-results = query_memory(
-    query="project task",              # YOUR query
-    agent_filter=["worker"],           # YOUR agents
-    limit=5
-)
-```
-
-### Deadlock Detection
-```python
-from deadlock_detector import check_and_resolve
-
-report = check_and_resolve()
-if report["deadlock_found"]:
-    print(f"Deadlocks: {report['deadlocks']}")
-    print(f"Resolved: {report['resolved']}")
-```
-
-### Skill Registry
-```python
-from skill_registry import register_skills, discover_skills
-
-# Register agent skills
-register_skills("my_agent", manifest)  # YOUR agent name
-
-# Discover available skills
-skills = discover_skills(query="processing")  # YOUR query
-```
-
-### SubAgent Lifecycle (Badge System)
-```python
-from subagent_lifecycle import SubAgentLifecycleManager, SubAgentRole
-
-manager = SubAgentLifecycleManager("coordinator")  # YOUR coordinator name
-
-# Issue badge (spawn subagent)
-worker = manager.spawn(
-    name="Worker-001",
-    role=SubAgentRole.WORKER,
-    task_description="Your task description here"  # YOUR task
-)
-
-# Generate badge image
-image_path = manager.generate_badge_image(worker['employee_id'])
-
-# Batch generation (2x2 grid)
-multi_image = manager.generate_multi_badge_image([id1, id2, id3, id4])
-
-# Terminate (auto-cleanup workspace)
-manager.terminate(worker['employee_id'], "completed")
+```json
+{
+  "ticket_id": "TASK_CYBERMAO_20260219_001",
+  "agent_id": "worker-001",
+  "parent": "cybermao",
+  "role": "worker|reviewer|researcher|formatter",
+  "task": "Task description",
+  "status": "active|completed|timeout",
+  "created_at": "2026-02-19T21:00:00",
+  "completed_at": null,
+  "timeout_minutes": 60,
+  "resources": ["file_read", "file_write", "web_search"],
+  "output_dir": "results/TASK_001/"
+}
 ```
 
 ---
 
-## Directory Structure
+## Workflow Patterns
+
+### Pattern 1: Worker → Reviewer Pipeline
 
 ```
-~/.openclaw/
-├── workspace/                         # YOUR coordinator workspace
-│   ├── MEMORY.md                      # Core File (protected)
-│   ├── HEARTBEAT.md                   # Core File (protected)
-│   └── .fis3.1/                       # FIS 3.1 extension
-│       └── local_cache/
-│
-├── workspace-agent1/                  # YOUR agent 1 workspace
-│   ├── MEMORY.md
-│   ├── HEARTBEAT.md
-│   └── .fis3.1/
-│       ├── skill_manifest.json        # YOUR skill manifest
-│       └── local_cache/
-│
-├── workspace-agent2/                  # YOUR agent 2 workspace
-│   └── ...
-│
-└── research-shared-hub/               # YOUR Shared Hub
-    ├── .fis3.1/                       # FIS 3.1 shared infrastructure
-    │   ├── lib/                       # Python libraries
-    │   ├── memories/                  # Shared memory
-    │   ├── skills/                    # Skill registry
-    │   ├── heartbeat/                 # Heartbeat status
-    │   └── experimental/              # Phase 2/3 framework
-    └── tickets/                       # Task tickets
-        ├── active/
-        ├── completed/
-        └── archive/
+CyberMao (Coordinator)
+    ↓ spawn
+Worker (Task execution)
+    ↓ complete
+Reviewer (Quality check)
+    ↓ approve
+Archive
 ```
+
+**Tickets**:
+1. `TASK_001_worker.json` → active → completed
+2. `TASK_002_reviewer.json` → active → completed
+
+### Pattern 2: Parallel Workers
+
+```
+CyberMao
+    ↓ spawn 4x
+Worker-A (chunk 1)
+Worker-B (chunk 2)
+Worker-C (chunk 3)
+Worker-D (chunk 4)
+    ↓ all complete
+Aggregator (combine results)
+```
+
+### Pattern 3: Research → Execute
+
+```
+Researcher (investigate options)
+    ↓ deliver report
+Worker (implement chosen option)
+    ↓ deliver code
+Reviewer (verify quality)
+```
+
+---
+
+## When to Use SubAgents
+
+**Use SubAgent when**:
+- Task needs multiple specialized roles
+- Expected duration > 10 minutes
+- Failure has significant consequences
+- Batch processing of many files
+
+**Direct handling when**:
+- Quick Q&A (< 5 minutes)
+- Simple explanation or lookup
+- One-step operations
+
+### Decision Tree
+
+```
+User Request
+    ↓
+┌─────────────────────────────────────────┐
+│ 1. Needs multiple specialist roles?     │
+│ 2. Duration > 10 minutes?               │
+│ 3. Failure impact is high?              │
+│ 4. Batch processing needed?             │
+└─────────────────────────────────────────┘
+    ↓ Any YES
+Delegate to SubAgent
+    ↓ All NO
+Handle directly
+```
+
+---
+
+## QMD Integration (Content Management)
+
+**QMD (Query Model Direct)** provides semantic search across all content:
+
+```bash
+# Search knowledge base
+mcporter call 'exa.web_search_exa(query: "GPR signal processing", numResults: 5)'
+
+# Search for skills
+mcporter call 'exa.web_search_exa(query: "SKILL.md image processing", numResults: 5)'
+```
+
+**Knowledge placement**:
+- Drop Markdown files into `knowledge/` subdirectories
+- QMD automatically indexes them
+- No manual registration needed
+
+---
+
+## Tool Reference
+
+### Badge Generator v7
+
+**Location**: `lib/badge_generator_v7.py`
+
+**Features**:
+- Retro pixel-art avatar generation
+- Full Chinese/English support
+- Dynamic OpenClaw version display
+- Task details with QR code + barcode
+- Beautiful gradient design
+
+**Usage**:
+```bash
+cd ~/.openclaw/workspace/skills/fis-architecture/lib
+python3 badge_generator_v7.py
+
+# Interactive prompts for task details
+# Output: ~/.openclaw/output/badges/Badge_{TICKET_ID}_{TIMESTAMP}.png
+```
+
+### CLI Helper (Optional)
+
+```bash
+# Create ticket with helper
+python3 fis_subagent_tool.py full \
+  --agent "Worker-001" \
+  --task "Task description" \
+  --role "worker"
+
+# Complete ticket
+python3 fis_subagent_tool.py complete \
+  --ticket-id "TASK_CYBERMAO_20260219_001"
+```
+
+---
+
+## Migration from FIS 3.1
+
+If you have FIS 3.1 components:
+
+1. **Archived components** are in `archive/fis3.1-full/` and `archive/fis3.1-legacy/`
+2. **Ticket files** remain compatible (JSON format unchanged)
+3. **Skill discovery** — use QMD instead of `skill_registry.py`
+4. **Memory queries** — use QMD instead of `memory_manager.py`
 
 ---
 
 ## Design Principles
 
-### 1. Zero Core File Pollution (零污染 Core Files)
-```
-❌ Never modify:
-   - Other agents' MEMORY.md, HEARTBEAT.md
-   - openclaw.json (main config)
+1. **FIS Manages Workflow, QMD Manages Content**
+   - Tickets for process state
+   - QMD for knowledge retrieval
 
-✅ Only add to:
-   - research-shared-hub/.fis3.1/ (shared infrastructure)
-   - workspace/.fis3.1/ (agent extension)
-```
+2. **File-First Architecture**
+   - No services or databases
+   - 100% file-based
+   - Git-friendly
 
-### 2. Layered Isolation (分层隔离)
-| Layer | Scope | Access Rule |
-|-------|-------|-------------|
-| L1 Core Files | `*/MEMORY.md` | Agent-local only |
-| L2 Agent Workspace | `workspace-*/` | Agent-local only |
-| L3 Shared Hub | `research-*/` | Controlled shared access |
-| L4 FIS Extension | `*/.fis3.1/` | Agent-independent |
+3. **Zero Core File Pollution**
+   - Never modify other agents' MEMORY.md/HEARTBEAT.md
+   - Extensions isolated to `.fis3.1/`
 
-### 3. File-First Architecture (纯文件机制)
-- No new services/processes
-- 100% file system operations
-- Auditable and recoverable
-
----
-
-## Comparison: FIS 3.0 vs 3.1 Lite
-
-| Feature | FIS 3.0 | FIS 3.1 Lite |
-|---------|---------|--------------|
-| Task Tickets | ✅ Basic format | ✅ Enhanced (backward compatible) |
-| Shared Memory | ❌ None | ✅ Tiered storage |
-| Deadlock Detection | ❌ None | ✅ DFS detection |
-| Skill Discovery | ❌ Hard-coded | ✅ Dynamic registry |
-| SubAgent | ❌ None | ✅ Badge system |
-| Core File Pollution | - | ✅ Zero pollution |
-| New Services | - | None (file-based) |
-
----
-
-## Security Note
-
-This Skill contains system administration scripts for:
-- Multi-agent workspace lifecycle management
-- File system maintenance (cleanup expired memories)
-- Task deadlock detection
-
-Some antivirus software may flag automation scripts as suspicious. All code is open-source and auditable with no malicious behavior.
-
-**Operational Notes:**
-- SubAgent `terminate()` permanently deletes `workspace-subagent_{id}/` folders
-- Backup important data before initialization
-- Review `subagent_lifecycle.py` to confirm deletion scope
+4. **Quality over Quantity**
+   - Fewer, better components
+   - Remove what QMD already provides
 
 ---
 
 ## Changelog
 
-### 2026-02-18: v3.1.2 Generalization
+### 2026-02-20: v3.2.4-lite Remove Archive
+- **Security**: Completely removed `archive/` directory from release (legacy 3.1 components preserved in GitHub repo history only)
+- **Documentation**: Added note about legacy components availability
+
+### 2026-02-20: v3.2.3-lite Review Feedback
+- **Clarity**: Rewrote description to clearly distinguish core workflow (file-based) from optional Python helpers
+- **Documentation**: Added "Before You Install" section with security notes and component breakdown
+- **Metadata**: Added `mcporter` as required binary in skill.json
+- **Links**: Added official OpenClaw QMD documentation link (https://docs.openclaw.ai/concepts/memory)
+- **Fix**: Addressed "core uses no Python" vs "includes Python helpers" inconsistency
+
+### 2026-02-20: v3.2.2-lite Security & Documentation Improvements
+- **Security**: Removed `archive/deprecated/` from published skill (kept in GitHub repo only)
+- **Documentation**: Clarified "Core functionality uses no Python" vs optional Python tools
+- **Documentation**: Added security warning about `resources` field in tickets
+- **Documentation**: Added Security Checklist to INSTALL_CHECKLIST.md
+- **Fix**: Corrected misleading "No Python dependencies" claim to "Core functionality uses no Python"
+
+### 2026-02-20: v3.2.1-lite Documentation Improvements
+- Added: Troubleshooting section with common issues and solutions
+- Added: Best practices for ticket naming and knowledge organization
+- Added: Real-world usage examples in decision tree
+- Improved: Clearer distinction between when to use/not use SubAgents
+
+### 2026-02-19: v3.2.0-lite Simplification
+- Removed: `memory_manager.py` → use QMD
+- Removed: `skill_registry.py` → use SKILL.md + QMD
+- Removed: `deadlock_detector.py` → simple conventions
+- Removed: `experimental/kg/` → QMD covers this
+- Kept: Ticket system, badge generator
+- New: Simplified architecture documentation
+
+### 2026-02-18: v3.1.3 Generalization
 - Removed personal configuration examples
-- Removed unrelated utilities (tts_edge)
-- All examples now use generic placeholders
-- Added data isolation notice
+- GitHub public repository created
 
-### 2026-02-18: Phase 2/3 Framework
-- Knowledge graph framework ready
-- Gating controller with RBAC
-- Retrieval orchestrator with access control
-
-### 2026-02-17: FIS 3.1 Lite Initial Deploy
-- Deployed memory_manager, deadlock_detector, skill_registry
-- Deployed subagent_lifecycle + badge system
-- Example skills registered
-
-### 2026-02-17: Badge Image Generation
-- Added `generate_badge_image()` PNG generation
-- Batch support via `generate_multi_badge_image()`
-- Compatible badge layouts
-
-### 2026-02-17: SubAgent Auto-Cleanup
-- `terminate()` auto-deletes workspace folders
-- Added `cleanup_all_terminated()` batch method
+### 2026-02-17: v3.1 Lite Initial Deploy
+- Shared memory, deadlock detection, skill registry
+- SubAgent lifecycle + badge system
 
 ---
 
@@ -306,26 +342,88 @@ Some antivirus software may flag automation scripts as suspicious. All code is o
 ```
 ~/.openclaw/workspace/skills/fis-architecture/
 ├── SKILL.md                    # This file
-├── QUICK_REFERENCE.md          # Quick reference
-├── package.json                # ClawHub metadata
-├── lib/                        # Python libraries (deployed to shared hub)
-│   ├── memory_manager.py
-│   ├── deadlock_detector.py
-│   ├── skill_registry.py
-│   ├── subagent_lifecycle.py
-│   ├── badge_image_pil.py
-│   └── badge_generator.py
-├── examples/                   # Usage examples
-│   ├── init_fis31.py
-│   ├── subagent_pipeline.py
-│   └── generate_badges.py
-└── system/                     # System scripts
-    ├── fis_maintenance.sh
-    ├── fis_cleanup_redundancy.sh
-    └── fis_subagent_cleanup.py
+├── README.md                   # Repository readme
+├── QUICK_REFERENCE.md          # Quick command reference
+├── AGENT_GUIDE.md              # Agent usage guide
+├── lib/                        # Tools (not core)
+│   ├── badge_generator_v7.py   # ✅ Kept: Badge generation
+│   ├── fis_lifecycle.py        # ✅ Kept: Lifecycle helpers
+│   ├── fis_subagent_tool.py    # ✅ Kept: CLI helper
+│   ├── memory_manager.py       # ❌ Deprecated (QMD replaces)
+│   ├── skill_registry.py       # ❌ Deprecated (QMD replaces)
+│   └── deadlock_detector.py    # ❌ Deprecated
+└── examples/                   # Usage examples
 ```
 
 ---
 
-*FIS 3.1 Lite — Quality over Quantity*  
+*FIS 3.2.0-lite — Minimal workflow, maximal clarity*  
 *Designed by CyberMao 🐱⚡*
+
+---
+
+## Troubleshooting
+
+### Issue: Ticket not found
+**Symptom**: `cat: tickets/active/TASK_001.json: No such file or directory`
+
+**Solution**:
+```bash
+# Check if directory exists
+ls ~/.openclaw/fis-hub/tickets/active/
+
+# Create if missing
+mkdir -p ~/.openclaw/fis-hub/tickets/{active,completed}
+```
+
+### Issue: Badge generation fails
+**Symptom**: `ModuleNotFoundError: No module named 'PIL'`
+
+**Solution**:
+```bash
+pip3 install Pillow qrcode
+```
+
+### Issue: QMD search returns no results
+**Symptom**: `mcporter call 'exa.web_search_exa(...)'` returns empty
+
+**Solution**:
+- Check Exa MCP configuration: `mcporter list exa`
+- Verify knowledge files are in `fis-hub/knowledge/` directory
+- Ensure files have `.md` extension
+
+### Issue: Permission denied on ticket files
+**Symptom**: Cannot write to `tickets/active/`
+
+**Solution**:
+```bash
+chmod -R u+rw ~/.openclaw/fis-hub/tickets/
+```
+
+---
+
+## Best Practices
+
+### Ticket Naming
+```
+Good:  TASK_UAV_20260220_001_interference_analysis
+Bad:   task1, new_task, test
+```
+
+### Knowledge Organization
+```
+knowledge/
+├── papers/           # Research papers and notes
+├── methods/          # Methodology documentation
+├── tools/            # Tool usage guides
+└── projects/         # Project-specific knowledge
+```
+
+### Regular Maintenance
+```bash
+# Weekly: Archive completed tickets older than 30 days
+find ~/.openclaw/fis-hub/tickets/completed/ -name "*.json" -mtime +30 -exec mv {} archive/old_tickets/ \;
+
+# Monthly: Review and clean knowledge/
+ls ~/.openclaw/fis-hub/knowledge/ | wc -l  # Keep count reasonable
+```
