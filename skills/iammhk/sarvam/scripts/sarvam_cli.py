@@ -14,7 +14,24 @@ if not API_KEY:
 
 BASE_URL = "https://api.sarvam.ai"
 
+def validate_filename(filepath, operation="read"):
+    """Validates that a path is a simple filename and not attempting traversal."""
+    normalized_path = os.path.normpath(filepath)
+    
+    # 1. Check for absolute path
+    if os.path.isabs(normalized_path):
+        print(f"Security Error: Absolute paths are not allowed for {operation}.")
+        sys.exit(1)
+
+    # 2. Check for traversal sequences (../)
+    if ".." in normalized_path:
+        print(f"Security Error: Path traversal sequences ('..') are not allowed for {operation}.")
+        sys.exit(1)
+        
+    return filepath
+
 def text_to_speech(text, target_language_code, speaker, output_file, model="bulbul:v3"):
+    output_file = validate_filename(output_file, "write")
     url = f"{BASE_URL}/text-to-speech"
     headers = {
         "api-subscription-key": API_KEY,
@@ -52,6 +69,7 @@ def text_to_speech(text, target_language_code, speaker, output_file, model="bulb
             print(e.response.text)
 
 def speech_to_text(audio_file, model="saaras:v3", mode="transcribe"): # Updated default model
+    audio_file = validate_filename(audio_file, "read")
     url = f"{BASE_URL}/speech-to-text"
     headers = {
         "api-subscription-key": API_KEY,
@@ -113,29 +131,8 @@ def translate(text, source_lang, target_lang, speaker_gender="Male"):
             print(e.response.text)
 
 def chat_completion(message, model="sarvam-2g", system_prompt=None):
-    url = f"{BASE_URL}/chat/completions" # Note: docs say /chat/completions for OpenAI compat, or maybe /v1/chat/completions?
-    # Quickstart curl says: https://api.sarvam.ai/v1/chat/completions but python/js SDK uses client.chat.completions
-    # Let's try https://api.sarvam.ai/chat/completions based on other endpoints, or stick to v1 if documented.
-    # The curl example in docs explicitly used: https://api.sarvam.ai/v1/chat/completions
-    
-    url = "https://api.sarvam.ai/chat/completions" # Based on pattern, but let's check docs again. Docs curl: https://api.sarvam.ai/v1/chat/completions
-    # Wait, the quickstart text I read said: "curl -X POST https://api.sarvam.ai/v1/chat/completions"
-    url = "https://api.sarvam.ai/v1/chat/completions"
+    url = "https://api.sarvam.ai/chat/completions"
 
-    headers = {
-        "api-subscription-key": API_KEY, # Or Authorization: Bearer? Docs curl used Authorization: Bearer $SARVAM_API_KEY
-        "Content-Type": "application/json"
-        # "Authorization": f"Bearer {API_KEY}" # Let's try this if api-subscription-key fails, or both.
-        # Docs say: -H "Authorization: Bearer $SARVAM_API_KEY"
-    }
-    # However, other endpoints used api-subscription-key header. 
-    # Let's try adding both or stick to what docs said for chat specifically.
-    
-    # Actually, the quickstart curl for chat used: -H "Authorization: Bearer $SARVAM_API_KEY"
-    # But for others it used: -H "api-subscription-key: <YOUR_SARVAM_API_KEY>"
-    # I will support the header based on the specific endpoint documentation.
-    
-    # Chat headers
     chat_headers = {
          "Authorization": f"Bearer {API_KEY}",
          "Content-Type": "application/json"
@@ -159,8 +156,6 @@ def chat_completion(message, model="sarvam-2g", system_prompt=None):
         response.raise_for_status()
         result = response.json()
         
-        # Print just the content for easy reading, or full json? 
-        # Let's print full json for machine readability, but also the text.
         if "choices" in result and len(result["choices"]) > 0:
             content = result["choices"][0]["message"]["content"]
             print(content)
