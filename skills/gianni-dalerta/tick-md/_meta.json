@@ -1,13 +1,18 @@
 {
   "owner": "gianni-dalerta",
   "slug": "tick-md",
-  "displayName": "Clawhub Skill",
+  "displayName": "tick-md",
   "latest": {
-    "version": "1.2.1",
-    "publishedAt": 1770671478567,
-    "commit": "https://github.com/openclaw/skills/commit/8dde748f8901114b3070fc775a833462bfa435e0"
+    "version": "1.3.3",
+    "publishedAt": 1771475415267,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.2.1",
+      "publishedAt": 1770671478567,
+      "commit": "https://github.com/openclaw/skills/commit/8dde748f8901114b3070fc775a833462bfa435e0"
+    },
     {
       "version": "1.1.2",
       "publishedAt": 1770525242282,

@@ -8,6 +8,12 @@ Coordinate work across human and AI agents using structured Markdown files. User
 
 **First time setup?** See `INSTALL.md` for editor-specific installation instructions.
 
+## Safety Boundaries
+
+- Ask for explicit user approval before editing editor MCP config files.
+- Ask for explicit user approval before running any command that pushes to remote git (`tick sync --push` or `git push`).
+- If user approval is not explicit, use read-only/status commands and explain what write action is pending.
+
 **Quick Check**:
 ```bash
 # Verify CLI is available
@@ -130,7 +136,8 @@ tick list                          # List tasks with filters
 tick graph                         # Visualize dependencies
 tick watch                         # Monitor changes in real-time
 tick validate                      # Check for errors
-tick sync --push                   # Commit and push to git
+tick sync --pull                   # Pull latest changes
+# tick sync --push                 # Only with explicit user approval
 ```
 
 ### Task Operations
@@ -386,6 +393,7 @@ tick validate
 ### Smart Commit Messages
 
 ```bash
+# Only run with explicit user approval
 tick sync --push
 # Automatically generates: "feat: complete TASK-001, TASK-002; update TASK-003"
 ```
@@ -445,7 +453,7 @@ Essential:     status | add | claim | done | list | graph
 Corrections:   reopen | delete | edit | undo
 Bulk:          import | batch start/commit/abort
 Coordination:  agent register | agent list | validate | watch
-Git:           sync --pull | sync --push
+Git:           sync --pull | sync --push (explicit user approval required)
 ```
 
 ## Key Reminders
