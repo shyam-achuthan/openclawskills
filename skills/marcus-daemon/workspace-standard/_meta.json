@@ -1,0 +1,11 @@
+{
+  "owner": "marcus-daemon",
+  "slug": "workspace-standard",
+  "displayName": "Workspace Standard",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771516815133,
+    "commit": null
+  },
+  "history": []
+}
