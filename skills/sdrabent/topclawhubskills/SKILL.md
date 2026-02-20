@@ -45,19 +45,25 @@ GET /api/certified?limit=N
 ```
 Returns only skills that have passed security screening (not flagged as suspicious and not malware-blocked). Sorted by downloads descending.
 
-### 5. Search
+### 5. Deleted Skills
+```
+GET /api/deleted?limit=N
+```
+Returns skills that were previously listed on ClawHub but now return "Skill not found." — preserved for historical reference. Sorted by downloads descending. Each result includes `is_deleted: true` and a `deleted_at` timestamp.
+
+### 6. Search
 ```
 GET /api/search?q=TERM&limit=N
 ```
 Free-text search across skill slug, display name, summary, and owner handle. The `q` parameter is required.
 
-### 6. Aggregate Statistics
+### 7. Aggregate Statistics
 ```
 GET /api/stats
 ```
-Returns overall platform statistics: total skills, total downloads, total stars, certified skill count, and the newest skill.
+Returns overall platform statistics: total skills, total downloads, total stars, certified skill count, deleted skill count, and the newest skill.
 
-### 7. Health Check
+### 8. Health Check
 ```
 GET /api/health
 ```
@@ -80,6 +86,8 @@ All list endpoints return:
       "created_at": "2026-01-15T10:30:00.000Z",
       "updated_at": "2026-02-10T14:20:00.000Z",
       "is_certified": true,
+      "is_deleted": false,
+      "deleted_at": null,
       "clawhub_url": "https://clawhub.ai/skills/skill-name"
     }
   ],
@@ -98,6 +106,7 @@ The `/api/stats` endpoint returns:
     "total_downloads": 2500000,
     "total_stars": 45000,
     "certified_skills": 780,
+    "deleted_skills": 186,
     "newest_skill": {
       "slug": "latest-skill",
       "display_name": "Latest Skill",
@@ -146,3 +155,4 @@ When showing certified skills or when the user asks about security:
 - "Which skills are security-certified?" → Use `/api/certified`
 - "How many skills are on ClawHub?" → Use `/api/stats`
 - "What are the most loved skills?" → Use `/api/top-stars`
+- "Which skills have been removed?" → Use `/api/deleted`
