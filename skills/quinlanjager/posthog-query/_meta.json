@@ -1,0 +1,11 @@
+{
+  "owner": "quinlanjager",
+  "slug": "posthog-query",
+  "displayName": "PostHog Query",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771542362135,
+    "commit": null
+  },
+  "history": []
+}
