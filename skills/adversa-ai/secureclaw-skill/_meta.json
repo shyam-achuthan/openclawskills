@@ -1,0 +1,11 @@
+{
+  "owner": "adversa-ai",
+  "slug": "secureclaw-skill",
+  "displayName": "SecureClaw",
+  "latest": {
+    "version": "2.2.0",
+    "publishedAt": 1771584998829,
+    "commit": null
+  },
+  "history": []
+}
