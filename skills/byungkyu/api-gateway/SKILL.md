@@ -1,10 +1,10 @@
 ---
 name: api-gateway
 description: |
-  API gateway for calling third-party APIs with managed OAuth connections, provided by Maton (https://maton.ai).
-  Use this skill when users want to interact with external services like Slack, HubSpot, Salesforce, Google Workspace, Stripe, and more.
-  Access is scoped to connections you explicitly authorize via OAuth - the API key alone does not grant access to any third-party service.
-  Requires network access and valid Maton API key.
+  Integrate with third-party APIs (Google Workspace, Outlook, GitHub, Stripe, HubSpot, and more) with just a few clicks via OAuth.
+  Use this skill when users want to interact with external services.
+  Security: The MATON_API_KEY authenticates with Maton.ai but grants NO access to third-party services by itself. Each service requires explicit OAuth authorization by the user through Maton's connect flow. Access is strictly scoped to connections the user has authorized.
+  Requires network access and valid Maton API key. Provided by Maton (https://maton.ai).
 metadata:
   author: maton
   version: "1.0"
