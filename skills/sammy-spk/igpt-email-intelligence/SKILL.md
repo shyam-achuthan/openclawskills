@@ -7,29 +7,8 @@ description: >
   not just keyword overlap. Use when the user needs to find specific emails, threads, or
   conversations by topic, participant, date range, or content. Retrieval only — for reasoning,
   summaries, or structured extraction, use the companion skill igpt-email-ask.
-metadata:
-  clawdbot:
-    config:
-      requiredEnv:
-        - IGPT_API_KEY
-      primaryCredential: IGPT_API_KEY
-      example: |
-        config = {
-          env = {
-            IGPT_API_KEY = "<your-api-key-from-igpt.ai/hub/apikeys>";
-          };
-        };
-  author: igptai
-  homepage: https://igpt.ai/hub/playground/
-  version: "1.0.0"
-  license: MIT
-  tags:
-    - email
-    - search
-    - retrieval
-    - semantic-search
-    - context
-    - productivity
+homepage: https://igpt.ai/hub/playground/
+metadata: {"clawdbot":{"emoji":"📧","requires":{"env":["IGPT_API_KEY"]},"primaryEnv":"IGPT_API_KEY"},"author":"igptai","version":"1.0.0","license":"MIT","tags":["email","search","retrieval","semantic-search","context","productivity"]}
 ---
 
 # iGPT Email Search
