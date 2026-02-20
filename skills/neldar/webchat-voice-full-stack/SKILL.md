@@ -1,6 +1,17 @@
 ---
 name: webchat-voice-full-stack
-description: One-step full-stack installer for OpenClaw WebChat voice input with local speech-to-text. Deploys faster-whisper STT backend plus HTTPS/WSS WebChat proxy with mic button in one command. Voice transcription, microphone input, speech recognition — no recurring API costs, runs locally after initial model download. Combines faster-whisper-local-service and webchat-voice-proxy. Keywords: voice input, microphone, WebChat, speech to text, STT, local transcription, whisper, full stack, one-click, voice button.
+description: >
+  One-step full-stack installer for OpenClaw WebChat voice input with local
+  speech-to-text. Deploys faster-whisper STT backend plus HTTPS/WSS WebChat
+  proxy with mic button in one command. Push-to-Talk (hold to speak) and Toggle
+  mode with keyboard shortcuts (Ctrl+Space PTT, Ctrl+Shift+M continuous recording).
+  Real-time VU meter, localized UI (English, German, Chinese), interactive
+  language selection during install. No recurring API costs, runs fully local
+  after initial model download (~1.5 GB). Combines faster-whisper-local-service
+  and webchat-voice-proxy.
+  Keywords: voice input, microphone, WebChat, speech to text, STT, local
+  transcription, whisper, full stack, one-click, voice button, push-to-talk,
+  PTT, keyboard shortcut, i18n.
 ---
 
 # WebChat Voice Full Stack
