@@ -52,7 +52,7 @@ def get_config(args) -> dict:
             or 300
         ),
         "resolution": args.resolution or os.environ.get("GEMINI_RESOLUTION", "1K"),
-        "output_dir": os.environ.get("GEMINI_OUTPUT_DIR", "images"),
+        "output_dir": args.output_dir or os.environ.get("GEMINI_OUTPUT_DIR", "images"),
     }
 
 
@@ -317,9 +317,10 @@ def main():
     parser.add_argument("--base-url", "-b", help="API 端点 URL")
     parser.add_argument("--model", "-m", help="模型名称")
     parser.add_argument(
-        "--api-format", choices=["openai", "google"], help="API 格式（默认 openai）",
+        "--api-format", "-F", choices=["openai", "google"], help="API 格式（默认 openai）",
     )
     parser.add_argument("--timeout", "-t", type=int, help="超时秒数")
+    parser.add_argument("--output-dir", "-o", help="输出目录（默认 images）")
     parser.add_argument(
         "--quality", choices=["standard", "hd"], default="standard", help="图片质量",
     )
