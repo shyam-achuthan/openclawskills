@@ -3,11 +3,16 @@
   "slug": "diet-tracker",
   "displayName": "Diet Tracker",
   "latest": {
-    "version": "1.1.1",
-    "publishedAt": 1771491968536,
-    "commit": "https://github.com/openclaw/skills/commit/2921cdf15f424efe4de4e7cf5388cd483cfd2c0b"
+    "version": "1.2.0",
+    "publishedAt": 1771592378894,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.1.1",
+      "publishedAt": 1771491968536,
+      "commit": "https://github.com/openclaw/skills/commit/2921cdf15f424efe4de4e7cf5388cd483cfd2c0b"
+    },
     {
       "version": "1.1.0",
       "publishedAt": 1771226387003,

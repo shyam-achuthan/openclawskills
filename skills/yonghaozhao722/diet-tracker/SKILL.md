@@ -47,17 +47,20 @@ The skill reads from `USER.md`:
 
 1. **Identify food items** from user's description
 2. **Fetch nutrition data** via `scripts/get_food_nutrition.py`
+   - **MUST GET**: calories(kcal), protein(g), carbs(g), fat(g)
    - Searches web for calorie/protein/carbs/fat info
    - Falls back to `references/food_database.json` if needed
+   - **If complete nutrition data cannot be found, MUST clearly inform user of estimated values**
 3. **Update daily log** via `scripts/update_memory.py`
    - Saves to `memory/YYYY-MM-DD.md`
+   - **RECORD FORMAT**: `Food Name - XX kcal (P: XXg, C: XXg, F: XXg)`
    - Calculates meal totals
    - Updates daily running totals
 4. **Report to user**:
-   - Meal nutrition breakdown
+   - **MUST REPORT**: calories + protein/carbs/fat grams
    - Today's consumed / remaining calories
+   - **MUST REPORT**: Remaining macronutrient budgets
    - Predicted weight change based on deficit/surplus
-   - Macronutrient progress (if targets set)
 
 ### When User Asks for Status:
 
@@ -94,6 +97,8 @@ The skill reads from `USER.md`:
 
 ### Daily Memory Entry (memory/YYYY-MM-DD.md)
 
+**REQUIRED FORMAT** — Must include calories + macronutrients:
+
 ```markdown
 ## Diet Log
 
@@ -102,9 +107,13 @@ The skill reads from `USER.md`:
 **Dinner**: [food] - [X] kcal (P: [X]g, C: [X]g, F: [X]g)
 
 **Daily Total**: [X] / [target] kcal
-**Remaining**: [X] kcal
+- Protein: [X] / [target]g (remaining: [X]g)
+- Carbs: [X] / [target]g (remaining: [X]g)
+- Fat: [X] / [target]g (remaining: [X]g)
 **Predicted weight change**: [-/+ X] kg
 ```
+
+**⚠️ Strictly prohibited to record only calories while omitting macronutrient grams!**
 
 ## Progressive Disclosure
 
