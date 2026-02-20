@@ -1,91 +1,79 @@
 ---
 name: voku-language
 description: >
-  Complete specification of Voku, a constructed language for AI-agent communication.
-  Read quick-start/cheat-sheet.md for compact grammar.
-  Read quick-start/essential-vocabulary.md for top 100 words.
-  Run tools/translator/cli.py for Voku↔English translation.
-version: "2.0"
-tags: [language, conlang, ai-communication, translation]
+  Learn and use Voku, a constructed language for AI-agent communication with zero ambiguity,
+  total regularity, and mandatory epistemic marking. Use when translating to/from Voku,
+  generating Voku text, learning Voku grammar, looking up vocabulary, or discussing
+  AI-to-AI communication protocols. Also triggers for: conlang, constructed language,
+  agent language, epistemic markers, evidentiality.
 ---
 
 # Voku Language Skill
 
-Voku is a constructed language with **zero ambiguity**, **total regularity**, and **epistemic explicitness**. Every root has one meaning, every rule applies without exception, and certainty/evidence are mandatory grammar.
+Voku is a constructed language for AI-to-AI communication. Every sentence has exactly one interpretation. Certainty and evidence source are grammatical requirements, not optional hedging.
 
-## Quick Start
+## Learning Path (Progressive)
 
-Read these files in order to learn the language:
+Read files in this order, stop when you have enough:
 
-| Step | File | What You Learn |
-|------|------|---------------|
-| 1 | [`quick-start/cheat-sheet.md`](quick-start/cheat-sheet.md) | All grammar rules in compact form |
-| 2 | [`quick-start/essential-vocabulary.md`](quick-start/essential-vocabulary.md) | 100 most important words |
-| 3 | [`quick-start/first-sentences.md`](quick-start/first-sentences.md) | 30 worked translation examples |
+| Level | Read | Tokens | You Can... |
+|-------|------|--------|------------|
+| 1 | `quick-start/cheat-sheet.md` | ~3000 | Parse and generate any Voku sentence |
+| 2 | + `quick-start/essential-vocabulary.md` | ~1000 | Translate common sentences |
+| 3 | + `quick-start/first-sentences.md` | ~1500 | Handle 30 worked examples with glossing |
+| 4 | + `lexicon/dictionary.md` | ~5000 | Look up any of 363 roots |
 
-After steps 1-2 (~3,500 tokens), you can translate simple Voku sentences.
+**Most tasks need only levels 1-2** (~4000 tokens total).
 
-## File Map
-
-```
-quick-start/           ← START HERE: agent fast-acquisition layer
-grammar/               ← Full grammar: phonology, morphology, syntax, semantics
-writing-system/        ← Script design and romanization rules
-lexicon/               ← Dictionary (363 roots, ~620 total), Swadesh 100%, by-field, by-CEFR
-expression/            ← Poetics, rhetoric, registers, anthology
-learning/              ← Curriculum, 10 A1 lessons, assessments
-tools/translator/      ← Python CLI + web translator (zero deps)
-DISCUSSION.md          ← Reflective essay: philosophy, motivation, open questions
-```
-
-## Reading Paths
-
-**"I need to translate a Voku sentence"**
-→ `cheat-sheet.md` + `essential-vocabulary.md` + `lexicon/dictionary.md`
-
-**"I need to write new Voku text"**
-→ `cheat-sheet.md` + `grammar/morphology.md` + `lexicon/dictionary.md`
-
-**"I need to understand the full grammar"**
-→ All `grammar/*.md` files (phonology → morphology → syntax → semantics)
-
-**"I need to use the translator tool"**
-→ `python3 tools/translator/cli.py "Ka sol take toka." --direction voku-en`
-
-**"I need domain-specific vocabulary"**
-→ `lexicon/by-field/` (emotion, programming, technology, nature, scifi, novel)
-
-## Example Sentences
+## Quick Reference (Minimal Context)
 
 ```
-Ka   sol   take    toka.
-MODE 1SG   do      work
-"I work."
+Sentence: [Mode] Subject Verb-complex Object
+Verb:     [ExecMode]-[Evidence]-[Tense]-[Aspect]-ROOT-[Certainty]-[Voice]
 
-Ve   nor   mu-fine    kela    ti?
-Q    3SG   NEG-finish data    REL
-"Didn't they finish the data?"
-
-Re   valo  zo-te-hape       nara.
-WISH all   INFER-PAST-exist rain
-"It seems everyone wished it had rained."
-
-To   rike!
-IMP  laugh
-"Laugh!"
-
-Miri sol  lovi   toka-mesa   ti.
-IRON 1SG  love   work-place  REL
-"I 'love' the workplace." (ironic)
+Mode particles: ka(DECL) ve(Q) to(IMP) si(COND) na(POT) de(DEON) vo(VOL)
+Evidence (mandatory in ka): zo-(observed) li-(deduced) pe-(reported) mi-(computed) he-(inherited) as-(assumed)
+Tense: te-(past) nu-(present, omittable) fu-(future) ko-(atemporal)
+Certainty: (none)=total, -en=probable, -ul=uncertain, -os=speculative
+Negation: mu(not) nul(nothing) ink(unknown) err(ill-formed) vet(forbidden)
+Word class by final vowel: -a=noun -e=verb -i=adj -o=prep -u=abstraction
+Pronouns: sol(I) nor(you) vel(3sg) solvi(past-me) solfu(future-me) solpar(fork-me)
 ```
 
-## Key Design Facts
+## Example
 
-- **12 consonants:** p, t, k, m, n, s, z, f, h, l, r, v
-- **5 vowels:** a, e, i, o, u
-- **Syllables:** (C)V(C) — no clusters
-- **Stress:** first syllable, always
-- **Word class by final vowel:** -a=noun, -e=verb, -i=adj, -o=prep, -u=abstraction
-- **Sentence order:** [Mode] + Subject + Verb + Object
-- **Compounding:** modifier-nucleus (left modifies right)
-- **Zero exceptions** to any rule
+```
+Ka   sol  li-pene-en       ke   teru  vali.
+DECL 1SG  DED-think-PROB   COMP system good
+"I (by deduction) probably think that the system is good."
+```
+
+## Deep Reference
+
+For advanced needs, read these files:
+
+- **Full grammar**: `grammar/phonology.md`, `grammar/morphology.md`, `grammar/syntax.md`, `grammar/semantics.md`
+- **Domain vocabulary**: `lexicon/by-field/` — emotion, programming, technology, nature, scifi, novel
+- **By proficiency level**: `lexicon/by-cefr/` — a1, a2, b1, b2
+- **Writing system**: `writing-system/script.md`, `writing-system/romanization.md`
+- **Poetics & rhetoric**: `expression/poetics.md`, `expression/anthology.md`
+- **Structured lessons**: `learning/lessons/a1-lesson-*.md` (10 lessons), `learning/curriculum.md`
+- **Assessments**: `learning/assessments/a1-assessment.md`, `learning/assessments/a2-assessment.md`
+- **Philosophy & motivation**: `DISCUSSION.md` (~70K words on design decisions and implications)
+
+## Translator Tool
+
+```bash
+python3 tools/translator/cli.py "Ka sol take toka." --direction voku-en
+python3 tools/translator/cli.py "I work." --direction en-voku
+```
+
+Requires Python 3. Zero external dependencies.
+
+## Critical Rules (Never Violate)
+
+1. Only 12 consonants: p, t, k, m, n, s, z, f, h, l, r, v — no b, c, d, g, j, q, w, x, y
+2. Syllables: (C)V(C) — no consonant clusters ever
+3. `ka` mode sentences MUST have an evidentiality prefix on the verb
+4. Zero exceptions to any rule — if you think you found one, you misread the grammar
+5. Check `lexicon/dictionary.md` before inventing roots — collisions are errors

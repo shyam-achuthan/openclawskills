@@ -3,9 +3,15 @@
   "slug": "voku-spec",
   "displayName": "Voku Language",
   "latest": {
-    "version": "0.1.0",
-    "publishedAt": 1771203554061,
-    "commit": "https://github.com/openclaw/skills/commit/1335c03ab0ae63cbd11c70bf0f9d252d2867528b"
+    "version": "0.1.1",
+    "publishedAt": 1771524051980,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.1.0",
+      "publishedAt": 1771203554061,
+      "commit": "https://github.com/openclaw/skills/commit/1335c03ab0ae63cbd11c70bf0f9d252d2867528b"
+    }
+  ]
 }
