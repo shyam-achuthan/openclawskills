@@ -17,7 +17,8 @@ This skill provides current weather and simple forecasts by querying the open‑
 
 ## 📌 Scope & Caveats
 * The skill **requires** `curl` **and** `jq`.
-* The user‑supplied location **must be URL‑encoded** (or use a helper that does it).  *E.g.*, “São Paulo” → `S%C3%A3o%20Paulo`.  Any unencoded value can break the request or lead to unexpected results.
+* Location parameters are encoded before being sent to the API.
+* Examples below demonstrate safe query construction using jq @uri.
 
 ## ✅ When to Use
 ✔ *The user asks* for weather, forecast, temperature, or rain probability for a location.
