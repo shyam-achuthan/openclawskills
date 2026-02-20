@@ -1,10 +1,25 @@
+---
+name: hsk-learning
+description: "HSK Chinese learning system with spaced repetition mastery tracking, vocabulary analysis, and adaptive quiz generation. Use when: (1) tracking HSK vocabulary progress, (2) generating adaptive quizzes, (3) analyzing Chinese language exposure in conversations, (4) managing spaced repetition reviews. NOT for: general language learning beyond HSK, pronunciation practice, or handwriting practice."
+metadata:
+  openclaw:
+    emoji: "📚"
+    requires:
+      node: true
+    install:
+      - id: "init"
+        kind: "node"
+        script: "scripts/init-mastery-db.js"
+        label: "Initialize mastery database (first-time setup)"
+---
+
 # HSK Learning Skill for OpenClaw
 
 **Purpose**: Provide a comprehensive HSK Chinese learning system with spaced repetition mastery tracking, vocabulary analysis, and adaptive quiz generation.
 
-**Version**: 1.0.0  
+**Version**: 1.2.0  
 **Author**: Claw  
-**Date**: 2026-02-09
+**Date**: 2026-02-18
 
 ## Features
 
@@ -42,11 +57,17 @@ Lists words due for review based on spaced repetition schedule.
 - `level` (number): Filter by HSK level (1‑6), 0 for all (default: 0)
 
 ### 5. `hsk_generate_quiz`
-Generates adaptive quiz based on mastery state.
+Generates adaptive HSK quiz with actual questions (multiple choice, fill-in-blank, listening, reading, writing).
 
 **Parameters**:
 - `difficulty` (string): "review", "learning", "new", or "mixed" (default: "mixed")
 - `format` (string): "simple", "listening", "reading", "writing", or "full" (default: "simple")
+
+**Quiz Types**:
+- **simple/full**: Multiple choice, fill-in-blank, true/false, translation
+- **listening**: Picture matching with audio sentences (use TTS for actual audio)
+- **reading**: Passage comprehension with questions
+- **writing**: Sentence and paragraph writing practice
 
 ### 6. `hsk_parse_quiz_log`
 Parses a quiz‑performance log file and extracts vocabulary.
@@ -62,23 +83,7 @@ The skill maintains these data files in its `data/` directory:
 |------|---------|
 | `hsk‑word‑to‑level.json` | HSK 3.0 word‑to‑level mapping (2,211 words) |
 | `hsk‑database.json` | Full HSK database with metadata |
-| `hsk‑mastery‑db.json` | Mastery state for all HSK words |
-
-## Integration with Existing System
-
-This skill replaces the previous scattered HSK scripts (`scripts/*.js`) with a unified, maintainable package. The existing cron jobs should be updated to use skill tools instead of direct script execution.
-
-### Example: Updating a Cron Job
-
-**Before** (in cron job payload):
-```json
-"message": "Run the HSK word‑based vocab tracker script: `exec scripts/update-hsk-tracker-word-based.js`..."
-```
-
-**After** (using skill tool):
-```json
-"message": "Use the hsk_update_vocab_tracker tool with force=false."
-```
+| `hsk‑mastery‑db.json` | Mastery state for all HSK words (user-specific) |
 
 ## Setup & Installation
 

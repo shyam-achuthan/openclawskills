@@ -1,6 +1,6 @@
 {
   "name": "hsk-learning",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "HSK Chinese learning system with spaced repetition mastery tracking - User-agnostic edition",
   "author": "Claw",
   "license": "MIT",
@@ -66,7 +66,7 @@
       },
       {
         "name": "hsk_generate_quiz",
-        "description": "Generate adaptive HSK quiz based on mastery level",
+        "description": "Generate adaptive HSK quiz with actual questions (multiple choice, fill-in-blank, listening, reading, writing)",
         "parameters": {
           "type": "object",
           "properties": {
