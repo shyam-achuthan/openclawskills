@@ -13,15 +13,17 @@ Consulta promociones de viajes (vuelos, hoteles y paquetes) y permite filtrarlas
 
 ## API Overview
 
-- **Base URL**: `https://anduin.ferminrp.workers.dev`
+- **Base URL**: `https://anduin.ferminrp.com`
 - **Auth**: None required
 - **Response format**: JSON
 - **Endpoint principal**: `/api/v1/promos`
+- **OpenAPI**: `https://anduin.ferminrp.com/docs/openapi.json`
 - **Fuente upstream**: `data.source`
 - **Timestamps relevantes**:
   - `data.lastUpdated` (actualizacion de promos)
   - `timestamp` (respuesta del servicio)
-- **Nota**: los query params probados (`category`, `destinationCountry`, `limit`, `q`) no filtran en origen; filtrar localmente con `jq`.
+- **Query params documentados para `/api/v1/promos`**: ninguno
+- **Nota**: los query params probados (`category`, `destinationCountry`, `limit`, `q`) no filtran en origen; filtrar localmente con `jq` (verificado sobre la respuesta actual del endpoint).
 
 ## Endpoint
 
@@ -30,11 +32,13 @@ Consulta promociones de viajes (vuelos, hoteles y paquetes) y permite filtrarlas
 Ejemplos de uso:
 
 ```bash
-curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.'
-curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.data.promos[0:5]'
-curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.data.promos | map(select(.category == "vuelos"))'
-curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.data.promos | map(select(.destinationCountry == "brazil"))'
-curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.data.promos | sort_by(-.score) | .[0:10]'
+curl -s "https://anduin.ferminrp.com/api/v1/promos" | jq '.'
+curl -s "https://anduin.ferminrp.com/api/v1/promos" | jq '.data.promos[0:5]'
+curl -s "https://anduin.ferminrp.com/api/v1/promos" | jq '.data.promos | map(select(.category == "vuelos"))'
+curl -s "https://anduin.ferminrp.com/api/v1/promos" | jq '.data.promos | map(select(.category == "autos"))'
+curl -s "https://anduin.ferminrp.com/api/v1/promos" | jq '.data.promos | map(select(.destinationCountry == "brazil"))'
+curl -s "https://anduin.ferminrp.com/api/v1/promos" | jq '.data.promos | sort_by(.date) | reverse | .[0:10]'
+curl -s "https://anduin.ferminrp.com/api/v1/promos" | jq '.data.promos | sort_by(-.score) | .[0:10]'
 ```
 
 ## Campos clave
@@ -48,13 +52,15 @@ curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.data.promos |
   - `totalPromos` (int)
   - `promos` (array)
 - `promos[]`:
-  - `id`, `date`, `title`, `link`, `permalink`, `thumbnailUrl`
+  - `id`, `date`, `title`, `permalink`, `thumbnailUrl`
   - `destinationCountry` (puede ser `null`)
   - `category`
-  - `score` (numerico para ranking)
+  - `score` (numerico para ranking, puede no venir si falla clasificacion AI)
 - Valores dinamicos observados hoy (ejemplos, no lista cerrada):
-  - `category`: `vuelos`, `hoteles`, `paquetes`, `otros`
-  - `destinationCountry`: `brazil`, `united_states`, `spain`, `dominican_republic`, `aruba`, `south_africa`, `null`
+  - `category`: `vuelos`, `hoteles`, `autos`, `paquetes`, `asistencia`, `otros`
+  - `destinationCountry`: `brazil`, `united_states`, `spain`, `dominican_republic`, `aruba`, `mexico`, `japan`, `portugal`, `europe`, `null`
+- Semantica adicional:
+  - `permalink` se construye dinamicamente como `/links/viajes/:id` sobre el host de la request
 
 ## Workflow
 
@@ -68,6 +74,7 @@ curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.data.promos |
 4. Aplicar filtros y orden localmente con `jq`:
    - Por `category`
    - Por `destinationCountry`
+   - Por texto en `title` o `id` cuando aplique
    - Por `date` o `score`
 5. Responder primero con snapshot:
    - Cantidad total (`totalPromos`)
@@ -75,13 +82,15 @@ curl -s "https://anduin.ferminrp.workers.dev/api/v1/promos" | jq '.data.promos |
    - Top 3 promos por score o relevancia
 6. Luego mostrar tabla corta (top 5/10):
    - `date | category | destinationCountry | score | title`
-7. Incluir links (`link` o `permalink`) solo para promos mostradas.
+7. Incluir solo `permalink` para promos mostradas.
 8. Mantener respuesta informativa, sin consejos financieros ni garantias de disponibilidad.
 
 ## Error Handling
 
 - **HTTP no exitoso**:
   - Informar codigo HTTP y endpoint consultado.
+- **404 (`No promos data available`)**:
+  - Informar que no hay datos cacheados de promos en este momento.
 - **`success: false`**:
   - Mostrar payload de error si existe.
 - **JSON inesperado**:
